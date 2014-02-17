@@ -1,0 +1,169 @@
+---
+title: Añadiendo usuarios
+slug: adding-users
+date: 0006/01/01
+number: 6
+points: 10
+photoUrl: http://www.flickr.com/photos/kroqert/9687074783/
+photoAuthor: Bård Harald Krogen
+contents: Conoceremos las cuentas de usuario en Meteor.|Añadiremos toda la autenticación necesaria para Microscope.|Usaremos el paquete accounts-ui para obtener una interfaz de usuario de forma instantánea.
+---
+
+Hasta el momento, hemos logrado crear y mostrar algunos datos estáticos y conectarlo todo en un prototipo simple.
+
+Incluso hemos visto cómo nuestra interfaz de usuario es sensible a los cambios en los datos, y que los cambios aparecen inmediatamente cuando se insertan o cambian los datos. Aún así, nuestro sitio está limitado por el hecho de que no podemos introducir datos. De hecho, ni siquiera tenemos usuarios todavía!
+
+Veamos cómo arreglamos esto.
+
+### Cuentas de usuario de forma sencilla
+
+En la mayoría de los frameworks web, agregar cuentas de usuario es un problema familiar. Hay que hacerlo en casi todos los proyectos, pero nunca es tan fácil como debería. Y si además hay que tratar con OAuth u otros esquemas de autenticación de terceros, las cosas tienden a ponerse feas rápidamente.
+
+Por suerte, Meteor nos ampara. Gracias a la forma en la que los paquetes Meteor pueden contribuir al código del servidor (JavaScript) y al del cliente (JavaScript, HTML y CSS), podemos obtener un sistema de cuentas casi sin esfuerzo.
+
+Podríamos usar el paquete para cuentas de usuario (`mrt add accounts-ui`), pero como hemos  construido toda nuestra aplicación con Bootstrap, vamos a utilizar `accounts-ui-bootstrap-dropdown` (la única diferencia es el estilo). En la línea de comandos, tecleamos:
+
+~~~bash
+$ mrt add accounts-ui-bootstrap-dropdown
+$ mrt add accounts-password
+~~~
+<%= caption "Terminal" %>
+
+Estos dos comandos hacen accesibles las plantillas para cuentas de forma que podemos incluirlas en nuestro sitio usando el ayudante `{{loginButtons}}`. Un consejo muy útil: se puede controlar en qué lado aparece el desplegable de inicio de sesión con el atributo `align` (por ejemplo: `{{loginButtons align="right"}})`.
+
+Vamos a añadir los botones a nuestra cabecera. Y puesto que la cabecera está empezando a crecer, vamos a darle más espacio en su propia plantilla (la pondremos en el `client/views/includes/`). Estamos utilizando algunas clases de Bootstrap para que todo se vea mejor:
+
+~~~html
+<template name="layout">
+  <div class="container">
+    {{>header}}
+    <div id="main" class="row-fluid">
+      {{yield}}
+    </div>
+  </div>
+</template>
+~~~
+<%= caption "client/views/application/layout.html" %>
+<%= highlight "6" %>
+
+~~~html
+<template name="header">
+  <header class="navbar">
+    <div class="navbar-inner">
+      <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </a>
+      <a class="brand" href="{{pathFor 'postsList'}}">Microscope</a>
+      <div class="nav-collapse collapse">
+        <ul class="nav pull-right">
+          <li>{{loginButtons}}</li>
+        </ul>
+      </div>
+    </div>
+  </header>
+</template>
+~~~
+<%= caption "client/views/includes/header.html" %>
+
+Ahora ya podemos ver los botones de acceso en la esquina superior derecha.
+
+<%= screenshot "6-1", "Interfaz de usuario de inicio de sesión en Meteor" %>
+
+Podemos usarlos para iniciar sesión, solicitar un cambio de contraseña, y todo lo que se necesita para gestionar cuentas basadas ​​en contraseñas.
+
+Para decirle a nuestro sistema de cuentas que queremos que los usuarios accedan al sistema a través de sólo un nombre de usuario, simplemente añadimos un bloque de configuración en un nuevo archivo `config.js` dentro de `client/helpers/`
+
+~~~js
+Accounts.ui.config({
+  passwordSignupFields: 'USERNAME_ONLY'
+});
+~~~
+<%= caption "client/helpers/config.js" %>
+
+<%= commit "6-1", "Añadidas cuentas de usuario y una plantilla en la cabecera" %>
+
+### Creando nuestro primer usuario
+
+Adelante, regístrate para obtener una cuenta: el botón "Sign In"  cambiará para mostrar el nombre de usuario. Esto confirma has creado una cuenta. Pero, ¿de dónde vienen los datos de la cuenta?
+
+Cuando añadimos el paquete `accounts`, Meteor crea una nueva colección, que se puede acceder desde `Meteor.users`. Para verlo, abre la consola del navegador y escribe:
+
+~~~js
+❯ Meteor.users.findOne();
+~~~
+<%= caption "Consola del navegador" %>
+
+La consola devuelve un objeto que representa el usuario. Si lo inspeccionamos un poco, veremos que contiene nuestro nombre de usuario, así como un identificador único `_id`. También se puede obtener el usuario que ha iniciado sesión con `Meteor.user()`.
+
+Ahora, nos registramos con otro usuario y ejecutamos lo siguiente en la consola del navegador:
+
+~~~js
+❯ Meteor.users.find().count();
+1
+~~~
+<%= caption "Consola del navegador" %>
+
+La consola devuelve 1. ¿No debería haber 2?. ¿Se ha borrado el primero?. Si intentas acceder con ese usuario, verás que no es así.
+
+Vamos a mirar en la base de datos del servidor (`meteor mongo` en la terminal):
+
+~~~bash
+> db.users.count()
+2
+~~~
+<%= caption "Consola de Mongo" %>
+
+Definitivamente hay 2 pero, ¿porqué sólo se ve uno en el navegador?
+
+### ¡Una publicación misteriosa!
+
+Si recuerdas, en el capítulo 4 deshabilitamos la auto-publicación `autopublish` y creamos un canal de publicación/subscripción para intercambiar datos.
+
+Sin embargo, no hemos creado ninguna publicación para usuarios. Así que ¿cómo es que podemos ver esos datos?
+
+La respuesta es que el paquete accounts, autopublica los datos básicos de la cuenta de usuario y sólo para el usuario actual, de forma que un usuario no puede ver la cuenta de otro.
+
+Así que sólo se publica un objeto de usuario por usuario conectado (y ninguno cuando no lo está).
+
+Es más, los documentos en el navegador no parecen contener los mismos campos que en el servidor. En Mongo, un usuario tiene un montón de datos. Para verlo, vuelve a la terminal de Mongo y escribe:
+
+~~~bash
+> db.users.findOne()
+{
+	"createdAt" : 1365649830922,
+	"_id" : "kYdBd9hr3fWPGPcii",
+	"services" : {
+		"password" : {
+			"srp" : {
+				"identity" : "qyFCnw4MmRbmGyBdN",
+				"salt" : "YcBjRa7ArXn5tdCdE",
+				"verifier" : "df2c001edadf4e475e703fa8cd093abd4b63afccbca48fad1d2a0986ff2bcfba920d3f122d358c4af0c287f8eaf9690a2c7e376d701ab2fe1acd53a5bc3e843905d5dcaf2f1c47c25bf5dd87764d1f58c8c01e4539872a9765d2b27c700dcdedadf5ac82521467356d3f91dbeaf9848158987c6d359c5423e6b9cabf34fa0b45"
+			}
+		},
+		"resume" : {
+			"loginTokens" : [
+				{
+					"token" : "BMHipQqjfLoPz7gru",
+					"when" : 1365649830922
+				}
+			]
+		}
+	},
+	"username" : "tmeasday"
+}
+~~~
+<%= caption "Consola de Mongo" %>
+
+Por otro lado, en el navegador el objeto de usuario tiene muchos menos campos, como se puede ver escribiendo el comando equivalente:
+
+~~~js
+❯ Meteor.users.findOne();
+Object {_id: "kYdBd9hr3fWPGPcii", username: "tmeasday"}
+~~~
+<%= caption "Consola del navegador" %>
+
+Este ejemplo nos muestra como una colección local puede ser un subconjunto seguro de la base de datos real. El usuario conectado sólo ve los necesario para poder hacer el trabajo (en este caso, el loggin). Este es un patrón que debemos aprender porque nos será muy útil más adelante.
+
+Eso no significa que no podamos hacer públicos más datos de usuario. Si lo necesitamos, podemos consultar la [documentación de Meteor](http://docs.meteor.com/#meteor_users) para ver cómo se hace.

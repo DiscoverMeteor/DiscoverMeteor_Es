@@ -1,0 +1,577 @@
+---
+title: Votos
+slug: voting
+date: 0013/01/01
+number: 13
+points: 10
+photoUrl: http://www.flickr.com/photos/ikewinski/8561920811/
+photoAuthor: Mike Lewinski
+contents: Construiremos un sistema que permita a los usuarios votar los posts.|Crearemos una nueva página con los más votados.|Aprenderemos cómo escribir un ayudante tipo handlebars más general.|Aprenderemos un poco más sobre la seguridad de los datos en Meteor.|Cubriremos algunas consideraciones importantes acerca del rendimiento de MongoDB.
+---
+
+Ahora que nuestro sitio es cada vez más popular, empieza a ser complicado buscar los mejores posts. Lo que necesitamos es algún tipo de sistema de clasificación para ordenarlos.
+
+Podríamos construir un sistema de clasificación complejo con karma, basado en tiempo, y muchas otras cosas (la mayoría de las cuales se implementan en [Telescope](http://telesc.pe/), el hermano mayor de Microscope). Nosotros vamos a mantener las cosas sencillas y ordenaremos los posts por el número de votos que reciban.
+
+Vamos a empezar proporcionado a los usuarios una manera de votar los posts.
+
+### El modelo de datos
+
+Vamos a guardar una lista de upvoters en cada post para que sepamos dónde mostrar el botón upvote a los usuarios, así como para evitar que la gente vote varias veces el mismo post.
+
+<% note do %>
+
+### Privacidad de datos y publicaciones
+
+Vamos a publicar las listas de upvoters a todos los usuarios, por lo que automáticamente tendrán a su disposición los datos a través de la consola de navegador.
+
+Este es el tipo de problema de privacidad que puede surgir por la forma en la que trabajan las colecciones. Por ejemplo, ¿queremos que la gente pueda averiguar quién ha votado sus posts? En nuestro caso, no tendría ninguna consecuencia, pero es importante por lo menos reconocer el problema.
+
+Además ten en cuenta que si queremos restringir parte de esta información, tenemos que asegurarnos de que el cliente no puede alterar el campo opciones de nuestra publicación, ya sea eliminando la propiedad en el lado del servidor, o no restringiendo el paso del objeto de opciones completo desde el cliente al servidor.
+
+<% end %>
+
+También vamos a denormalizar el número total de upvoters de un post para que sea más fácil recuperar esa cifra. Así que vamos a añadir dos atributos a nuestros posts, `upvoters` y `votes`. Vamos a empezar añadiéndolos a nuestros datos de prueba:
+
+~~~js
+// Fixture data 
+if (Posts.find().count() === 0) {
+  var now = new Date().getTime();
+  
+  // create two users
+  var tomId = Meteor.users.insert({
+    profile: { name: 'Tom Coleman' }
+  });
+  var tom = Meteor.users.findOne(tomId);
+  var sachaId = Meteor.users.insert({
+    profile: { name: 'Sacha Greif' }
+  });
+  var sacha = Meteor.users.findOne(sachaId);
+  
+  var telescopeId = Posts.insert({
+    title: 'Introducing Telescope',
+    userId: sacha._id,
+    author: sacha.profile.name,
+    url: 'http://sachagreif.com/introducing-telescope/',
+    submitted: now - 7 * 3600 * 1000,
+    commentsCount: 2,
+    upvoters: [], votes: 0
+  });
+  
+  Comments.insert({
+    postId: telescopeId,
+    userId: tom._id,
+    author: tom.profile.name,
+    submitted: now - 5 * 3600 * 1000,
+    body: 'Interesting project Sacha, can I get involved?'
+  });
+  
+  Comments.insert({
+    postId: telescopeId,
+    userId: sacha._id,
+    author: sacha.profile.name,
+    submitted: now - 3 * 3600 * 1000,
+    body: 'You sure can Tom!'
+  });
+  
+  Posts.insert({
+    title: 'Meteor',
+    userId: tom._id,
+    author: tom.profile.name,
+    url: 'http://meteor.com',
+    submitted: now - 10 * 3600 * 1000,
+    commentsCount: 0,
+    upvoters: [], votes: 0
+  });
+  
+  Posts.insert({
+    title: 'The Meteor Book',
+    userId: tom._id,
+    author: tom.profile.name,
+    url: 'http://themeteorbook.com',
+    submitted: now - 12 * 3600 * 1000,
+    commentsCount: 0,
+    upvoters: [], votes: 0
+  });
+  
+  for (var i = 0; i < 10; i++) {
+    Posts.insert({
+      title: 'Test post #' + i,
+      author: sacha.profile.name,
+      userId: sacha._id,
+      url: 'http://google.com/?q=test-' + i,
+      submitted: now - i * 3600 * 1000,
+      commentsCount: 0,
+      upvoters: [], votes: 0
+    });
+  }
+}
+~~~
+<%= caption "server/fixtures.js" %>
+<%= highlight "22, 48, 58, 69" %>
+
+Como de costumbre, ejecutamos `meteor reset` y creamos una nueva cuenta de usuario. Ahora nos aseguraremos de que inicializamos las dos nuevas propiedades cuando se crean los posts:
+
+~~~js
+//...
+
+// check that there are no previous posts with the same link
+if (postAttributes.url && postWithSameLink) {
+  throw new Meteor.Error(302, 
+    'This link has already been posted', 
+    postWithSameLink._id);
+}
+
+// pick out the whitelisted keys
+var post = _.extend(_.pick(postAttributes, 'url', 'title', 'message'), {
+  userId: user._id, 
+  author: user.username, 
+  submitted: new Date().getTime(),
+  commentsCount: 0,
+  upvoters: [], 
+  votes: 0
+});
+
+var postId = Posts.insert(post);
+
+return postId;
+
+//...
+~~~
+<%= caption "collections/posts.js" %>
+<%= highlight "16~17" %>
+
+### Construyendo las plantillas de voto
+
+Lo primero es añadir un botón upvote a nuestros posts:
+
+~~~html
+<template name="postItem">
+  <div class="post">
+    <a href="#" class="upvote btn">⬆</a>
+    <div class="post-content">
+      <h3><a href="{{url}}">{{title}}</a><span>{{domain}}</span></h3>
+      <p>
+        {{votes}} Votes,
+        submitted by {{author}},
+        <a href="{{pathFor 'postPage'}}">{{commentsCount}} comments</a>
+        {{#if ownPost}}<a href="{{pathFor 'postEdit'}}">Edit</a>{{/if}}
+      </p>
+    </div>
+    <a href="{{pathFor 'postPage'}}" class="discuss btn">Discuss</a>
+  </div>
+</template>
+~~~
+<%= caption "client/views/posts/post_item.html" %>
+<%= highlight "3,7" %>
+
+<%= screenshot "13-1", "El botón upvote" %>
+
+Después, llamaremos a un método en el servidor cuando el usuario haga click en el botón:
+
+~~~js
+//...
+
+Template.postItem.events({
+  'click .upvote': function(e) {
+    e.preventDefault();
+    Meteor.call('upvote', this._id);
+  }
+});
+~~~
+<%= caption "client/views/posts/post_item.js" %>
+<%= highlight "3~8" %>
+
+Finalmente, volvemos a `collections/posts.js` para añadir el método de servidor que actualizará los votos:
+
+~~~js
+Meteor.methods({
+  post: function(postAttributes) {
+    //...
+  },
+  
+  upvote: function(postId) {
+    var user = Meteor.user();
+    // ensure the user is logged in
+    if (!user)
+      throw new Meteor.Error(401, "You need to login to upvote");
+    
+    var post = Posts.findOne(postId);
+    if (!post)
+      throw new Meteor.Error(422, 'Post not found');
+    
+    if (_.include(post.upvoters, user._id))
+      throw new Meteor.Error(422, 'Already upvoted this post');
+    
+    Posts.update(post._id, {
+      $addToSet: {upvoters: user._id},
+      $inc: {votes: 1}
+    });
+  }
+});
+~~~
+<%= caption "collections/posts.js" %>
+<%= highlight "6~23" %>
+
+<%= commit "13-1", "Algoritmo básico de voto." %>
+
+El método es bastante sencillo. Hacemos algunas comprobaciones para garantizar que el usuario ha iniciado sesión y que el post realmente existe. Después de corroborar que el usuario no ha votado ya este post, incrementaos el total de votos y añadimos al usuario a la lista de upvoters.
+
+Este último paso es muy interesante. Hemos utilizado un par de operadores de Mongo que son muy útiles: `$addToSet` agrega un elemento a una lista siempre y cuando éste no exista ya en ella, y `$inc` simplemente incrementa un entero.
+
+### Mejoras en la interfaz de usuario
+
+Si el usuario no está conectado, o ya ha votado uno de los posts, no podrá votar el post. Para reflejar esto en nuestra interfaz de usuario, usaremos un ayudante para añadir condicionalmente una clase CSS para que deshabilite el botón upvote.
+
+~~~html
+<template name="postItem">
+  <div class="post">
+    <a href="#" class="upvote btn {{upvotedClass}}">⬆</a>
+    <div class="post-content">
+      //...
+  </div>
+</template>
+~~~
+<%= caption "client/views/posts/post_item.html" %>
+<%= highlight "3" %>
+
+~~~js
+Template.postItem.helpers({
+  ownPost: function() {
+    //...
+  },
+  domain: function() {
+    //...
+  },
+  upvotedClass: function() {
+    var userId = Meteor.userId();
+    if (userId && !_.include(this.upvoters, userId)) {
+      return 'btn-primary upvotable';
+    } else {
+      return 'disabled';
+    }
+  }
+});
+
+Template.postItem.events({
+  'click .upvotable': function(e) {
+    e.preventDefault();
+    Meteor.call('upvote', this._id);
+  }
+});
+~~~
+<%= caption "client/views/posts/post_item.js" %>
+<%= highlight "8~15, 19" %>
+
+Creamos el ayudante `upvotedClass` para cambiar la clase `.upvote` por `.upvotable`, así que no podemos olvidar hacerlo también en el controlador de eventos. `client/views/posts/post_item.js`:
+
+<%= screenshot "13-2", "Deshabilitando el botón upvote." %>
+
+<%= commit "13-2", "Deshabilitado el botón upvote si el usuario no ha accedido o ya ha votado el post." %>
+
+Ahora nos damos cuenta de que los posts con un solo voto están etiquetados como "1 vote**s**", por lo que vamos a pararnos a pluralizar las etiquetas correctamente. La pluralización puede ser un proceso complicado, pero por ahora vamos a hacerlo de una manera bastante simple. Crearemos un nuevo ayudante Handlebars en `client/helpers/handlebars.js`, que podemos utilizar desde cualquier lugar:
+
+~~~js
+Handlebars.registerHelper('pluralize', function(n, thing) {
+  // fairly stupid pluralizer
+  if (n === 1) {
+    return '1 ' + thing;
+  } else {
+    return n + ' ' + thing + 's';
+  }
+});
+~~~
+<%= caption "client/helpers/handlebars.js" %>
+
+Los ayudantes que hemos creado con anterioridad siempre han estado relacionados con la plantilla a la que se aplican. Pero usando `Handlebars.registerHelper`, hemos creado un ayudante global que se puede utilizar dentro de cualquier plantilla:
+
+~~~html
+<template name="postItem">
+//...
+<p>
+  {{pluralize votes "Vote"}},
+  submitted by {{author}},
+  <a href="{{pathFor 'postPage'}}">{{pluralize commentsCount "comment"}}</a>
+  {{#if ownPost}}<a href="{{pathFor 'postEdit'}}">Edit</a>{{/if}}
+</p>
+//...
+</template>
+~~~
+<%= caption "client/views/posts/post_item.html" %>
+<%= highlight "4, 6" %>
+
+<%= screenshot "13-3", "Pluralizando" %>
+
+<%= commit "13-3", "Añadida una función para pluralizar textos." %>
+
+Ahora ya deberíamos ver "1 Vote".
+
+### Un algoritmo de voto más inteligente
+
+Nuestro código para el método `upvote` en `collections/posts.js` parece bueno, pero todavía podemos hacerlo mejor. En él, hacemos dos llamadas a Mongo: una para obtener el post y otra para actualizarlo.
+
+Veamos como con esta aproximación, tenemos dos problemas. En primer lugar, es  ineficaz consultar la base de datos dos veces. Pero lo más importante es que se introduce una condición de carrera. Estamos siguiendo el siguiente algoritmo:
+
+1. Coger el post desde la base de datos.
+2. Comprobar si el usuario lo ha votado.
+3. Si no, añadir un voto.
+
+¿Qué pasa si el mismo usuario vota el mismo post entre los pasos 1 y 3?. Nuestro código abre la puerta a al usuario a votar dos veces el mismo post. Afortunadamente, Mongo nos permite ser más inteligentes y combinar las consultas 1 y 3 en una sola:
+
+~~~js
+Meteor.methods({
+  post: function(postAttributes) {
+    //...
+  },
+  
+  upvote: function(postId) {
+    var user = Meteor.user();
+    // ensure the user is logged in
+    if (!user)
+      throw new Meteor.Error(401, "You need to login to upvote");
+    
+    Posts.update({
+      _id: postId, 
+      upvoters: {$ne: user._id}
+    }, {
+      $addToSet: {upvoters: user._id},
+      $inc: {votes: 1}
+    });
+  }
+});
+~~~
+<%= caption "collections/posts.js" %>
+<%= highlight "12~15" %>
+
+<%= commit "13-4", "Mejorado el algoritmo de voto." %>
+
+Lo que estamos diciendo es "encuentra todos los posts con este `id` que todavía no hayan sido votados por este usuario, y actualízalos". Si el usuario aún no ha votado el post con esta `id`, lo encontrará, pero si ya lo ha hecho, la consulta no coincidirá con ningún documento, y por lo tanto no ocurrirá nada.
+
+El único inconveniente es que ahora no podemos decirle al usuario que ya ha votado este post, aunque, ya lo debería de saber porque el botón "upvote" está deshabilitado en la interfaz de usuario.
+
+<% note do %>
+
+### Compensación de la latencia
+
+Digamos que tratas de engañarnos y pones uno de tus posts el primero de la lista ajustando su número de votos desde la consola del navegador:
+
+~~~js
+> Posts.update(postId, {$set: {votes: 10000}});
+~~~
+<%= caption "Consola del navegador" %>
+
+(Donde `postId` es el id de uno de tus posts))
+
+Este descarado intento de jugar con el sistema sería capturado por nuestro callback `deny()` (en `collections/posts.js`, ¿recuerdas?) E inmediatamente denegada
+
+Pero si miras detenidamente, podrás ver la compensación de latencia en  acción. Puede ser rápido, pero el post saltará brevemente al principio de la lista antes de volver de nuevo a su posición.
+
+¿Qué está pasando? En su colección de `Posts` locales, la actualización se ha aplicado sin incidentes. Esto sucede al instante, por lo que el mensaje se va al principio de la lista. Mientras tanto, en el servidor, se deniega la actualización, de forma que un poco más tarde (milisegundos si estás ejecutando Meteor en tu propia máquina), el servidor devuelve un error, obligando a la colección local a revertirse.
+
+El resultado final: mientras esperamos a que el servidor responda, la interfaz de usuario no puede dejar de confiar en la colección local. Tan pronto como el servidor deniega la modificación, las interfaces de usuario se adapta para reflejarlo.
+
+<% end %>
+
+### Posicionando los posts en la página principal
+
+Ahora que disponemos de una puntuación para cada post en función del número de votos, vamos a mostrar una lista de los mejores. Para ello, vamos a ver 
+cómo gestionamos dos suscripciones separadas contra la colección de posts, y, de paso hacer nuestra plantilla `postsList` un poco más general.
+
+Para empezar, queremos tener _dos_ suscripciones, una para cada tipo de ordenación. El truco aquí es suscribirse a la misma publicación, sólo que con diferentes argumentos!
+
+También crearemos dos nuevas rutas denominadas `newPosts` y `bestPosts`, accesibles desde las direcciones `/new` y `/best` respectivamente (junto con `/new/5` y `/best/5` para la paginación, por supuesto).
+
+Para ello, vamos a extender nuestro `PostsListController` en dos controladores distintos: `NewPostsListController` y `BestPostsListController`. Esto nos permitirá reutilizar las mismas opciones de ruta, tanto para las rutas `home` y `newPosts`, quedándonos un solo `NewPostsListController` del que heredar. Y, además, todo esto es una buena ilustración de lo flexible que puede ser Iron Router. 
+
+~~~js
+PostsListController = RouteController.extend({
+  template: 'postsList',
+  increment: 5, 
+  limit: function() { 
+    return parseInt(this.params.postsLimit) || this.increment; 
+  },
+  findOptions: function() {
+    return {sort: this.sort, limit: this.limit()};
+  },
+  waitOn: function() {
+    return Meteor.subscribe('posts', this.findOptions());
+  },
+  posts: function() {
+    return Posts.find({}, this.findOptions());
+  },
+  data: function() {
+    var hasMore = this.posts().fetch().length === this.limit();
+    return {
+      posts: this.posts(),
+      nextPath: hasMore ? this.nextPath() : null
+    };
+  }
+});
+
+NewPostsListController = PostsListController.extend({
+  sort: {submitted: -1, _id: -1},
+  nextPath: function() {
+    return Router.routes.newPosts.path({postsLimit: this.limit() + this.increment})
+  }
+});
+
+BestPostsListController = PostsListController.extend({
+  sort: {votes: -1, submitted: -1, _id: -1},
+  nextPath: function() {
+    return Router.routes.bestPosts.path({postsLimit: this.limit() + this.increment})
+  }
+});
+
+Router.map(function() {
+  this.route('home', {
+    path: '/',
+    controller: NewPostsListController
+  });
+  
+  this.route('newPosts', {
+    path: '/new/:postsLimit?',
+    controller: NewPostsListController
+  });
+  
+  this.route('bestPosts', {
+    path: '/best/:postsLimit?',
+    controller: BestPostsListController
+  });
+  // ..
+});
+~~~
+<%= caption "lib/router.js" %>
+<%= highlight "8,16,21~34,36~49" %>
+
+Ten en cuenta que ahora que tenemos más de una ruta, sacamos la lógica para `NextPath` de `PostsListController` y la ponemos en `NewPostsListController` y `BestPostsListController`, ya que el path será diferente en uno y otro caso.
+
+Además, cuando clasificamos por votos, establecemos un segundo orden por fecha para garantizar que el orden es correcto.
+
+Vamos a añadir los enlaces en la cabecera:
+
+~~~html
+<template name="header">
+  <header class="navbar">
+    <div class="navbar-inner">
+      <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </a>
+      <a class="brand" href="{{pathFor 'home'}}">Microscope</a>
+      <div class="nav-collapse collapse">
+        <ul class="nav">
+          <li>
+            <a href="{{pathFor 'newPosts'}}">New</a>
+          </li>
+          <li>
+            <a href="{{pathFor 'bestPosts'}}">Best</a>
+          </li>
+          {{#if currentUser}}
+            <li>
+              <a href="{{pathFor 'postSubmit'}}">Submit Post</a>
+            </li>
+            <li class="dropdown">
+              {{> notifications}}
+            </li>
+          {{/if}}
+        </ul>
+        <ul class="nav pull-right">
+          <li>{{loginButtons}}</li>
+        </ul>
+      </div>
+    </div>
+  </header>
+</template>
+~~~
+<%= caption "client/views/include/header.html" %>
+<%= highlight "9, 15~21" %>
+
+
+With all this done, we now gain a best posts list:
+
+<%= screenshot "13-4", "Posts ordenados" %>
+
+<%= commit "13-5", "Añadidas rutas para las listas de posts y páginas para mostrarlas." %>
+
+### Mejorando la cabecera
+
+Ahora que tenemos dos listas, puede resultar difícil saber cuál de ellas estamos viendo. Así que vamos a revisar nuestra cabecera para que sea más evidente. Vamos a crear el gestor `header.js` y una ayudante auxiliar que use la ruta actual y una o más rutas con nombre para activar una clase en nuestros elementos de navegación:
+
+La razón por la que queremos permitir varias rutas es que tanto la ruta `home` como la ruta `newPosts` (que se corresponden con las nuevas URLs `/` y `/new`) devuelven la misma plantilla, lo que significa que nuestro `activeRouteClass` debe ser lo suficientemente inteligente como para activar la etiqueta `<li>` en ambos casos.
+
+~~~html
+<template name="header">
+  <header class="navbar">
+    <div class="navbar-inner">
+      <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </a>
+      <a class="brand" href="{{pathFor 'home'}}">Microscope</a>
+      <div class="nav-collapse collapse">
+        <ul class="nav">
+          <li class="{{activeRouteClass 'home' 'newPosts'}}">
+            <a href="{{pathFor 'newPosts'}}">New</a>
+          </li>
+          <li class="{{activeRouteClass 'bestPosts'}}">
+            <a href="{{pathFor 'bestPosts'}}">Best</a>
+          </li>
+          {{#if currentUser}}
+            <li class="{{activeRouteClass 'postSubmit'}}">
+              <a href="{{pathFor 'postSubmit'}}">Submit Post</a>
+            </li>
+            <li class="dropdown">
+              {{> notifications}}
+            </li>
+          {{/if}}
+        </ul>
+        <ul class="nav pull-right">
+          <li>{{loginButtons}}</li>
+        </ul>
+      </div>
+    </div>
+  </header>
+</template>
+~~~
+<%= caption "client/views/includes/header.html" %>
+<%= highlight "9,12,15,19" %>
+
+~~~js
+Template.header.helpers({
+  activeRouteClass: function(/* route names */) {
+    var args = Array.prototype.slice.call(arguments, 0);
+    args.pop();
+    
+    var active = _.any(args, function(name) {
+      return Router.current().route.name === name
+    });
+    
+    return active && 'active';
+  }
+});
+~~~
+<%= caption "client/views/includes/header.js" %>
+
+<%= screenshot "13-5", "Mostrando la página activa" %>
+
+<% note do %>
+
+### Argumentos de los ayudantes
+
+Hasta ahora no hemos usado este modelo en concreto, pero al igual que para cualquier otro tag de Handlebars, los tags de los ayudantes de plantilla también pueden tomar argumentos.
+
+Y aunque por supuesto, se pueden pasar argumentos específicos a la función, también se pueden pasar un número indeterminado de ellos y recuperarlos mediante una llamada al objeto `arguments` dentro de la función.
+
+En este último caso, es probable que queramos convertir el objeto `arguments` a un array JavaScript y luego llamar a `pop()` sobre él para deshacernos del hash que añade Handlebars.
+
+<% end %>
+
+Para cada elemento, el ayudante `activeRouteClass` toma una lista de nombres de ruta, y luego utiliza el ayudante `any()` de Underscore para ver si las rutas pasan la prueba (es decir, que su correspondiente URL sea igual a la actual). Si cualquiera de las rutas se corresponde con la actual, `any()` devolverá `true`. 
+
+Por último, estamos aprovechando el patrón `boolean && string` de JavaScript con el que `false && MyString` devuelve `false`, pero los `true && MyString` devuelve `myString`.
+
+<%= commit "13-6", "Añadidas clases activas as la cabecera." %>
+
+Ahora que los usuarios pueden votar en tiempo real, podemos ver cómo saltan los posts hacia arriba o abajo según cambia su clasificación. Pero ¿no sería más agradable si hubiera una manera de suavizar estos cambios con algunas animaciones?

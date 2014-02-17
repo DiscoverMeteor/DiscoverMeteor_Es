@@ -1,4 +1,4 @@
-DiscoverMeteor_Es
-=================
+Descubriendo Meteor
+===================
 
-The spanish version of Discover Meteor
+La versión española de Discover Meteor.

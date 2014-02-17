@@ -1,0 +1,231 @@
+---
+title: Plantillas
+slug: templates
+date: 0003/01/01
+number: 3
+points: 10
+photoUrl: http://www.flickr.com/photos/73449134@N04/8194499092/
+photoAuthor: Mike Lewinski
+contents: Aprenderemos a usar Handlebars, el sistema de plantillas de Meteor.|Crearemos nuestras primeras tres plantillas.|Aprenderemos cómo funcionan los gestores de plantilla.|Obtendremos un prototipo básico funcional con datos estáticos.
+---
+
+Para aprender a desarrollar con Meteor adoptaremos un enfoque de afuera a adentro, es decir, primero construiremos el envoltorio exterior y luego lo conectaremos al funcionamiento interno de la aplicación.
+
+Esto implica que, en este capítulo, sólo utilizaremos el directorio `/client`. 
+
+Empezaremos creando el archivo `main.html` dentro del directorio `client`, rellenándolo con el siguiente código:
+
+~~~html
+<head>
+  <title>Microscope</title>
+</head>
+<body>
+  <div class="container">
+    <header class="navbar">
+      <div class="navbar-inner">
+        <a class="brand" href="/">Microscope</a>
+      </div>
+    </header>
+    <div id="main" class="row-fluid">
+      {{> postsList}}
+    </div>
+  </div>
+</body>
+~~~
+<%= caption "client/main.html" %>
+
+Esta será la plantilla principal de la aplicación. Como se puede ver, todo es HTML excepto `{{> postsList}}`, que es un punto de inserción de la plantilla `postsList`, como veremos más adelante. Por ahora, vamos a crear un par de plantillas más.
+
+### Las plantillas en Meteor
+
+La aplicación que estamos construyendo va a ser una red social de noticias que estará compuesta de mensajes (en adelante, posts) organizados en listas, y así es como organizaremos nuestras plantillas.
+
+Vamos a crear el directorio `views` dentro de `client`. Aquí pondremos todas nuestras plantillas, pero además, para mantener las cosas ordenadas creamos el directorio `posts` dentro de `views` para las plantillas relacionadas con los posts.
+
+<% note do %>
+
+### ¿Cómo encuentra nuestros archivos Meteor?
+
+Meteor es bueno encontrando archivos. No importa en qué lugar pongamos el código dentro de `/client`, Meteor lo encontrará y lo compilará correctamente. Esto significa que no hay que escribir manualmente rutas para los archivos CSS o JavaScript.
+
+También significa que se podrían poner todos los archivos en el mismo directorio, o incluso todo el código en el mismo archivo. Pero como, de todas formas, Meteor lo va a compilar todo en un solo archivo minimizado, preferimos mantener las cosas bien organizadas y utilizar una estructura de archivos lo más limpia posible.
+
+<% end %>
+
+Ya estamos listos para crear las otras dos plantillas en el fichero `posts_list.html` dentro de `client/views/posts`:
+
+~~~html
+<template name="postsList">
+  <div class="posts">
+    {{#each posts}}
+      {{> postItem}}
+    {{/each}}
+  </div>
+</template>
+~~~
+<%= caption "client/views/posts/posts_list.html" %>
+
+Y `post_item.html`: 
+
+~~~html
+<template name="postItem">
+  <div class="post">
+    <div class="post-content">
+      <h3><a href="{{url}}">{{title}}</a><span>{{domain}}</span></h3>
+    </div>
+  </div>
+</template>
+~~~
+<%= caption "client/views/posts/post_item.html" %>
+
+Fíjate en el atributo `name="postsList"` porque éste será el nombre que Meteor usará para sincronizar los datos que contiene la plantilla.
+
+Es el momento de introducir [ Handlebars](http://handlebarsjs.com), el sistema de plantillas de Meteor. Handlebars es simplemente HTML añadiendo tres cosas: plantillas parciales (*partials*), expresiones (*expressions*) y bloques de ayuda (*block helpers*).
+
+Las *plantillas parciales* usan la sintaxis `{{> templateName}}` y simplemente le dicen a Meteor que reemplace la plantilla parcial por la plantilla del mismo nombre (en nuestro caso `postItem`).
+
+Las *expresiones* como `{{title}}` pueden, o bien llamar a una propiedad del objeto actual o bien, al valor de retorno de un ayudante (*helper*) como el que definiremos para nuestro gestor de plantilla más adelante.
+
+Los *bloques de ayuda* son tags especiales para mantener el control del flujo de la plantilla, por ejemplo `{{#each}}...{{/each}}` o `{{#if}}...{{/if}}`.
+
+<% note do %>
+
+### Ir más lejos
+
+Si quieres saber más sobre Handlebars puedes consultar el [sitio oficial]() o este [práctico tutorial](http://javascriptissexy.com/handlebars-js-tutorial-learn-everything-about-handlebars-js-javascript-templating/).
+
+<% end %>
+
+Ahora, ya podemos entender cómo van a funcionar nuestras plantillas:
+
+Primero, en la plantilla `postsList` iteramos sobre un objeto `posts`, y para cada iteración, incluimos la plantilla `postItem`.
+
+Pero, ¿de dónde viene el objeto `posts`?. En realidad, es un ayudante (código JavaScript) para nuestra plantilla y lo definiremos cuando veamos los gestores de plantilla.
+
+La plantilla `postItem` es bastante sencilla. Sólo usa tres expresiones: `{{url}}` y `{{title}}` devuelven propiedades, y `{{domain}}` llama a un ayudante.
+
+Hemos mencionado a los "ayudantes de plantilla" sin explicar qué son y lo que hacen realmente. Para de solucionar este problema, primero tenemos que hablar de los gestores.
+
+### Gestores de plantillas
+
+Hasta ahora hemos estado tratando con Handlebars, que es poco más que HTML con algunas etiquetas extra. A diferencia de otros lenguajes como PHP (o páginas HTML con JavaScript), Meteor mantiene las plantillas y su lógica separadas, de forma que nuestras plantillas por sí mismas no hacen casi nada.
+
+Para que una plantilla tenga vida necesita un **gestor** (manager), que es el que, en realidad hace el trabajo pesado, asignando un valor a cada una de las variables de la plantilla.
+
+<% note do %>
+
+### ¿Gestores, managers?
+
+Cuando les preguntamos a otros desarrolladores cómo llaman a los gestores de plantilla, la mitad dijo "controladores", y la otra mitad dijo "esos archivos donde pongo mi código JavaScript".
+
+Los gestores no son realmente controladores (al menos, no en el sentido de controladores MVC) y "EADPMC" no es realmente tan pegadiza, por lo que rechazamos ambas proposiciones.
+
+Dado que todavía necesitábamos una forma de indicar de lo que estábamos hablando, nos encontramos con el término "gestor" (manager) como un atajo práctico que no tiene ningún significado preexistente en lo que se refiere a frameworks web.
+
+<% end %>
+
+Para mantener las cosas ordenadas, adoptaremos la convención de nombrar el gestor igual que la plantilla pero con extensión js. Así que vamos a crear `posts_list.js` dentro de `/client/views/posts` para construir nuestro primer gestor:
+
+~~~js
+var postsData = [
+  {
+    title: 'Introducing Telescope',
+    author: 'Sacha Greif',
+    url: 'http://sachagreif.com/introducing-telescope/'
+  }, 
+  {
+    title: 'Meteor',
+    author: 'Tom Coleman',
+    url: 'http://meteor.com'
+  }, 
+  {
+    title: 'The Meteor Book',
+    author: 'Tom Coleman',
+    url: 'http://themeteorbook.com'
+  }
+];
+Template.postsList.helpers({
+  posts: postsData
+});
+~~~
+<%= caption "client/views/posts/posts_list.js" %>
+
+Si todo está bien, ya se pueden ver los datos en el navegador:
+
+<%= screenshot "3-1", "Our first templates with static data" %>
+
+<%= commit "3-1", "Plantilla de la lista de posts y datos estáticos." %>
+
+Estamos haciendo dos cosas. Primero, creamos algunos datos prototipo en `postsData`. Normalmente, estos datos vienen de la base de datos, pero como no sabemos cómo hacerlo (espera al siguiente capítulo), hacemos trampa mediante el uso de datos estáticos.
+
+Segundo, usamos la función `Template.myTemplate.helpers()` para definir un ayudante de plantilla llamado `posts` que sencillamente devuelve nuestros datos creados en `postsData`.
+
+Definir el ayudante `posts` implica que está disponible para nuestra plantilla:
+
+~~~html
+<template name="postsList">
+  <div class="posts">
+    {{#each posts}}
+      {{> postItem}}
+    {{/each}}
+  </div>
+</template>
+~~~
+<%= caption "client/views/posts/posts_list.html" %>
+
+Así que nuestra plantilla podrá iterar sobre `postsData` y enviar todos los objetos contenidos en él a la plantilla `PostItem`.
+
+### El Valor de "`this`"
+
+Vamos a crear el gestor `post_item.js`:
+
+~~~js
+Template.postItem.helpers({
+  domain: function() {
+    var a = document.createElement('a');
+    a.href = this.url;
+    return a.hostname;
+  }
+});
+~~~
+<%= caption "client/views/posts/post_item.js" %>
+
+<%= commit "3-2", "Ayudante `domain` para la plantilla `postItem`." %>
+
+Esta vez el valor de nuestro ayudante `domain`, no son datos sino una función anónima. Este patrón es mucho más común (y más útil) en comparación con nuestros ejemplos de datos ficticios.
+
+<%= screenshot "3-2", "Displaying domains for each links." %>
+
+El ayudante `domain` coge una URL y devuelve su dominio a través de un poco de magia JavaScript. Pero, ¿de dónde saca esa url la primera vez?.
+
+Para responder a esta pregunta tenemos que volver a nuestra plantilla `posts_list.html`. El bloque `{{#each}}` no sólo itera nuestros datos, sino que también establece el valor de `this` dentro del objeto repetido.
+
+Esto significa que `this` es asignado a cada `post` sucesivamente, y esto se hace extensivo al gestor `post_item.js`.
+
+Ahora entendemos porqué `this.url` devuelve la URL del post actual. Y más aún, como utilizamos `{{title}}` y `{{url}}` dentro de nuestra plantilla `post_item.html`, Meteor sabe que lo que queremos es `this.title` y `this.url` y devuelve los valores correctos.
+
+<% note do %>
+
+### Magia JavaScript
+
+Aunque esto no es específico de Meteor, he aquí una breve explicación de la "magia de JavaScript". En primer lugar, estamos creando un elemento HTML ancla (`a`) vacío y lo almacenamos en la memoria.
+
+A continuación, establecemos el atributo `href` para que sea igual a la URL del post actual (como acabamos de ver, en un ayudante, `this` es el objeto que se está usando en este momento).
+
+Por último, aprovechamos de la propiedad `hostname` del elemento `a` para devolver el nombre de dominio del post sin el resto de la URL.
+
+<% end %>
+
+Si todo ha ido bien deberíamos ver una lista de posts en el navegador. Esta lista son sólo datos estáticos, lo que, por el momento, no nos permite aprovechar las características de tiempo real de Meteor. ¡Aprenderemos cómo hacerlo en el próximo capítulo!
+
+<% note do %>
+
+### Recarga automática
+
+Probablemente ya habrás notado que es necesario recargar la ventana del navegador cada vez que cambiamos un archivo de código.
+
+Esto se debe a que Meteor hace un seguimiento de todos los archivos en el directorio del proyecto, y los actualiza automáticamente en el navegador cada vez que detecta un cambio en alguno de ellos.
+
+La recarga automática es bastante inteligente, ya que además, ¡conserva el estado de la aplicación entre dos refrescos!
+
+<% end %>

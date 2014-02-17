@@ -1,0 +1,298 @@
+---
+title: Empezando
+slug: getting-started
+date: 0002/01/01
+number: 2
+points: 10
+photoUrl: http://www.flickr.com/photos/ikewinski/9511230392/
+photoAuthor: Mike Lewinski
+contents: Instalaremos Meteor y Meteorite.|Conoceremos los 5 tipos de paquetes que maneja Meteor.|Estableceremos la estructura de ficheros de nuestra aplicación.
+---
+
+Las primeras impresiones son las que cuentan. La instalación de Meteor debería ser muy sencilla y, en la mayoría de los casos, sólo cuesta 5 minutos ponerlo en marcha.
+
+Podemos empezar instalando Meteor de la forma más sencilla con el siguiente comando desde la consola:
+
+~~~bash
+$ curl https://install.meteor.com | sh
+~~~
+
+Se instalará el ejecutable `meteor` en nuestro sistema y lo dejará listo para empezar a usar Meteor.
+
+<% note do %>
+
+### *Sin* instalar Meteor
+
+Si no podemos (o no queremos) instalar Meteor localmente, recomendamos usar [Nitrous.io](http://nitrous.io/).
+
+Nitrous.io es un servicio que te permite ejecutar aplicaciones y editar el código directamente en tu navegador, nosotros hemos escrito una breve guía para ayudarte a ponerte en marcha.
+
+Sólo tienes que seguir [esta guía](https://www.discovermeteor.com/2013/10/04/meteor-nitrous/) hasta terminar con la sección "Installing Meteor and Meteorite", y luego seguir con este capítulo a partir de la sección "Crear y ejecutar una aplicación".
+
+<% end %>
+ 
+### Meteorite
+
+Debido a que Meteor todavía no soporta paquetes de terceros, Tom Coleman (uno de los autores de este libro) y algunos miembros de la comunidad han creado [Meteorite](http://oortcloud.github.com/meteorite/), un envoltorio o wrapper para Meteor. Meteorite permite instalar Meteor y conectarlo con los paquetes que necesitemos.
+
+Dado que vamos a confiar en paquetes de terceros para algunas de las funciones de  microscope, vamos a instalar Meteorite.
+
+### Instalando Meteorite
+
+Para instalar Meteorite necesitamos tener instalados Node y Git. Los instalaremos de la forma predeterminada para nuestro OS o lo intentaremos con estos enlaces:
+ 
+- [Sitio de descarga de Node](http://nodejs.org/download/)
+- [Sitio de descarga de Git](http://git-scm.com/downloads)
+
+A continuación, vamos a instalar Meteorite. Como se trata de un paquete [npm](https://npmjs.org/) (Node Packaged Module, el formato de módulo estándar de node), lo instalamos desde la consola:
+
+~~~bash
+$ npm install -g meteorite
+~~~
+
+<% note do %>
+
+### ¿Errores de permisos?
+
+En algunas máquinas es necesario ser administrador para instalar Meteorite. Para evitar problemas, asegúrate de usar `sudo -H`:
+
+~~~bash
+$ sudo -H npm install -g meteorite
+~~~
+
+Puedes leer más sobre este tema en la [Meteorite documentation](https://github.com/oortcloud/meteorite/blob/master/README.md#permission-woes).
+
+<% end %>
+
+¡Y ya está! A partir de ahora Meteorite se encargará de todo.
+
+Nota: de momento, no hay soporte para Meteorite en Windows, aunque puedes echar un vistazo a [nuestro tutorial para Windows](http://themeteorbook.com/2013/03/20/using-meteor-and-atmopshere-on-windows/).
+
+<% note do %>
+
+  ### `mrt` vs `meteor`
+  
+  Meteorite instala el ejecutable `mrt` que utilizaremos para instalar paquetes en nuestra aplicación. Sin embargo, cuando queramos ejecutar nuestro servidor se utilizará el comando `meteor`.
+  
+<% end %>
+
+### Crear y ejecutar nuestra aplicación
+
+Ahora que tenemos instalado Meteorite, vamos a crear nuestra aplicación. Para ello, utilizaremos la herramienta de línea de comandos `mrt` de Meteorite:
+
+~~~bash
+$ mrt create microscope
+~~~
+
+Este comando descarga Meteor (si no está instalado), y crea un proyecto básico listo para usar. Cuando termina, deberíamos tener un directorio `microscope/`, que contiene lo siguiente:
+
+~~~bash
+microscope.css  
+microscope.html 
+microscope.js   
+smart.json 
+~~~
+
+La aplicación que se ha creado es una aplicación básica que demuestra sólo algunas pautas simples.
+
+A pesar de que nuestra aplicación no hace casi nada, ya podemos ejecutarla. Para hacerlo, volvemos al terminal y escribimos:
+
+~~~bash
+$ cd microscope
+$ meteor
+~~~
+
+Ahora abrimos `http://localhost:3000/` (o su equivalente `http://0.0.0.0:3000/`) en el navegador y deberíamos ver algo como esto:
+
+<%= screenshot "2-1", "Hello World de Meteor" %>
+
+<%= commit "2-1", "Un proyecto básico." %>
+
+¡Enhorabuena! ya tenemos nuestra primera aplicación Meteor funcionando. Por cierto, para parar la aplicación, todo lo que hay que hacer es abrir la pestaña terminal donde se ejecuta y pulsar `ctrl+c`.
+
+### Añadir un paquete
+
+Ahora vamos a usar Meteorite para añadir un paquete que nos permitirá incluir [Bootstrap](http://twitter.github.com/bootstrap/) en nuestro proyecto:
+
+~~~bash
+$ mrt add bootstrap
+~~~
+
+<%= commit "2-2", "Añadido el paquete bootstrap." %>
+
+<% note do %>
+
+### Una nota sobre los paquetes
+
+Al hablar acerca de los paquetes en el contexto de Meteor, vale la pena ser específico. Meteor puede usar cinco tipos de paquetes distintos:
+
+- Los **core packages** son los paquetes que componen Meteor y probablemente nunca tengas que preocuparte por ellos.
+- Los **smart packages** son [un grupo de 37 paquetes](http://docs.meteor.com/#packages) incluidos en Meteor `meteor list` e instalables con `meteor add` o con `mrt add`. 
+- Los **local packages** son nuestros propios paquetes ubicados en `/packages`.
+- Los **atmosphere smart packages** son paquetes de terceros listados en [Atmosphere](http://atmosphere.meteor.com/).
+- Los **NPM packages** (Node Packaged Modules) son paquetes de node que pueden necesitar los anteriores. 
+
+<% end %>
+
+### La estructura de una aplicación Meteor
+
+Antes de empezar a escribir código debemos estructurar de forma adecuada nuestro proyecto. Para asegurarte de que dispones de un entorno limplio y claro, abre el directorio `microscope` y borra los archivos `microscope.html`, `microscope.js`, y `microscope.css`. 
+
+A continuación, crea cinco directorios dentro de `microscope`: `/client`, `/server`, `/public`, `/lib`, y `/collections`. Dentro de `/client` crearemos también los archivos vacíos `main.html` y `main.js`. Por ahora, no te preocupes si esto rompe completamente la app, empezaremos a rellenar los nuevos ficheros en el siguiente capítulo.
+
+Debemos mencionar que algunos de los directorios que hemos creado son especiales y Meteor tiene reglas para ellos:
+
+- El código de `/server` corre en el servidor.
+- El código de `/client` corre en el cliente.
+- Todo lo demás corre en las dos partes, cliente y servidor.
+- Los archivos de `/lib` se cargan antes que nada.
+- Los archivos con nombre `main` se cargan antes que los demás.
+- Las cosas estáticas (fuentes, imágenes, etc.) van en el directorio `/public`.
+
+Ten en cuenta que aunque Meteor tiene todas estas reglas, en realidad no nos obliga a utilizar una estructura de archivos predefinida. Así que la estructura que sugerimos es sólo nuestra forma de hacer las cosas, no son reglas inamovibles.
+
+Os animamos a echar un vistazo a la [documentación oficial Meteor](http://docs.meteor.com/#structuringyourapp) para conocer más detalles acerca de la estructura de las aplicaciones.
+
+<% note do %>
+
+### ¿Meteor es MVC?
+
+Si hemos usado otros frameworks, como Ruby on Rails, puede que nos preguntemos si las aplicaciones de Meteor adoptan el patrón [MVC](http://es.wikipedia.org/wiki/Modelo_Vista_Controlador) (Model View Controller).
+
+La respuesta corta es no. A diferencia de Rails, Meteor no impone ninguna estructura predefinida para su aplicación. Así que en este libro vamos a exponer código de la forma que más sentido tenga para nosotros, sin preocuparnos demasiado por las siglas.
+
+<% end %>
+
+### ¿Público?
+
+Bueno, mentimos. En realidad no vamos a necesitar `public/` por la sencilla razón de que Microscope no utiliza ningún activo estático. Pero como en la mayoría de aplicaciones se van a incluir al menos un par de imágenes, pensamos que era importante incluirlo.
+
+Por cierto, te puedes haber dado cuenta de que se ha creado un directorio oculto llamado  `.meteor`. Aquí es donde Meteor almacena su propio código. Cambiar cosas aquí dentro es, en general, una muy mala idea con las únicas excepciones de los archivos `.meteor/packages` y `.meteor/release`, que se utilizan, respectivamente, para listar nuestros paquetes y para establecer la versión de Meteor que queremos utilizar.
+
+<% note do %>
+
+### Underscores vs CamelCases
+
+Lo único que vamos a decir sobre debate del viejo guión bajo (`my_variable`) contra el camelCase (`myVariable`) es que en realidad no importa el que elijas, siempre y cuando lo adoptes en todo el proyecto.
+
+En este libro, utilizamos camelCase porque es la forma habitual en JavaScript (después de todo, es JavaScript no java_script!).
+
+Las únicas excepciones a esta regla son los nombres de los archivos, para los que se van a utilizar guiones bajos (`my_file.js`), y las clases CSS, para las que usaremos guiones (`.my-class`). La razón es que en el sistema de archivos, el subrayado es lo más común, mientras que en la propia sintaxis, CSS ya utiliza guiones (`font-family`, `text-align`, etc).
+
+<% end %>
+
+### El CSS de nuestra aplicación
+
+Este libro no trata sobre CSS. Así que para evitar entrar en detalles de estilo, hemos decidido que la hoja de estilos esté disponible desde el principio, así, no será necesario preocuparse por ella nunca más.
+
+Meteor carga el CSS minimizado y de forma automática, por lo que, a diferencia de otros recursos estáticos, va en `/client`, no en `/public`. Vamos a crear el archivo `client/stylesheets/style.css` y a añadirle este CSS:
+
+~~~css
+.grid-block, .main, .post, .comments li, .comment-form {
+    background: #fff;
+    border-radius: 3px;
+    padding: 10px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
+}
+body {
+    background: #eee;
+    color: #666666;
+}
+.navbar { margin-bottom: 10px }
+.navbar .navbar-inner {
+    border-radius: 0px 0px 3px 3px;
+}
+#spinner { height: 300px }
+.post {
+    *zoom: 1;
+    -webkit-transition: all 300ms 0ms;
+    -webkit-transition-delay: ease-in;
+    -moz-transition: all 300ms 0ms ease-in;
+    -o-transition: all 300ms 0ms ease-in;
+    transition: all 300ms 0ms ease-in;
+    position: relative;
+    opacity: 1;
+}
+.post:before, .post:after {
+    content: "";
+    display: table;
+}
+.post:after { clear: both }
+.post.invisible { opacity: 0 }
+.post .upvote {
+    display: block;
+    margin: 7px 12px 0 0;
+    float: left;
+}
+.post .post-content { float: left }
+.post .post-content h3 {
+    margin: 0;
+    line-height: 1.4;
+    font-size: 18px;
+}
+.post .post-content h3 a {
+    display: inline-block;
+    margin-right: 5px;
+}
+.post .post-content h3 span {
+    font-weight: normal;
+    font-size: 14px;
+    display: inline-block;
+    color: #aaaaaa;
+}
+.post .post-content p { margin: 0 }
+.post .discuss {
+    display: block;
+    float: right;
+    margin-top: 7px;
+}
+.comments {
+    list-style-type: none;
+    margin: 0;
+}
+.comments li h4 {
+    font-size: 16px;
+    margin: 0;
+}
+.comments li h4 .date {
+    font-size: 12px;
+    font-weight: normal;
+}
+.comments li h4 a { font-size: 12px }
+.comments li p:last-child { margin-bottom: 0 }
+.dropdown-menu span {
+    display: block;
+    padding: 3px 20px;
+    clear: both;
+    line-height: 20px;
+    color: #bbb;
+    white-space: nowrap;
+}
+.load-more {
+    display: block;
+    border-radius: 3px;
+    background: rgba(0, 0, 0, 0.05);
+    text-align: center;
+    height: 60px;
+    line-height: 60px;
+    margin-bottom: 10px;
+}
+.load-more:hover {
+    text-decoration: none;
+    background: rgba(0, 0, 0, 0.1);
+}
+~~~
+<%= caption "client/stylesheets/style.css" %>
+
+<%= commit "2-3","Estructura de ficheros establecida." %>
+
+<% note do %>
+
+### Una nota sobre CoffeeScript
+
+En este libro vamos usar JavaScript puro. Pero si quisiéramos usar CoffeeScript, bastaría con añadir el paquete CoffeeScript y estaríamos listos para continuar:
+
+`mrt add coffeescript`
+
+<% end %>

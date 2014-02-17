@@ -1,0 +1,268 @@
+---
+title: Editando posts
+slug: editing-posts
+date: 0008/01/01
+number: 8
+points: 10
+photoUrl: http://www.flickr.com/photos/ikewinski/9473337133/
+photoAuthor: Mike Lewinski
+contents: Añadiremos un formulario para editar posts.|Configuraremos los permisos de edición.|Restringiremos las propiedades que se pueden editar.
+---
+
+Ahora que ya podemos crear posts, el siguiente paso es poder editarlos y borrarlos. Como el código la IU ha quedado bastante simple, este parece es un buen momento para hablar de cómo Meteor gestiona los permisos de usuario.
+
+Primero vamos a enlazar nuestro router. Añadiremos una ruta para acceder a la página de edición y estableceremos su contexto de datos:
+
+~~~js
+Router.configure({
+  layoutTemplate: 'layout'
+});
+
+Router.map(function() {
+  this.route('postsList', {path: '/'});
+
+  this.route('postPage', {
+    path: '/posts/:_id',
+    data: function() { return Posts.findOne(this.params._id); }
+  });
+
+  this.route('postEdit', {
+    path: '/posts/:_id/edit',
+    data: function() { return Posts.findOne(this.params._id); }
+  });
+
+  this.route('postSubmit', {
+    path: '/submit'
+  });
+});
+
+var requireLogin = function() {
+  if (! Meteor.user()) {
+    if (Meteor.loggingIn())
+      this.render('loading')
+    else
+      this.render('accessDenied');
+  
+    this.stop();
+  }
+}
+
+Router.before(requireLogin, {only: 'postSubmit'});
+~~~
+<%= caption "lib/router.js" %>
+<%= highlight "12~15" %>
+
+### La plantilla de edición de posts
+
+Ahora ya nos podemos centrar en la plantilla. Nuestra plantilla `postEdit` tendrá una forma bastante estándar:
+
+~~~html
+<template name="postEdit">
+  <form class="main">
+    <div class="control-group">
+        <label class="control-label" for="url">URL</label>
+        <div class="controls">
+            <input name="url" type="text" value="{{url}}" placeholder="Your URL"/>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label class="control-label" for="title">Title</label>
+        <div class="controls">
+            <input name="title" type="text" value="{{title}}" placeholder="Name your post"/>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <div class="controls">
+            <input type="submit" value="Submit" class="btn btn-primary submit"/>
+        </div>
+    </div>
+    <hr/>
+    <div class="control-group">
+        <div class="controls">
+            <a class="btn btn-danger delete" href="#">Delete post</a>
+        </div>
+    </div>
+  </form>
+</template>
+~~~
+<%= caption "client/views/posts/post_edit.html" %>
+
+Y aquí está el gestor `post_edit.js` que va con ella:
+
+~~~js
+Template.postEdit.events({
+  'submit form': function(e) {
+    e.preventDefault();
+    
+    var currentPostId = this._id;
+    
+    var postProperties = {
+      url: $(e.target).find('[name=url]').val(),
+      title: $(e.target).find('[name=title]').val()
+    }
+    
+    Posts.update(currentPostId, {$set: postProperties}, function(error) {
+      if (error) {
+        // display the error to the user
+        alert(error.reason);
+      } else {
+        Router.go('postPage', {_id: currentPostId});
+      }
+    });
+  },
+  
+  'click .delete': function(e) {
+    e.preventDefault();
+    
+    if (confirm("Delete this post?")) {
+      var currentPostId = this._id;
+      Posts.remove(currentPostId);
+      Router.go('postsList');
+    }
+  }
+});
+~~~
+<%= caption "client/views/posts/post_edit.js" %>
+
+Como podemos ver, la mayoría de cosas ya nos son familiares. En primer lugar, tenemos nuestro ayudante que obtiene el post actual y se lo pasa a la plantilla.
+
+Después tenemos dos callbacks de eventos: uno para enviar el formulario `submit`, y `click .delete` para el evento click del enlace delete.
+
+El callback `delete` es muy simple: elimina el evento defecto y después pide confirmación. Si confirmamos, obtenemos el ID del post actual desde el contexto de datos de la plantilla, lo borramos y redirigimos al usuario a la página de inicio.
+
+El callback de actualización es un poco más largo, pero no mucho más complicado. Después de suprimir el evento predeterminado y conseguir el post actual, obtenemos los nuevos valores del formulario y los almacena en el objeto `postProperties`.
+
+A continuación, pasamos este objeto a `Collection.update()`, y usamos un callback para mostrar un error si falla la actualización o enviar al usuario a la página del post si la actualización se realiza correctamente.
+
+### Añadiendo enlaces
+
+Deberíamos añadir enlaces a la página de edición de nuestros posts:
+
+~~~html
+<template name="postItem">
+  <div class="post">
+    <div class="post-content">
+      <h3><a href="{{url}}">{{title}}</a><span>{{domain}}</span></h3>
+      <p>
+        submitted by {{author}}
+        {{#if ownPost}}<a href="{{pathFor 'postEdit'}}">Edit</a>{{/if}}
+      </p>
+    </div>
+    <a href="{{pathFor 'postPage'}}" class="discuss btn">Discuss</a>
+  </div>
+</template>
+~~~
+<%= caption "client/views/posts/post_item.html" %>
+<%= highlight "5~8" %>
+
+Por supuesto, no queremos que se muestre un enlace a editar en un post que no haya sido creado por un usuario. Aquí es donde el entra el ayudante `ownPost`:
+
+~~~js
+Template.postItem.helpers({
+  ownPost: function() {
+    return this.userId == Meteor.userId();
+  },
+  domain: function() {
+    var a = document.createElement('a');
+    a.href = this.url;
+    return a.hostname;
+  }
+});
+~~~
+<%= caption "client/views/posts/post_item.js" %>
+<%= highlight "2~4" %>
+
+<%= screenshot "8-1", "Formulario de edición." %>
+
+<%= commit "8-1", "ñadido el formulario de edición." %>
+
+Ya tenemos nuestro formulario de envío de edición, pero en realidad, todavía no se puede editar nada. ¿Qué es lo que está pasando?
+
+### Configurando los permisos
+
+Al haber eliminado el paquete `insecure`, se nos deniegan todas las peticiones de modificación desde el cliente.
+
+Para solucionarlo creamos el archivo `permissions.js` desde dónde se cargará la toda la lógica de permisos (y estará disponible en los dos entornos):
+
+~~~js
+// check that the userId specified owns the documents
+ownsDocument = function(userId, doc) {
+  return doc && doc.userId === userId;
+}
+~~~
+<%= caption "lib/permissions.js" %>
+
+En el capítulo [Creando posts](/chapter/creating-posts) nos libramos de tener que usar el método `allow()` porque  estábamos insertando nuevos posts a través de un método de servidor.
+
+Pero ahora que estamos editando y borrando posts desde el cliente, vamos a necesitar volver a `collections/posts.js` y a añadir un bloque `allow()`:
+
+~~~js
+Posts = new Meteor.Collection('posts');
+
+Posts.allow({
+  update: ownsDocument,
+  remove: ownsDocument
+});
+
+
+Meteor.methods({
+  ...
+~~~
+<%= caption "collections/posts.js" %>
+<%= highlight "3~6" %>
+
+<%= commit "8-2", "Añadidos permisos básicos para comprobar el dueño del post." %>
+
+### Limitando las ediciones
+
+Sólo porque podamos editar nuestros propios posts, no significa debamos ser capaces de editar todas las propiedades. Por ejemplo, no queremos que los usuarios puedan crear un post y luego asignárselo a otro usuario.
+
+Utilizaremos el callback `deny()` para asegurarnos de que los usuarios sólo puedan editar campos específicos.:
+
+~~~js
+Posts = new Meteor.Collection('posts');
+
+Posts.allow({
+  update: ownsDocument,
+  remove: ownsDocument
+});
+
+Posts.deny({
+  update: function(userId, post, fieldNames) {
+    // may only edit the following two fields:
+    return (_.without(fieldNames, 'url', 'title').length > 0);
+  }
+});
+~~~
+<%= caption "collections/posts.js" %>
+<%= highlight "8~13" %>
+
+<%= commit "8-3", "Permitir cambios sólo en ciertos campos." %>
+
+Estamos cogiendo el array `fieldNames` que contiene la lista de los campos que quieren modificar, y usamos el método `without()` de [Underscore](http://underscorejs.org/) para devolver un sub-array que contiene los campos que no son `url` o `title`.
+
+Si todo va bien, el array debe estar vacío y su longitud debe ser 0 pero si alguien está tratando de enrredar, la longitud de la matriz será mayor que 0, y devolveremos `true` (denegando así la actualización).
+
+<% note do %>
+
+### Métodos en el servidor vs métodos en el cliente
+
+Para crear un `post`, estamos utilizando un método en el servidor, mientras que para editarlos y eliminarlos, llamamos a `update` y `remove` directamente desde el cliente, limitando el acceso a través de `allow` y `deny`.
+
+¿Cuándo es más adecuado usar uno u otro?
+
+Cuando las cosas son relativamente sencillas se pueden expresar las reglas a través de `allow` y `deny`, por lo general es más fácil de hacer las cosas directamente desde el cliente.
+
+Manipular la base de datos desde el cliente directamente crea sensación de inmediatez, y puede resultar en una mejor experiencia de usuario, siempre y cuando nos acordemos de manejar adecuadamente los errores (por ejemplo, cuando después llegue el servidor y diga que el cambio no se ha podido hacer).
+
+Sin embargo, tan pronto como empecemos a hacer cosas que deberían estar fuera del control del usuario (por ejemplo, el timestamp de un nuevo post o asignarlo al usuario correcto), será mejor que usemos métodos.
+
+Las llamadas a métodos son más apropiadas en algunos otros casos:
+
+- Cuando necesitamos conocer o devolver valores a través de un callback en lugar de esperar a que Meteor propague la sincronización.
+- Para consultas pesadas a la base de datos pesados.
+- Para resumir o agregar datos (por ejemplo, contadores, promedios, sumas).
+
+<% end %>

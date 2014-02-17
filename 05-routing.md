@@ -1,0 +1,335 @@
+---
+title: Enrutando
+slug: routing
+date: 0005/01/01
+number: 5
+points: 10
+photoUrl: http://www.flickr.com/photos/ikewinski/9517814403/
+photoAuthor: Mike Lewinski
+contents: Conoceremos cómo se gestionan las rutas en Meteor.|Crearemos páginas de discusión para los posts con URLs únicas.|Aprenderemos a enlazar apropiadamente esas URLs.
+---
+
+Ahora que tenemos una lista de posts (que eventualmente serán enviados por los usuarios), necesitamos una página individual donde nuestros usuarios puedan discutir sobre cada post.
+
+Nos gustaría que estas páginas fueran accesibles a través de un enlace con una URL _permanente_ de la forma `http://myapp.com/posts/xyz` (donde `xyz` es un identificador `_id` de MongoDB) que sea única para cada post.
+
+Esto significa que necesitaremos algún tipo de _enrutamiento_ o _routing_ para analizar lo que hay dentro de la barra de direcciones del navegador y mostrar el contenido correcto.
+
+### Añadiendo el paquete Iron Router
+
+[Iron Router](https://github.com/EventedMind/iron-router) es un paquete de enrutado que ha sido concebido específicamente para aplicaciones Meteor.
+
+No sólo ayuda con el enrutamiento (creación de rutas), sino también puede hacerse cargo de filtros (asignar acciones a algunas de estas rutas) e incluso administrar suscripciones (control de qué ruta tiene acceso a qué datos). (Nota: Iron Router ha sido desarrollado en parte por Tom Coleman, coautor de este libro).
+
+En primer lugar, vamos a instalar el paquete desde Atmosphere:
+
+~~~bash
+$ mrt add iron-router
+~~~
+<%= caption "Terminal" %>
+
+Este comando descarga e instala el paquete iron-router dentro de nuestra aplicación. Hay que tener en cuenta que a veces puede ser necesario reiniciar la aplicación (con `ctrl+c` para parar y `mrt` para iniciar de nuevo) antes de pode usar algunos paquetes.
+
+Iron Router es un paquete de terceros, lo que significa que necesitamos Meteorite para instalarlo (`meteor add iron-router` no funciona).
+
+<% note do %>
+
+### Vocaulario del Router
+
+En este capítulo vamos a tocar un montón de características del Router. Si tienes experiencia con un framework como Rails, ya estarás familiarizado con la mayoría de estos conceptos. Si no, aquí hay un glosario para ponerte al día:
+
+- **Routes**: Una ruta es la pieza de construcción básica del enrutamiento. Es básicamente el conjunto de instrucciones que le dicen a la aplicación a dónde ir y qué hacer cuando se encuentra con una URL. 
+- **Paths**: Un path es una dirección URL dentro de la aplicación. Puede ser estática (`/terms_of_service`) o dinámica (` /posts/xyz`), e incluso puede incluir parámetros de consulta (`/search?Keyword=meteor`).
+- **Segments**: Las diferentes partes de un Path, delimitadas por barras inclinadas (`/`).
+- **Hooks**: Son acciones que nos gustaría realizar antes, después o incluso durante el proceso de enrutamiento. Un ejemplo típico sería comprobar si el usuario tiene las credenciales adecuadas antes de mostrar una página.
+- **Filters**: Son simplemente Hooks o acciones que se definen de forma global para una o más rutas.
+- **Route Templates**: Cada ruta debe apuntar a una plantilla. Si no se especifica una, el router buscará una plantilla con el mismo nombre que la ruta por defecto.
+- **Layouts**: Son como marcos de fotos digitales. Contienen todo el código HTML que envuelve la plantilla actual, y seguirá siendo el mismo, aunque la plantilla cambie.
+- **Controllers**:  veces, nos daremos cuenta de que muchos de nuestras plantillas utilizan los mismos parámetros. En lugar de duplicar el código, podemos dejar que todas estas rutas se heredan desde un solo _controlador de encaminamiento_ que contendrá toda la lógica necesaria. 
+
+Para obtener más información acerca de Iron Router, echa un vistazo a la [documentación completa en GitHub](https://github.com/EventedMind/iron-router).
+
+<% end %>
+
+### Enrutando: Mapeando URLs a plantillas
+
+Hasta ahora, hemos construido nuestro diseño usando una plantilla fija (como `{{> postsList}}`). Así que, aunque el contenido de nuestra aplicación puede cambiar, la estructura básica de la página es siempre la misma: una cabecera, con una lista de posts debajo de ella.
+
+El Iron Router nos permite romper este molde al tomar el control de lo que se muestra en el interior de la etiqueta HTML `<body>`. Por eso no vamos a definir el contenido, como lo haríamos con una página HTML normal. En vez de eso, vamos a indicar al router que apunte a una plantilla especial que contiene un ayudante `{{yield}}`.
+
+El ayudante `{{yield}}` definirá una zona dinámica especial que mostrará automáticamente lo que corresponde a la ruta actual (a modo de convención, llamaremos a esta plantilla especial "route templates" o "plantillas de ruta"):
+
+<%= diagram "router-diagram", "Plantillas y layouts.", "pull-center" %>
+
+Empezaremos creando nuestro layout y añadiendo el ayudante {{yield}}. En primer lugar, vamos a eliminar la etiqueta `<body>` del fichero `main.html`, y movemos su contenido a su propia plantilla, `layout.html`.
+
+Nuestro `main.html` adelgazado quedará así:
+
+~~~html
+<head>
+  <title>Microscope</title>
+</head>
+~~~
+<%= caption "client/main.html" %>
+
+Mientras que el el nuevo fichero `layout.html`, contendrá ahora el diseño exterior de la aplicación:
+
+~~~html
+<template name="layout">
+  <div class="container">
+  <header class="navbar">
+    <div class="navbar-inner">
+      <a class="brand" href="/">Microscope</a>
+    </div>
+  </header>
+  <div id="main" class="row-fluid">
+    {{yield}}
+  </div>
+  </div>
+</template>
+~~~
+<%= caption "client/views/application/layout.html" %>
+
+Te habrás dado cuenta de que hemos cambiado la inclusión de la plantilla `postsList` con una llamada al ayudante `yield`. Después de este cambio, no vemos nada en la pantalla. Esto se debe a que todavía no le hemos dicho al router qué debe hacer con la URL `/`, por lo que simplemente sirve una plantilla vacía.
+
+Podemos recuperar el comportamiento anterior mapeando la URL raiz `/` a la plantilla `postsList`. Vamos a crear un directorio `/lib` en la raíz de nuestro proyecto, y dentro de ella crearemos el fichero `router.js`:
+
+~~~js
+Router.configure({
+  layoutTemplate: 'layout'
+});
+
+Router.map(function() {
+  this.route('postsList', {path: '/'});
+});
+~~~
+<%= caption "lib/router.js"%>
+
+Hemos hecho dos cosas importantes. En primer lugar, le hemos dicho al router que utilice el layout que hemos creado como diseño predeterminado para todas las rutas. En segundo lugar, hemos definido una nueva ruta llamada `postsList` y la hemos mapeado a `/`.
+
+<% note do %>
+
+### El directorio `/lib`
+
+Meteor garantiza que cualquier cosa que pongamos dentro de la carpeta `/lib` se cargará  antes que cualquier otra cosa de la aplicación (con la posible excepción de los smart packages). Esto hace que sea un gran lugar para poner cualquier código auxiliar que debe estar disponible en todo momento.
+
+Sólo una pequeña advertencia: ten en cuenta que, dado que la carpeta `/lib` no está dentro ni de `/client` ni de `/server`,  sus contenidos estarán disponibles para ambos entornos.
+
+<% end %>
+
+### Rutas con nombre
+
+Vamos a aclarar un poco las cosas. Hemos llamado a nuestra ruta `postsList`, pero también tenemos una plantilla llamada `postsList`. Entonces, ¿qué está pasando?
+
+De forma predeterminada, Iron Router buscará una plantilla con el mismo nombre que la ruta. De hecho, incluso intentará buscar un camino basado en el nombre de la ruta, lo que significa que si no hubiéramos definido una ruta personalizada (cosa que hicimos al proporcionar una opción `path` en la definición de la ruta), nuestra plantilla hubiera sido accesible en la URL `/postsList`.
+
+Te estarás preguntando por qué necesitamos nombrar nuestras rutas. Hacelo nos permite utilizar algunas características del Iron Router que hacen que sea más fácil construir enlaces dentro de nuestra aplicación. La más útil es el ayudante de Handlebars `{{pathFor}}`, que devuelve los componentes del `path` de cualquier ruta.
+
+Queremos el enlace principal apunte de nuevo a la lista de mensajes, así que en vez de especificar una URL estática `/`, podemos utilizar el ayudante Handlebars. El resultado final será el mismo, pero tendremos más flexibilidad porque el ayudante siempre obtendrá la dirección correcta, incluso si cambiamos el path de la ruta en la configuración del router.
+
+~~~html
+<header class="navbar">
+  <div class="navbar-inner">
+    <a class="brand" href="{{pathFor 'postsList'}}">Microscope</a>
+  </div>
+</header>
+~~~
+<%= caption "client/views/application/layout.html"%>
+<%= highlight "3" %>
+
+<%= commit "5-1", "Enrutado básico." %>
+
+### Esperando a los datos
+
+Si despliegas la versión actual de la aplicación (o lanzas la instancia mediante el enlace anterior), te darás cuenta de que la lista aparece vacía durante unos instantes antes de que aparezcan los posts. Esto es porque cuando la página se carga por primera vez, no hay posts para mostrar hasta que se completa la suscripción obteniendo los datos enviados desde el servidor.
+
+Tendríamos una mejor experiencia de usuario si proporcionáramos alguna información visual de que algo está pasando, y que el usuario debe esperar un poco.
+
+Por suerte, Iron Router proporciona una forma fácil de hacerlo -- esperaremos (`waitOn`) a la suscripción en el router:
+
+~~~js
+Router.configure({
+  layoutTemplate: 'layout',
+  loadingTemplate: 'loading',
+  waitOn: function() { return Meteor.subscribe('posts'); }
+});
+
+Router.map(function() {
+  this.route('postsList', {path: '/'});
+});
+~~~
+<%= caption "lib/router.js" %>
+<%= highlight "3,4" %>
+
+Vamos a analizar las cosas. En primer lugar, hemos modificado el bloque `Router.configure()` para proporcionar al router el nombre de la plantilla de carga (que crearemos en breve) a la que redirigir mientras esperamos los datos.
+
+En segundo lugar, hemos añadido una función `waitOn` que devuelve nuestra suscripción. Lo que significa es que el router se asegurará de que la suscripción se completa antes de enviar al usuario a través de la ruta que había solicitado.
+
+Ten en cuenta que, dado que estamos definiendo nuestra función waitOn a nivel mundial a nivel de router, esta secuencia sólo ocurrirá una vez que cuando un usuario accede por primera vez a su aplicación. Después de eso, los datos que ya se cargarán en la memoria del navegador y el router no tendrán que esperar a que otra vez.
+
+Además, dado que definimos la función waitOn a nivel global a nivel de router, esta secuencia sólo ocurrirá una vez, cuando un usuario accede por primera vez a la aplicación. Después, los datos que ya estarán en la memoria del navegador y el router no tendrá que esperar de nuevo.
+
+Puesto que ahora dejamos que el router maneje nuestra suscripción, puedes eliminarla de forma segura en el `main.js` (que ahora debe estar vacío).
+
+Por lo general es una buena idea esperar a las suscripciones, no sólo por la experiencia de usuario, sino también porque significa que podemos asumir con seguridad que los datos estarán siempre disponibles dentro de una plantilla. Esto elimina la necesidad de enredarse con plantillas que se muestran antes de que los datos que usan estén disponibles, cosa que a menudo requiere soluciones difíciles.
+
+La pieza final del rompecabezas es la plantilla de carga. Vamos a utilizar el paquete `spin` para crear un buen efecto de carga animada. Lo añadimos con `mrt add spin`, y luego creamos la plantilla de carga:
+
+~~~html
+<template name="loading">
+  {{>spinner}}
+</template>
+~~~
+<%= caption "client/views/includes/loading.html" %>
+
+Ten en cuenta que `{{>spinner}}` está contenido en el paquete `spin`. A pesar de que proviene de "fuera" de nuestra aplicación, podemos incluirlo como cualquier otra plantilla.
+
+<%= commit "5-2", "Esperando a la suscripción." %>
+
+<% note do %>
+
+### Un primer vistazo a la reactividad
+
+La reactividad es una parte fundamental de Meteor, y aunque todavía queda un poco para conocerla, nuestra plantilla de carga nos da un primer vistazo a este concepto.
+
+Redireccionar a una plantilla de carga de datos si no se ha cargado todavía está muy bien, pero ¿cómo sabe el router cuándo redirigir al usuario una vez han llegado los datos?
+
+Por ahora, sólo diremos que aquí es exactamente donde entra en juego la reactividad. Pero no te preocupes, aprenderás más sobre ella muy pronto!
+
+<% end %>
+
+### Enrutando a un post específico
+
+Ahora que hemos visto cómo enrutar hacia la plantilla `postsList`, vamos a configurar una ruta para mostrar los detalles de un solo post.
+
+Sólo hay un problema: no podemos continuar definiendo rutas una por una  para cada post, ya que podría haber cientos de ellos. Así que tendremos que crear una ruta _dinámica_ y  hacer que se vea ésta nos muestre cualquier post que queremos.
+
+Para empezar, vamos a crear una nueva plantilla `post_page.html` que simplemente muestra la misma plantilla para un post que hemos utilizado anteriormente en la lista de posts.
+
+~~~html
+<template name="postPage">
+  {{> postItem}}
+</template>
+~~~
+<%= caption "client/views/posts/post_page.html" %>
+
+Más adelante añadiremos más elementos a esta plantilla  (como los comentarios), pero, por ahora, sólo la vamos a usar para mostrar `{{> PostItem}}`.
+
+Ahora vamos a crear otra ruta con nombre, esta vez, mapeando URLs de la forma `/posts/<ID>` hacia la plantilla `postPage`:
+
+~~~js
+Router.map(function() {
+  this.route('postsList', {path: '/'});
+  
+  this.route('postPage', {
+    path: '/posts/:_id'
+  });
+});
+
+~~~
+<%= caption "lib/router.js" %>
+<%= highlight "4~6" %>
+
+La sintaxis especial `:_id` le dice dos cosas al router: primero, que encuentre cualquier ruta de la forma `/posts/xyz/`, donde "xyz" puede ser cualquier cadena. En segundo lugar, poner lo que encuentra dentro de una propiedad `_id` en el vector de parámetros del router.
+
+Ten en cuenta que solamente estamos usando el `_id` porque queremos. El router no tiene manera de saber si usted está pasándole un `_id` real, o simplemente una cadena de caracteres al azar.
+
+Ya enrutamos a la plantilla correcta, pero todavía nos falta algo: el router conoce el `_id` del post que nos gustaría ver, pero la plantilla todavía no tiene ni idea. Entonces, ¿cómo solucionamos este problema?
+
+Afortunadamente, el router integra una inteligente solución: permite especificar el **contexto de datos** de una plantilla. Puedes pensar en el contexto de datos como lo que rellena un delicioso pastel hecho de plantillas y diseños. En pocas palabras, son los datos con los que rellenamos la plantilla:
+
+<%= diagram "router-diagram-2", "El contexto de datos.", "pull-center" %>
+
+En nuestro caso, podemos obtener el contexto de datos correcto mediante la búsqueda de nuestro post basado en el `_id` que recibimos de la URL:
+
+~~~js
+Router.map(function() {
+  this.route('postsList', {path: '/'});
+  
+  this.route('postPage', {
+    path: '/posts/:_id',
+    data: function() { return Posts.findOne(this.params._id); }
+  });
+});
+
+~~~
+<%= caption "lib/router.js" %>
+<%= highlight "4~7" %>
+
+De esta forma, cada vez que un usuario accede a esta ruta, encontraremos el post adecuado y lo pasaremos a la plantilla. Recuerda que `findOne` devuelve un solo post, el que coincide con la consulta, y que proporcionar sólo un `id` como argumento es una abreviatura de `{_id: id}`.
+
+Dentro de la finción `data` de una ruta, `this` se corresponde con la ruta actual, y podemos usar `this.params` para acceder a las propiedades de la ruta (que habíamos indicado con el prefijo `:` dentro de nuestro `path`).
+
+<% note do %>
+
+### Más acerca de los contextos de datos
+
+Al establecer el contexto de datos de una plantilla, se puede controlar el valor de `this` dentro de los ayudantes de la plantilla.
+
+Esto se hace implícitamente con el iterador `{{#each}}`, que ajusta automáticamente el contexto de datos de cada iteración para el elemento que se está iterando:
+
+~~~html
+{{#each widgets}}
+  {{> widgetItem}}
+{{/each}}
+~~~
+
+Pero también podemos hacerlo explícitamente utilizando `{{#with}}`, que simplemente dice "coje este objeto, y le aplicas la siguiente plantilla". Por ejemplo, se puede escribir:
+
+~~~html
+{{#with myWidget}}
+  {{> widgetPage}}
+{{/with}}
+~~~
+
+Resulta que se consigue el mismo resultado pasando el contexto como un argumento en la llamada a la plantilla. Así que el bloque de código anterior se puede reescribir como:
+
+~~~js
+{{> widgetPage myWidget}}
+~~~
+
+<% end %>
+
+### Usando nuestro enrutador dinámico
+
+Por último, tenemos que asegurarnos de que apuntamos al lugar correcto cuando queramos enlazar a un post individual. Podríamos hacer algo como `<a href="/posts/{{_id}}>`, pero es mucho más fiable, utilizar un ayudante de ruta.
+
+Hemos llamado a la ruta al post `postPage`, así que podemos usar el ayudante `{{'postpage' pathFor}}` en `client/views/posts/post_item.html`:
+
+~~~html
+<template name="postItem">
+  <div class="post">
+    <div class="post-content">
+      <h3><a href="{{url}}">{{title}}</a><span>{{domain}}</span></h3>
+    </div>
+    <a href="{{pathFor 'postPage'}}" class="discuss btn">Discuss</a>
+  </div>
+</template>
+~~~
+<%= caption "client/views/posts/post_item.html"%>
+<%= highlight "6" %>
+<%= commit "5-3", "Ruta para un único post." %>
+
+Pero espera, ¿cómo sabe el router dónde conseguir la parte `xyz` en `/posts/xyz`? Después de todo, no le hemos pasado ninguna `_id`.
+
+Resulta que Iron Router es lo suficientemente inteligente como para averiguarlo por sí mismo. Le estamos diciendo que use la ruta `postPage`, y el router sabe que esta ruta requiere un `_id` de algún tipo (así es como hemos definido nuestro `path`).
+
+Así que el router buscará este `_id` en el lugar más lógico: el contexto de datos del ayudante `{{pathFor 'postPage'}}`, en otras palabras: `this`. Y da la casualidad de que nuestro `this` corresponde a un post, que (¡sorpresa!) tiene una propiedad `_id`.
+
+De forma alternativa, se puede especificar el lugar donde tiene que buscar el `_id`, pasando un segundo argumento al ayudante (es decir, `{{pathFor 'postPage' someOtherPost}}`). Un uso práctico sería, por ejemplo, conseguir los enlaces a los posts anterior y siguiente en una lista.
+
+Para ver si todo funciona correctamente, navega a la lista de posts y haz clic en uno de los enlaces 'Discuss'. Deberías ver algo como esto:
+
+<%= screenshot "5-2", "La página para un sólo post." %>
+
+<% note do %>
+
+### HTML5 pushState
+
+Una cosa que hay que tener en cuenta es que estos cambios en las URLs están suceden gracias a [HTML5 pushState](https://developer.mozilla.org/en-US/docs/Web/Guide/API/DOM/Manipulating_the_browser_history?redirectlocale=en-US&redirectslug=Web%2FGuide%2FDOM%2FManipulating_the_browser_history).
+
+El router recoge los clics en URL internas, y evita que el navegador salga fuera de la aplicación haciendo los cambios necesarios en su estado.
+
+Si todo funciona correctamente la página debe cambiar instantáneamente. De hecho, a veces las cosas cambian tan rápido que podría ser necesario añadir algún tipo de transición. Esto está fuera del alcance de este capítulo, pero, no obstante, es un tema interesante.
+
+<% end %>
