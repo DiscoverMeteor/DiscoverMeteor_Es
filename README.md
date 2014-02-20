@@ -11,8 +11,6 @@ Qué es Meteor?
 
 Todo en Meteor es en tiempo real (es decir, cualquier cambio en la base de datos se refleja automáticamente en el navegador), y el hecho de que utiliza JavaScript en el cliente y el servidor, implica que no tendrás que hacer malabarismos entre varios lenguajes y entornos distintos.
 
-No matter your programming experience, by following our step-by-step instructions you'll be able to get your own Meteor app up and running in a matter of days!
-
 No importa qué experiencia tengas en programación, siguiendo nuestras instrucciones paso a paso, ¡vas a ser capaz de tener funcionando tu propia aplicación Meteor en cuestión de días!
 
 
