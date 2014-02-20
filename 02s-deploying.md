@@ -1,0 +1,220 @@
+---
+title: Despliegue
+slug: deploying
+date: 0002/01/02
+number: 2.5
+points: 10
+sidebar: true
+photoUrl: http://www.flickr.com/photos/monomaniacgarage/10703829133/
+photoAuthor: Monomaniacgarage
+contents: Aprenderemos cómo desplegar aplicaciones en Meteor.com.|Aprenderemos cómo desplegar aplicaciones en Modulus.|Aprenderemos cómo desplegar aplicaciones en nuestro propio servidor usando Meteor Up.
+---
+
+A algunos gusta trabajar silenciosamente en un proyecto hasta queda perfecto. Otros quieren mostrarlo al mundo lo más pronto posible.
+
+Si eres de los primeros y prefieres desarrollar a nivel local, no dudes en saltarte este capítulo. Pero si prefieres aprender a desplegar tu aplicación Meteor en línea, aquí te explicamos cómo.
+
+Vamos a aprender a desplegar una aplicación Meteor de diferentes formas. Eres libre de utilizar cualquiera de ellas en cualquier etapa del desarrollo, ya sea trabajando en microscopie o en otra aplicación. ¡Vamos a empezar!
+
+<% note do %>
+
+### Introduciendo las barras laterales.
+
+Este capítulo es una **barra lateral** (_sidebar_). En estos capítulos se adopta una mirada más profunda a temas más generales sobre Meteor, de forma independiente al resto del libro.
+
+Así que si prefieres ir seguir construyendo Microscope, puedes saltarse estos capítulos y volver a ellos más tarde.
+
+<% end %>
+
+### Despliegue de aplicaciones en Meteor.com
+
+La primera y más sencilla forma de desplegar aplicaciones es hacerlo en un subdominio de Meteor.com (por ejemplo `http://myapp.meteor.com`). Es muy útil para mostrar la aplicación durantre las primeras etapas del desarrollo o para configurar rápidamente un servidor de prueba.
+
+Desplegar en Meteor es muy simple. Sólo tienes que abrir el terminal, ir al directorio de la aplicación y escribir:
+
+~~~bash
+$ meteor deploy myapp.meteor.com
+~~~
+
+Tenemos que elegir con cuidado el nombre de la aplicación porque puede que ya esté en uso y que Meteor te solicite una contraseña. Si ocurre esto, cancela la operación con `ctrl + c` e inténtalo de nuevo con otro nombre.
+
+Si todo va bien, después de unos segundos podrás acceder a tu aplicación en `http://myapp.meteor.com`.
+
+### Protección con contraseña
+
+Por defecto, no hay ninguna restricción en los subdominios de Meteor. Cualquiera puede utilizar cualquier nombre, y sobrescribir la aplicación existente. Así que es probable que quieras proteger con una contraseña tu nombre de dominio utilizando la opción `-p`, como se muestra a continuación:
+
+~~~~bash
+$ meteor deploy myapp.meteor.com -p
+~~~~
+
+Meteor te pedirá que establezcas una contraseña, y desde ese momento, Meteor te pedirá la contraseña cada vez que quieras desplegar esta aplicación en particular.
+
+Puedes mirar [la documentación oficial](http://docs.meteor.com/#deploying) para obtener más información sobre cosas como el acceso a la base de datos de la instancia, o cómo configurar un dominio personalizado.
+
+### Despliegue de aplicaciones en Modulus
+
+[Modulus](https://modulus.io/) es una gran opción para el desplegar aplicaciones basadas en NodeJS. Es uno de los pocos proveedores de PaaS (plataforma-como-servicio) que apoyan oficialmente a Meteor, y ya hay un buen número de gente corriendo aplicaciones en producción allí.
+
+<% note do %>
+
+### Demeteorizer
+
+Modulus liberó una herramienta llamada [demeteorizer](https://github.com/onmodulus/demeteorizer) que convierte tu app Meteor en una aplicación NodeJS estándar.
+
+<% end %>
+
+Empieza [creando una cuenta](https://modulus.io/register). Para desplegar nuestra aplicación, vamos a necesitar instalar la herramienta línea de comandos de Modulus:
+
+
+~~~bash
+$ npm install -g modulus
+~~~
+
+Y luego autenticarse:
+
+~~~bash
+$ modulus login
+~~~
+
+El siguiente es crear de una base de datos MongoDB para nuestra aplicación. Podemos crear una base de datos MongoDB con [Modulus](https://modulus.io/codex/database/getting_started), [MongoHQ](https://www.mongohq.com/) o con cualquier otro proveedor de MongoDB en la nube.
+
+Si ya hemos creado la base de datos, podemos coger la `MONGO_URL` de nuestra base de datos (en el caso de Modulus, desde la interfaz web: Dashboard > Databases > Select your database > Administration), y, a continuación, utilizarlo para configurar nuestra aplicación de la siguiente forma:
+
+~~~bash
+$ modulus env set MONGO_URL "mongodb://<user>:<pass>@mongo.onmodulus.net:27017/<database_name>"
+~~~
+
+Es el momento de desplegar nuestra aplicación. Es tan fácil como escribir:
+
+~~~bash
+$ modulus deploy
+~~~
+
+Ahora hemos desplegado con éxito nuestra aplicación en Modulus. Echa un vistazo a [la documentación de Modulus](https://modulus.io/codex/projects) para obtener más información acerca de los registros de acceso, configuración de un dominio personalizado, SSL, etc.
+
+### Meteor Up
+
+Aunque todos los días aparecen nuevas soluciones en la nube, a menudo vienen con su propia cuota de problemas y limitaciones. Así que, a día de hoy, el despliegue en tu propio servidor sigue siendo la mejor manera de poner una aplicación Meteor en producción. El problema es que, hacerlo uno mismo no es tan sencillo, especialmente si lo que estás buscando es un despliegue de calidad. 
+
+[Meteor Up](https://github.com/arunoda/meteor-up) (o `mup`, para abreviar) es un intento de solucionar este problema con una utilidad de línea de comandos que se encarga por tí de la instalación y el despliegue. Así que veamos cómo desplegar microscope utilizando Meteor Up.
+
+Antes que nada, vamos a necesitar un servidor. Recomendamos o bien [Digital Ocean](http://digitalocean.com), desde $5 al mes, o bien [AWS](http://aws.amazon.com/), que proporciona Micro instancias gratuitas (con las que rápidamente tendremos problemas de escala, aunque deberían ser suficientes si sólo buscamos trastear con Meteor).
+
+Sea cual sea el servicio que elijas, debes obtener tres cosas: la dirección IP del servidor, un inicio de sesión (normalmente `root` o `ubuntu`), y una contraseña. Guarda estas cosas en un lugar seguro, ¡pronto las necesitaremos!.
+
+### Inicializando Meteor Up
+
+Para empezar, necesitmos instalar Meteor Up vía `npm`::
+
+~~~bash
+$ npm install -g mup
+~~~
+
+A continuación, crearemos un directorio especial donde se pondremos la configuración de Meteor Up para un despliegue en particular. Vamos a utilizar un directorio independiente por dos razones: primero, porque, por lo general, es la mejor manera de evitar incluir credenciales privadas en tu repositorio Git, especialmente si estás trabajando en un repositorio público.
+
+En segundo lugar, mediante el uso de directorios separados, podremos manejar múltiples configuraciones en paralelo. Esto será muy útil para, por ejemplo, desplegar instancias de producción y almacenamiento.
+
+Así que vamos a crear este nuevo directorio y lo utilizaremos para inicializar un nuevo proyecto Meteor Up:
+
+~~~bash
+$ mkdir ~/microscope-deploy
+$ cd ~/microscope-deploy
+$ mup init
+~~~
+
+<% note do %>
+
+### Compartir con Dropbox
+
+Una manera de asegurarse de que todo el equipo de desarrollo utilicen la misma configuración de despliegue es crear la carpeta de configuración de Meteor Up dentro de Dropbox, o cualquier servicio similar.
+
+<% end %>
+
+### Configuración de Meteor Up
+
+Cuando inicializamos un nuevo proyecto, Meteor Up crea dos archivos: `mup.json` y `settings.json`. 
+
+`mup.json` contendrá los ajustes relacionados con el despliegue, mientras que `settings.json` contendrá todos los ajustes relacionados con la aplicación (tokens OAuth, tokens para análisis, etc.)
+
+El siguiente paso es configurar el archivo `mup.json`. Aquí está el archivo `mup.json` que `mup init` genera por defecto. Todo lo que hay que hacer es rellenar los espacios en blanco:
+
+~~~js
+{
+  //server authentication info
+  "servers": [{
+    "host": "hostname",
+    "username": "root",
+    "password": "password"
+    //or pem file (ssh based authentication)
+    //"pem": "~/.ssh/id_rsa"
+  }],
+
+  //install MongoDB in the server
+  "setupMongo": true,
+
+  //location of app (local directory)
+  "app": "/path/to/the/app",
+
+  //configure environmental
+  "env": {
+    "ROOT_URL": "http://supersite.com"
+  }
+}
+~~~
+<%= caption "mup.json" %>
+
+Vamos a 
+
+Vamos a repasar cada uno de estos valores.
+
+**Server Authentication**
+
+Te habrás dado cuenta de que con Meteor Up puedes usar SSH con usuario y contraseña o una clave privada (PEM), por lo que lo podemos usar con casi cualquier proveedor de la nube.
+
+si eliges utilizar la autenticación basada en contraseña, asegúrate de instalar primero `sshpass`.
+
+**Nota importante**: si eliges utilizar la autenticación basada en contraseña, asegúrate de instalar primero `sshpass`. ([Echa un vistazo a esta guia](https://gist.github.com/arunoda/7790979)).
+
+
+**Configuración de MongoDB**
+
+El siguiente paso es configurar una base de datos MongoDB. Recomendamos usar [MongoHQ](https://www.mongohq.com/home) o cualquier otro proveedor en la nube porque ofrecen un apoyo profesional y mejores herramientas de gestión.
+
+Si has decidido usar MongoHQ, configura `setupMongo` como `false` y añade la variable de entorno `MONGO_URL` en un bloque `env` en `mup.json`. Si por el contrario decides usar MongoDB en el propio servidor, configura `setupMongo` como `true` y Meteor Up se hará cargo de todo.
+
+**El path de la aplicación Meteor**
+
+Como configuración de Meteor Up reside en un directorio diferente. Mediante la propiedad `app` le decimos cómo llegar a nuestra aplicación . Sólo hay que introducir la ruta local completa, que se puede obtener con el comando `pwd` de la terminal cuando estamos dentro del directorio de la aplicación.
+
+**Environment Variables**
+
+Dentro del bloque `env` podemos especificar todas las variables de entorno de nuestra la aplicación (por ejemplo, `ROOT_URL`, `MAIL_URL`, `MONGO_URL`, etc).
+
+### Configuración y despliegue
+
+Antes de que podamos desplegar, tendremos que configurar el servidor para que esté listo para alojar aplicaciones Meteor. La magia de Meteor Up encapsula este complejo proceso ¡en un solo comando!
+
+~~~bash
+$ mup setup
+~~~
+
+Esto llevará un tiempo dependiendo del rendimiento del servidor y la conectividad de la red. Después de que la instalación termine correctamente, por fin podemos desplegar nuestra aplicación con:
+
+~~~bash
+$ mup deploy
+~~~
+
+Esto empaqueta la aplicación, y la despliega en el servidor que acabamos de configurar.
+
+### Mostrando logs
+
+Los registros son muy importantes y Meteor Up proporciona una forma fácil de manejarlos, emulando el comando `tail-f `. Sólo tienes que escribir:
+
+~~~bash
+$ mup logs -f
+~~~
+
+Aquí termina nuestro resumen de lo que puede hacer Meteor Up. Para más información, le sugerimos visitar [el repositorio GitHub de Meteor Up](https://github.com/arunoda/meteor-up).
+
+Estas tres formas de desplegar aplicaciones Meteor deberían ser suficiente para la mayoría de los casos de uso. Por supuesto, sabemos que algunos de vosotros preferiríais tener el control y configurar un servidor Meteor desde cero. Eso, lo dejaremos para otro día ... o tal vez para otro libro!

@@ -23,7 +23,7 @@ Meteor es parte de una nueva ola de frameworks y tecnologías que buscan desafia
 
 ### ¿Qué es Meteor?
 
-Meteor es una plataforma para la creación de aplicaciones web en tiempo real construida sobre Node.js. Meteor se localiza entre la base de datos de la aplicación y su interfaz de usuario y se asegura de que ambas partes estén sincronizadas.
+Meteor es una plataforma para crear aplicaciones web en tiempo real construida sobre Node.js. Meteor se localiza entre la base de datos de la aplicación y su interfaz de usuario y se asegura de que ambas partes estén sincronizadas.
 
 Como Meteor usa Node.js, se utiliza JavaScript en el cliente y en el servidor. Y más aún, Meteor es capaz de compartir código entre ambos entornos.
 
