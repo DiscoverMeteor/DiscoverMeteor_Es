@@ -1,0 +1,135 @@
+---
+title: Compensación de la latencia
+slug: latency-compensation
+date: 0007/01/02
+number: 7.5
+points: 10
+sidebar: true
+photoUrl: http://www.flickr.com/photos/ikewinski/9473352049/
+photoAuthor: Mike Lewinski
+contents: Comprender la compensación de latencia.|Bajaremos la velocidad de la aplicación para ver qué es lo que pasa.|Veremos cómo se llaman los métodos entre sí en Meteor.
+---
+
+En el último capítulo, se introdujo un nuevo concepto en el mundo Meteor: **los métodos**.
+
+<%= diagram "latency1", "Sin compensación de la latencia", "pull-right" %>
+
+Un método es una forma de ejecutar una serie de comandos en el servidor de una manera estructurada. En nuestro ejemplo, hemos utilizado un método porque queríamos asegurarnos de que los nuevos posts se etiqueten con el nombre nombre y el identificador de su autor y con la hora actual del servidor.
+
+Sin embargo, tendríamos un problema si Meteor ejecutara los métodos de una forma más básica. Considera la siguiente secuencia de eventos (nota: las marcas de tiempo son valores aleatorios escogidos con fines ilustrativos):
+
+- *+0ms:* El usuario hace clic en un botón de envío y el navegador lanza una llamada al método.
+- *+200ms:* El servidor realiza cambios en la base de datos Mongo.
+- *+500ms:* El cliente recibe estos cambios y actualiza la interfaz de usuario para reflejarlos.
+
+Si fuera así, habría un breve retraso entre la acción y la visualización de los resultados (que se notaría más o menos dependiendo de lo cerca que estuviésemos del servidor).¡Esto no se puede permitir en una aplicación web moderna!
+
+### Compensación de la latencia
+
+<%= diagram "latency2", "Con compensación de la latencia", "pull-right" %>
+
+Para evitar este problema, Meteor introduce un concepto llamado **Compensación de la Latencia**. Cuando definimos nuestro método `Post`, lo colocamos dentro de un archivo en el directorio `collections/`. Esto implica que estará disponible *tanto para el servidor como para el cliente* - ¡y se ejecutará al mismo tiempo en ambos contextos!
+
+Cuando se hace una llamada a un método, el cliente no solo envía la llamada al servidor, sino que también *simula* la acción en su propia colección. De esta forma, el flujo de trabajo sería:
+
+- *+0ms:* El usuario hace clic en un botón de envío y el navegador lanza una llamada al método.
+- *+0ms:* El cliente simula la acción en su propia colección y cambia la la interfaz de usuario para reflejar los cambios.
+- *+200ms:* El servidor realiza cambios en la base de datos Mongo..
+- *+500ms:* El cliente recibe esos cambios deshaciendo los que ha simulado y reemplazándolos con los del servidor (que, generalmente son los mismos) y la interfaz de usuario cambia reflejarlos.
+
+Esto se traduce en que el usuario ve los cambios instantáneamente. Cuando llega la respuesta del servidor unos momentos más tarde, puede haber o no cambios notables. Por tanto, una cosa que tenemos que aprender es que debemos tratar de asegurar de que, en la medida de lo posible, los documentos simulados sean muy parecidos a los reales.
+
+### Observando la compensación de la latencia
+
+Haciendo un pequeño cambio en el método `post` veremos todo esto en acción. Para ello, vamos a introducir código algo más avanzado usando el paquete npm `futures` para retrasar el momento en el que se introducen objetos en nuestro método.
+
+Usaremos `isSimulation` para preguntar a Meteor si el método se está invocando como un stub de código. Este [stub](http://docs.meteor.com/#methods_header) es la la simulación del método que ejecuta Meteor en el cliente, mientras el método "real" se está ejecutando en el servidor.
+
+Así que vamos a preguntar a Meteor si se está ejecutando el código en el cliente. Si es así, vañadiremos la cadena '(client)` al final del título de nuestro post y si no, añadiremos `(server)`:
+
+~~~js
+Meteor.methods({
+  post: function(postAttributes) {
+    // […]
+    
+    // pick out the whitelisted keys
+    var post = _.extend(_.pick(postAttributes, 'url', 'message'), {
+      title: postAttributes.title + (this.isSimulation ? '(client)' : '(server)'),
+      userId: user._id, 
+      author: user.username, 
+      submitted: new Date().getTime()
+    });
+    
+    // wait for 5 seconds
+    if (! this.isSimulation) {
+      var Future = Npm.require('fibers/future');
+      var future = new Future();
+      Meteor.setTimeout(function() {
+        future.return();
+      }, 5 * 1000);
+      future.wait();
+    }
+    
+    var postId = Posts.insert(post);
+    
+    return postId;
+  }
+});
+~~~
+<%= caption "collections/posts.js" %>
+<%= highlight "6, 7, 13~22" %>
+
+Nota: por si te lo estás preguntando, el `this` en `this.isSimulation` es un [objeto](http://docs.meteor.com/#meteor_methods) que proporciona acceso a algunas variables muy útiles.
+
+Cómo funciona exactamente [Futures](https://npmjs.org/package/future) queda fuera del alcance de este libro, pero básicamente le dice a Meteor que espere 5 segundos antes de insertar el post en la colección del servidor.
+
+Además, redirigiremos a la lista de posts tras un envío.
+
+~~~js
+Template.postSubmit.events({
+  'submit form': function(event) {
+    event.preventDefault();
+    
+    var post = {
+      url: $(event.target).find('[name=url]').val(),
+      title: $(event.target).find('[name=title]').val(),
+      message: $(event.target).find('[name=message]').val()
+    }
+    
+    Meteor.call('post', post, function(error, id) {
+      if (error)
+        return alert(error.reason);
+    });
+    Router.go('postsList');
+  }
+});
+~~~
+<%= caption "client/views/posts/post_submit.js" %>
+<%= highlight "15" %>
+
+<%= scommit "7-5-1", "Demostrar el orden en el que aparecen los posts usando un sleep." %>
+
+Si ahora creamos un nuevo puesto, vemos claramente la compensación de la latencia. En primer lugar, se inserta el post con el título `(cliente)`:
+
+<%= screenshot "s5-1", "Nuestro post insertado en la colección del cliente" %>
+
+Cinco segundos más tarde, se reemplaza con el documento real insertado por el servidor:
+
+<%= screenshot "s5-2", "Nuestro post una vez que el cliente recibe la actualización del servidor" %>
+
+### Métodos en el lado del cliente
+
+Después de todo esto quizá pienses que los métodos son complicados, pero en realidad pueden ser bastante simples. De hecho, ya hemos visto tres métodos muy sencillos: los métodos `insert`, `update` y `remove` de una colección.
+
+Cuando se define una colección `'posts'`, se están definiendo implícitamente tres métodos:`posts/insert`, `posts/update` y `posts/delete`. En otras palabras, cuando se llama `Posts.insert()` desde el cliente, se llama a un método compensado en latencia que hace dos cosas:
+
+1. Comprueba si podemos hacer el cambio llamando a los callbacks `allow` y `deny` (sin embargo, esto no tiene porque ser así en la simulación).
+2. Efectúa de verdad el cambio en el almacén de datos subyacente.
+  
+### Métodos que llaman a métodos
+
+Si has estado atento, te podrías haber dado cuenta de que el método `Post` llama a su vez a otro método (`posts/insert`) cada vez que insertamos un nuevo post. ¿Cómo es que esto funciona?
+ 
+Mientras se está ejecutando la simulación (la versión del método en el cliente), ejecutamos un `insert` simulado (lo insertamos en nuestra colección cliente), pero realmente *no* llamamos al `insert` del servidor, porque esperamos sea la versión de `Post` que hay en el servidor la que lo haga.
+
+En consecuencia, cuando el método `Post` del servidor llama a `insert` no tiene necesidad de preocuparse por la simulación, y la inserción se realiza sin problemas.

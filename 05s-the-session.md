@@ -1,0 +1,160 @@
+---
+title: La sesión
+slug: the-session
+date: 0005/01/02
+number: 5.5
+points: 10
+sidebar: true
+photoUrl: http://www.flickr.com/photos/philmosby/11372421963/
+photoAuthor: Phil Mosby
+contents: Aprender más sobre la Sesión en Meteor.|Comprender la función autorun.|Recarga automática de código o HCR.
+---
+
+Meteor es un framework reactivo. Esto significa que cuando cambian los datos, cambian cosas de la aplicación sin tener que hacer nada de forma explícita.
+
+Ya lo hemos visto en acción viendo cómo cambian nuestras plantillas cuando cambian los datos y las rutas.
+
+En capítulos posteriores veremos más en profundidad cómo funciona todo esto, pero ahora, nos gustaría introducir algunas características básicas de la reactividad, que son muy útiles en todas las aplicaciones.
+
+### La sesión en Meteor
+
+Ahora mismo, en Microscope, el estado actual de la aplicación está contenida en su totalidad en la URL que se está mostrando (y en la base de datos).
+
+Pero en muchos casos, necesitarás almacenar valores de estado que sólo son relevante en la versión de la aplicación para usuario actual. Usar la Sesión es una forma conveniente de hacerlo.
+
+La sesión es un almacén global de datos reactivo. Es global en el sentido de que es un objeto global: sólo hay una sesión, y ésta es accesible desde todas partes. Las variables globales se suelen ver como algo malo, pero en este caso la sesión se utiliza como un bus de comunicación central para diferentes partes de la aplicación.
+
+### Modificando la Sesión
+
+La sesión está disponible en todas partes como `Session`. Para establecer un valor en la sesión, puedes llamar a:
+
+~~~js
+❯ Session.set('pageTitle', 'A different title');
+~~~
+<%= caption "Consola del navegador" %>
+
+Puedes leer los datos de nuevo con `Session.get('mySessionProperty');`. Hemos dicho que la Sesión es una fuente de datos de reactiva, lo que significa que si lo pones en un ayudante, verías un cambio en el navegador cuando cambia la variable de sesión.
+
+Para probarlo, añade el siguiente código a la plantilla layout:
+
+~~~html
+<header class="navbar">
+  <div class="navbar-inner">
+    <a class="brand" href="{{pathFor 'postsList'}}">{{pageTitle}}</a>
+  </div>
+</header>
+~~~
+<%= caption "client/views/application/layout.html"%>
+
+~~~js
+Template.layout.helpers({
+  pageTitle: function() { return Session.get('pageTitle'); }
+});
+~~~
+<%= caption "client/views/application/layout.js"%>
+
+La recarga automática de Meteor ("recarga de código en caliente" o HCR, de Hot Code Reload) preserva las variables de sesión, por lo que ahora debes ver "A different title" en la barra de navegación. Si no es así, sólo tienes que escribir el comando `Session.set()` de nuevo.
+
+Si lo cambiamos de nuevo (desde la consola del navegador), debemos ver que se visualiza otro título:
+
+~~~js
+❯ Session.set('pageTitle', 'A brand new title');
+~~~
+<%= caption "Consola del navegador" %>
+
+La sesión está disponible a nivel global, por lo que los cambios se pueden hacer desde cualquier lugar de la aplicación. Esto nos da una gran cantidad de potencia y flexibilidad, pero también puede ser una trampa si se usa demasiado.
+
+<% note do %>
+
+### Cambios idénticos
+
+Si modificas una variable de sesión con `Session.set()` pero la estableces al mismo valor, Meteor es lo suficientemente inteligente como para eludir la cadena reactiva, y evitar las llamadas a métodos innecesarios.
+
+<% end %>
+
+### Presentamos a Autorun
+
+Hemos visto un ejemplo de una fuente de datos de reactivo, y la hemos visto en acción dentro de un ayudante de plantilla. Pero mientras que algunos contextos en Meteor (como ayudantes de plantilla) son inherentemente reactivos, la mayoría de código de la aplicación sigue siendo el viejo y simple JavaScript.
+
+Supongamos que tenemos el siguiente fragmento de código en algún lugar de nuestra aplicación:
+
+~~~js
+helloWorld = function() {
+  alert(Session.get('message'));
+}
+~~~
+
+A pesar de que llamamos a una variable de sesión, el *contexto* en el que se hace no es reactivo, lo que significa que no vamos a ver `alerts` cada vez que cambia su valor.
+
+Aquí es dónde entra en juego [Autorun](http://docs.meteor.com/#deps_autorun). Como su nombre indica, el código dentro de un bloque `autorun` se ejecutará automáticamente vez que cambien las fuentes de datos reactivas utilizadas dentro.
+
+Prueba a escribir esto en la consola del navegador:
+
+~~~js
+❯ Deps.autorun(function() {
+  console.log('Value is: ' + Session.get('pageTitle'));
+});
+Value is: A brand new title
+~~~
+<%= caption "Consola del navegador" %>
+
+Como era de esperar, el bloque de código situado en el interior de `autorun` se ejecuta una vez, mostrando los datos por la consola. Ahora, vamos a intentar cambiar el título:
+
+~~~js
+❯ Session.set('pageTitle', 'Yet another value');
+Value is: Yet another value
+~~~
+<%= caption "Consola del navegador" %>
+
+Magia! Al cambiar el valor, `autorun` sabe que tiene que ejecutar su contenido de nuevo, volviendo a mostrar el  nuevo valor por la consola.
+
+Volviendo a nuestro ejemplo anterior, si queremos activar una nueva alerta cada vez que cambien variables de sesión, lo único que tenemos que hacer es envolver nuestro código en un bloque `autorun`:
+
+~~~js
+Deps.autorun(function() {
+  alert(Session.get('message'));
+}
+~~~
+Como acabamos de ver, los autorruns pueden ser muy útiles para rastrear fuentes de datos reactivas y reaccionar inmediatamente ante ellos.
+
+### Recarga automática de código
+
+Durante el desarrollo de Microscope, hemos estado aprovechando una de las características de ahorro de tiempo que proporciona Meteor: La recarga de código en caliente (HCR). Cada vez que guardamos uno de nuestros archivos fuente, Meteor detecta los cambios y reinicia el servidor de forma transparente, informando a todos los clientes para que recarguen la página.
+
+Es similar a una recarga automática de página, pero con una diferencia importante.
+
+Para entenderlo, vamos a restablecer la variable de sesión que hemos estado utilizando:
+
+~~~js
+❯ Session.set('pageTitle', 'A brand new title');
+❯ Session.get('pageTitle');
+'A brand new title'
+~~~
+<%= caption "Consola del navegador" %>
+
+Si recargáramos la página manualmente se perderían las variables de sesión (porque que estaríamos creando una nueva). Pero si provocamos una recarga en caliente (por ejemplo, guardando uno de nuestros archivos de código), la página volverá a cargar, pero todavía tendremos el valor de la variable de sesión. ¡Pruébalo!
+
+~~~js
+❯ Session.get('pageTitle');
+'A brand new title'
+~~~
+<%= caption "Consola del navegador" %>
+
+Así que si utilizamos variables de sesión para hacer un seguimiento de lo que está haciendo el usuario, el HCR debe ser prácticamente transparente para el usuario, ya que preserva el valor de todas las variables de sesión. Esto nos permite desplegar nuevas versiones de nuestra aplicación, ya en producción, con la seguridad de que no molestaremos mucho a nuestros usuarios.
+
+Considera esto un momento. Si podemos llegar a mantener el estado entre la URL y la sesión, podemos cambiar de forma transparente el _código que está corriendo_ por debajo con una mínima interrupción.
+
+Ahora vamos a comprobar lo que pasa cuando refrescamos la página de forma manual:
+
+~~~js
+❯ Session.get('pageTitle');
+null
+~~~
+<%= caption "Browser console" %>
+
+Hemos perdido la sesión. En un HCR, Meteor guarda la sesión en el almacenamiento local del navegador y lo carga de nuevo tras la recarga. Esto no significa que el comportamiento de recarga explícita no tenga sentido: si un usuario recarga la página, es como si navega de nuevo a la misma URL, y el estado, debe restablecerse al que vería cualquier usuario que visita esa URL.
+
+Las lecciones más importantes en todo esto son:
+
+1. Guarda siempre el estado en la sesión o en la URL para no molestar mucho  a los usuarios cuando ocurre una recarga en caliente.
+2. Almacenar cualquier estado que deba estar compartido entre usuarios *dentro de la propia URL*.

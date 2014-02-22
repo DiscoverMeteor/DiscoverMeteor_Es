@@ -1,0 +1,110 @@
+---
+title: Reactividad
+slug: reactivity
+date: 0006/01/02
+number: 6.5
+points: 10
+sidebar: true
+photoUrl: http://www.flickr.com/photos/ikewinski/9632550278/
+photoAuthor: Mike Lewinski
+contents: Aprender cómo funciona el sistema reactivo de dependencias.|Entender su motivación y cómo nos permite escribir código declarativo.|Aprender a utilizar código avanzado que hace uso de datos reactivos.
+---
+
+Si las colecciones son la característica principal de Meteor, entonces la *reactividad* es lo que las hace útiles.
+
+Las colecciones transforman radicalmente la forma en que la aplicación maneja cambios en los datos. En lugar de tener que comprobarlo manualmente (por ejemplo, con una llamada AJAX) y parchear los cambios en el código HTML, con Meteor, los cambios pueden llegar en cualquier momento y aplicarse a la interfaz de usuario sin complicaciones. 
+
+Vamos a verlo con detenimiento: entre bastidores, Meteor es capaz de cambiar *cualquier* parte de la interfaz de usuario cuando se actualiza una colección subyacente. 
+
+La forma *imperativa* (o "a mano") de hacerlo sería utilizar `.Observe()`, una función del cursor que dispara callbacks cuando los documentos seleccionados cambian. De esta forma podríamos hacer cambios en el DOM (el HTML de nuestra página web) a través de esos callbacks. El código resultante sería algo como esto:
+
+~~~js
+Posts.find().observe({
+  added: function(post) {
+    // when 'added' callback fires, add HTML element
+    $('ul').append('<li id="' + post._id + '">' + post.title + '</li>');
+  },
+  changed: function(post) {
+    // when 'changed' callback fires, modify HTML element's text
+    $('ul li#' + post._id).text(post.title);
+  },
+  removed: function(post) {
+    // when 'removed' callback fires, remove HTML element
+    $('ul li#' + post._id).remove();
+  }
+});
+~~~
+
+Es probable que ya se pueda ver cómo este tipo de código va a tender a hacerse muy complejo rápidamente. Imagínate lo que sería tratar con cambios en *cada uno de los atributos* del post, y tener que cambiar HTML complejo dentro de `<li>`. Por no hablar de casos más extremos cuando empecemos a depender de múltiples fuentes de información que pueden cambiar en tiempo real.
+
+
+<% note do %>
+
+### ¿Cuándo deberíamos usar `observe()`?
+
+A veces es necesario usar el patrón anterior, sobre todo cuando se trata con widgets de terceros. Por ejemplo, imaginemos que queremos añadir o quitar puntos en un mapa en tiempo real dentro de una Colección (por ejemplo, para mostrar las localizaciones de los usuarios actualmente conectados).
+
+En tal caso, tendrás que usar callbacks `observe()` para conseguir que el mapa "hable" con la colección Meteor y saber cómo reaccionar a los cambios en los datos. Por ejemplo, tendrías que confiar en los callbacks `added` y `removed` para llamar a los métodos `dropPin` o `removePin()` de la API del mapa.
+
+<% end %>
+
+### Un enfoque declarativo
+
+Meteor nos proporciona una forma fácil de hacer todo esto: la reactividad, que, en esencia es un enfoque **declarativo**. De esta forma podemos definir la relación entre los objetos una sola vez y podemos estar seguros de que se mantendrán siempre sincronizados, en vez de tener que especificar el comportamientos de cada uno de los posibles cambios.
+
+Este es un concepto realmente poderoso, ya que, en un sistema de tiempo real puede haber muchas entradas y todas pueden cambiar de forma impredecibles. Con "declarativo", queremos decir que, cuando se renderiza HTML basado en una o varias fuentes de datos reactivos, Meteor se hace cargo de la tarea sincronizar las fuentes y, de forma transparente, asumir el trabajo sucio de mantener la interfaz de usuario actualizada.
+
+Y todo esto, sólo para acabar diciendo que, en lugar de tener que pensar en callbacks tipo `observe`, Meteor nos permite escribir:
+
+~~~html
+<template name="postsList">
+  <ul>
+    {{#each posts}}
+      <li>{{title}}</li>
+    {{/each}}
+  </ul>
+</template>
+~~~
+
+Y obtener la lista de posts con:
+
+~~~js
+Template.postsList.helpers({
+  posts: function() {
+    return Posts.find();
+  }
+});
+~~~
+
+Cuando cambian los datos reactivos, es Meteor el que, entre bastidores, está creando callbacks `observe()`, y redibujando las secciones pertinentes del HTML.
+
+### Seguimiento de dependencias en Meteor: Cómputos
+
+Meteor es un framework reactivo y en tiempo real, pero no *todo* el código incluido en una aplicación Meteor es reactivo. Si así fuera, la aplicación entera se volvería a ejecutar cada vez que cambia algo. En vez de eso, la reactividad se limita a áreas específicas, que llamamos **cómputos**.
+
+En otras palabras, un cómputo es un bloque de código que se ejecuta cada vez que cambia una de las fuentes de datos reactivos de las que depende. Si tienes una fuente reactiva (por ejemplo, una variable de sesión) y quieres responder reactivamente a ella, tendrás que crear un cómputo.
+
+Ten en cuenta que, por lo general, no es necesario hacerlo de forma explícita, ya que, Meteor provee de un cómputo especial a cada una de nuestras plantillas (lo que significa que el código de los ayudantes de plantilla y los callbacks son, por defecto, reactivos).
+
+Todas las fuente de datos reactivas hacen un seguimiento de todos los cómputos que las usan para poder avisarles de que su valor ha cambiado y deben "volver a computarse". Para hacer esto, se llama a la función `invalidate()`.
+
+Generalmente, los cómputos se establecen para volver a evaluar su contenido, y esto es lo que ocurre con los cómputos de que Meteor crea para las plantillas (aunque, además, se añade un poco más de magia para redibujar la página de manera más eficiente). Aunque, si es necesario, se puede tener más control sobre lo que hace uno de estos cómputos, en la práctica, no va a ser necesario porque Meteor nos va a dar justo el comportamiento que vamos a necesitar.
+
+### Configuración de una computación
+
+Ahora que entendemos la teoría de las computaciones, configurar una te va aparecer desproporcionadamente fácil. Simplemente usaremos la función `Deps.autorun` para encerrar un bloque de código:
+
+~~~js
+Deps.autorun(function() {
+  console.log('There are ' + Posts.find().count() + ' posts');
+});
+~~~
+
+Entre bastidores, `autorun` crea una computación, y la configura para que se vuelva a evaluar cada vez que cambian las fuentes de datos de las que depende. El ejemplo es muy sencillo, simplemente muestra el número actual de posts en la consola. Como `Posts.find()` es una fuente de datos de reactiva, será ésta la que se encargue de hacer que se vuelva a ejecutar la computación cada vez que cambie el número de posts.
+
+~~~js
+> Posts.insert({title: 'New Post'});
+There are 4 posts.
+~~~
+
+El resultado es que, de forma fácil y natural, podemos escribir código que usa datos reactivos, sabiendo que, por detrás, el sistema de dependencias se encargará de todo en todo momento.
