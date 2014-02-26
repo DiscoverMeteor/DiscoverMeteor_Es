@@ -4,29 +4,29 @@ slug: allow-and-deny
 date: 0008/01/02
 number: 8.5
 sidebar: true
-contents: Learn about Allow and Deny callbacks.|Understand in which order callbacks are called.
+contents: Aprenderemos cómo funcionan los callbacks Allow y Deny.|Comprenderemos el orden en el que se los llama.
 paragraphs: 16
 ---
 
-////
+El sistema de seguridad de Meteor nos permite controlar los cambios en la base de datos sin tener que definir los métodos necesarios para hacerlo.
 
-////
+Nosotros hemos necesitado definir un método específico para `post` porque necesitamos hacer tareas adicionales, tales como decorar el post con propiedades adicionales y tomar medidas si la URL del post existe.
 
-////
+Por otro lado, tampoco hemos tenido que crear métodos para actualizar y eliminar posts. Sólo necesitábamos comprobar si el usuario tenía permiso para hacer la acción, y ha sido muy fácil usando los callbacks `allow` y `deny`.
 
-////
+Usar estos callbacks nos ha permitido ser más declarativos con las modificaciones en base de datos, definiendo qué tipo de cambios se puedes hacer. El hecho de que estén integrados en el sistema de cuentas es, además, una ventaja añadida.
 
-### Multiple callbacks
+### Múltiples callbacks
 
-////
+Podemos definir todos los callbacks `allow` que queramos. Sólo es necesario que, _al menos uno_ de ellos devuelva `true`, para el cambio actual. De esta forma, cuando se llama a `Posts.insert` desde un navegador (no importa si es desde el código cliente de nuestra aplicación o desde la consola), el servidor llamará a todos los `insert`-permitidos que pueda hasta que encuentre uno que devuelva true. Si no encuentra ninguno, no permite la inserción, y devuelve un error `403` al cliente.
 
-////
+Del mismo modo, podemos definir una o varios callbacks `deny`. Si _cualquier_ de ellos devuelve `true`, el cambio se cancela se devuelve un `403`. La lógica de todo esto implica que para que un `insert` tenga éxito, se ejecutarán uno o varios callbacks `allow` así como _todos_ los `deny`.
 
-<%= diagram "allow_deny", "Note: n/e stands for Not Executed" %>
+<%= diagram "allow_deny", "Nota: n/e significa No Ejecutado" %>
 
-////
+En otras palabras, Meteor recorre la lista de callbacks empezando por los `deny`, y luego ejecuta todas las `allow` hasta que una devuelve `true`.
 
-////
+Un ejemplo práctico de este patrón podría ser, por ejemplo, tener dos callbacks `allow()`, uno comprueba si un post pertenece al usuario actual, y otro si el usuario actual es un administrador. Si es un administrador, se asegura que el usuario será capaz de actualizar cualquier post, ya que al menos uno de los callbacks devolverá true.
 
 ### Latency Compensation
 
