@@ -1,6 +1,8 @@
 Descubriendo Meteor
 ===================
 
+http://es.discovermeteor.com
+
 Te enseñamos a programar aplicaciones web más rápido, más fácil y en tiempo real mientras construyes una aplicación desde cero con Meteor.
 
 
