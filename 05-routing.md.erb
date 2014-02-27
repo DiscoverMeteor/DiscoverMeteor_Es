@@ -120,7 +120,7 @@ Vamos a aclarar un poco las cosas. Hemos llamado a nuestra ruta `postsList`, per
 
 De forma predeterminada, Iron Router buscará una plantilla con el mismo nombre que la ruta. De hecho, incluso intentará buscar un camino basado en el nombre de la ruta, lo que significa que si no hubiéramos definido una ruta personalizada (cosa que hicimos al proporcionar una opción `path` en la definición de la ruta), nuestra plantilla hubiera sido accesible en la URL `/postsList`.
 
-Te estarás preguntando por qué necesitamos nombrar nuestras rutas. Hacelo nos permite utilizar algunas características del Iron Router que hacen que sea más fácil construir enlaces dentro de nuestra aplicación. La más útil es el ayudante de Handlebars `{{pathFor}}`, que devuelve los componentes del `path` de cualquier ruta.
+Te estarás preguntando por qué necesitamos nombrar nuestras rutas. Hacerlo nos permite utilizar algunas características del Iron Router que hacen que sea más fácil construir enlaces dentro de nuestra aplicación. La más útil es el ayudante de Handlebars `{{pathFor}}`, que devuelve los componentes del `path` de cualquier ruta.
 
 Queremos el enlace principal apunte de nuevo a la lista de mensajes, así que en vez de especificar una URL estática `/`, podemos utilizar el ayudante Handlebars. El resultado final será el mismo, pero tendremos más flexibilidad porque el ayudante siempre obtendrá la dirección correcta, incluso si cambiamos el path de la ruta en la configuración del router.
 
@@ -162,9 +162,9 @@ Vamos a analizar las cosas. En primer lugar, hemos modificado el bloque `Router.
 
 En segundo lugar, hemos añadido una función `waitOn` que devuelve nuestra suscripción. Lo que significa es que el router se asegurará de que la suscripción se completa antes de enviar al usuario a través de la ruta que había solicitado.
 
-Ten en cuenta que, dado que estamos definiendo nuestra función waitOn a nivel mundial a nivel de router, esta secuencia sólo ocurrirá una vez que cuando un usuario accede por primera vez a su aplicación. Después de eso, los datos que ya se cargarán en la memoria del navegador y el router no tendrán que esperar a que otra vez.
+Ten en cuenta que, dado que estamos definiendo nuestra función waitOn a nivel global al nivel del router, esta secuencia sólo ocurrirá cuando un usuario accede por primera vez a su aplicación. Después de eso, los datos que ya se cargarán en la memoria del navegador y el router no tendrá que esperar a que carguen otra vez.
 
-Además, dado que definimos la función waitOn a nivel global a nivel de router, esta secuencia sólo ocurrirá una vez, cuando un usuario accede por primera vez a la aplicación. Después, los datos que ya estarán en la memoria del navegador y el router no tendrá que esperar de nuevo.
+Además, dado que definimos la función waitOn a nivel global al nivel del router, esta secuencia sólo ocurrirá una vez, cuando un usuario accede por primera vez a la aplicación. Después, los datos que ya estarán en la memoria del navegador y el router no tendrá que esperar de nuevo.
 
 Puesto que ahora dejamos que el router maneje nuestra suscripción, puedes eliminarla de forma segura en el `main.js` (que ahora debe estar vacío).
 
@@ -255,7 +255,7 @@ Router.map(function() {
 
 De esta forma, cada vez que un usuario accede a esta ruta, encontraremos el post adecuado y lo pasaremos a la plantilla. Recuerda que `findOne` devuelve un solo post, el que coincide con la consulta, y que proporcionar sólo un `id` como argumento es una abreviatura de `{_id: id}`.
 
-Dentro de la finción `data` de una ruta, `this` se corresponde con la ruta actual, y podemos usar `this.params` para acceder a las propiedades de la ruta (que habíamos indicado con el prefijo `:` dentro de nuestro `path`).
+Dentro de la función `data` de una ruta, `this` se corresponde con la ruta actual, y podemos usar `this.params` para acceder a las propiedades de la ruta (que habíamos indicado con el prefijo `:` dentro de nuestro `path`).
 
 <% note do %>
 
