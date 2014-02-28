@@ -76,17 +76,17 @@ Template.postsList.helpers({
 
 Cuando cambian los datos reactivos, es Meteor el que, entre bastidores, está creando callbacks `observe()`, y redibujando las secciones pertinentes del HTML.
 
-### Seguimiento de dependencias en Meteor: Cómputos
+### Seguimiento de dependencias en Meteor: Computaciones
 
-Meteor es un framework reactivo y en tiempo real, pero no *todo* el código incluido en una aplicación Meteor es reactivo. Si así fuera, la aplicación entera se volvería a ejecutar cada vez que cambia algo. En vez de eso, la reactividad se limita a áreas específicas, que llamamos **cómputos**.
+Meteor es un framework reactivo y en tiempo real, pero no *todo* el código incluido en una aplicación Meteor es reactivo. Si así fuera, la aplicación entera se volvería a ejecutar cada vez que cambia algo. En vez de eso, la reactividad se limita a áreas específicas, que llamamos **computaciones**.
 
-En otras palabras, un cómputo es un bloque de código que se ejecuta cada vez que cambia una de las fuentes de datos reactivos de las que depende. Si tienes una fuente reactiva (por ejemplo, una variable de sesión) y quieres responder reactivamente a ella, tendrás que crear un cómputo.
+En otras palabras, una computación es un bloque de código que se ejecuta cada vez que cambia una de las fuentes de datos reactivos de las que depende. Si tienes una fuente reactiva (por ejemplo, una variable de sesión) y quieres responder reactivamente a ella, tendrás que crear una computación.
 
-Ten en cuenta que, por lo general, no es necesario hacerlo de forma explícita, ya que, Meteor provee de un cómputo especial a cada una de nuestras plantillas (lo que significa que el código de los ayudantes de plantilla y los callbacks son, por defecto, reactivos).
+Ten en cuenta que, por lo general, no es necesario hacerlo de forma explícita, ya que, Meteor provee de una computación especial a cada una de nuestras plantillas (lo que significa que el código de los ayudantes de plantilla y los callbacks son, por defecto, reactivos).
 
-Todas las fuente de datos reactivas hacen un seguimiento de todos los cómputos que las usan para poder avisarles de que su valor ha cambiado y deben "volver a computarse". Para hacer esto, se llama a la función `invalidate()`.
+Todas las fuente de datos reactivas hacen un seguimiento de todas las computaciónes que las usan para poder avisarles de que su valor ha cambiado y deben "volver a computarse". Para hacer esto, se llama a la función `invalidate()`.
 
-Generalmente, los cómputos se establecen para volver a evaluar su contenido, y esto es lo que ocurre con los cómputos de que Meteor crea para las plantillas (aunque, además, se añade un poco más de magia para redibujar la página de manera más eficiente). Aunque, si es necesario, se puede tener más control sobre lo que hace uno de estos cómputos, en la práctica, no va a ser necesario porque Meteor nos va a dar justo el comportamiento que vamos a necesitar.
+Generalmente, las computaciones se establecen para volver a evaluar su contenido, y esto es lo que ocurre con las computaciones de que Meteor crea para las plantillas (aunque, además, se añade un poco más de magia para redibujar la página de manera más eficiente). Aunque, si es necesario, se puede tener más control sobre lo que hace uno de estas computaciones, en la práctica, no va a ser necesario porque Meteor nos va a dar justo el comportamiento que vamos a necesitar.
 
 ### Configuración de una computación
 
