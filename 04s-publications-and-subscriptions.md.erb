@@ -4,7 +4,7 @@ slug: publications-and-subscriptions
 date: 0004/01/02
 number: 4.5
 sidebar: true
-contents: "Entenderemos cómo funcionan publicaciones y suscripciones.|Aprenderemos qué hace el paquete Autopublish.|Veremos algunos ejemplos de patrones de diseño de publicaciónes."
+contents: "Entenderemos cómo funcionan las publicaciones y las suscripciones.|Aprenderemos qué hace el paquete Autopublish.|Veremos algunos ejemplos de patrones de diseño de publicaciones."
 paragraphs: 52
 ---
 
@@ -12,13 +12,13 @@ Las publicaciones y las suscripciones son dos de los conceptos más importantes 
 
 Esto ha acarreado una gran cantidad de mal entendidos, como la creencia de que Meteor es inseguro, o que las aplicaciones no pueden manejar grandes cantidades de datos.
 
-La "magia" que hace Meteor es la razón más importante de que ocurra esto al principio. Aunque la magia es, en última instancia, muy útil, puede oscurecer lo que realmente está pasando entre bastidores (como suele pasar con la magia). Así que vamos a desenvolver las capas de magia para tratar de entender lo que está pasando.
+La "magia" que hace Meteor es la razón más importante de que ocurra esto al principio. Aunque la magia es, en última instancia, muy útil, puede oscurecer lo que realmente está pasando entre bastidores (como suele pasar con la magia). Así que vamos a desenvolver las capas de dicha magia para tratar de entender lo que está pasando.
 
 ### Los viejos tiempos
 
 Pero primero, vamos a echar una mirada a los buenos tiempos allá por 2011, cuando todavía no existía Meteor. Digamos que estás haciendo una sencilla aplicación con Rails. Cuando un usuario llega a tu sitio, el cliente (es decir, su navegador) envía una solicitud a tu aplicación, que reside en el servidor.
 
-Lo primero que hace la App es averiguar qué datos necesita ver el usuario. ëstos podrían ser la página 12 de resultados de búsqueda, la información del perfil de usuario de Mary, los 20 tweets más recientes de Bob, y así sucesivamente. Básicamente, podríamos verlo como un dependiente de una librería buscando por los pasillos el libro que has pedido.
+Lo primero que hace la App es averiguar qué datos necesita ver el usuario. Éstos podrían ser la página 12 de resultados de búsqueda, la información del perfil de usuario de Mary, los 20 tweets más recientes de Bob, y así sucesivamente. Básicamente, podríamos verlo como un dependiente de una librería buscando por los pasillos el libro que has pedido.
 
 Una vez que tiene los datos correctos, el segundo trabajo de la aplicación es traducir esos datos a un formato HTML agradable y legible (o JSON en el caso de una API).
 
@@ -34,17 +34,17 @@ Veamos lo que hace Meteor tan especial. Como hemos visto, la principal innovaci�
 
 Así que lo que ocurre es que el empleado de la tienda, no sólo encuentra el libro, sino que además te sigue a casa para leértelo por la noche (admitiremos que suena un poco raro).
 
-Esta arquitectura permite a Meteor hacer cosas muy interesantes, la más importante es lo que Meteor llama [base de datos en todas partes](http://docs.meteor.com/#sevenprinciples). En pocas palabras, Meteor cogerá un subconjunto de la base de datos y la *copiará en el cliente*.
+Esta arquitectura permite a Meteor hacer cosas muy interesantes, la más importante es lo que Meteor llama [base de datos en todas partes](http://docs.meteor.com/#sevenprinciples). En pocas palabras, Meteor tomará un subconjunto de la base de datos y la *copiará en el cliente*.
 
 Esto tiene dos grandes implicaciones: la primera es que en lugar de enviar código HTML, una aplicación Meteor envía **datos actuales en bruto** al cliente y deja que el cliente se ocupe de ellos ([data on the wire](http://docs.meteor.com/#sevenprinciples)). Lo segundo es que serás capaz de acceder a esos datos **instantáneamente** sin tener que esperar al servidor ([latency Compensation](http://docs.meteor.com/#sevenprinciples))).
 
 ### Publicaciones
 
-Una base de datos de una aplicación puede contener decenas de miles de documentos, algunos de los cuales podrían ser privados o confidenciales. Así que, obviamente, por razones de seguridad y escalabilidad, no deberíamos sincronizar toda la base de datos en el cliente, 
+Una base de datos de una aplicación puede contener decenas de miles de documentos, algunos de los cuales podrían ser privados o confidenciales. Así que, obviamente, por razones de seguridad y escalabilidad, no deberíamos sincronizar toda la base de datos en el cliente. 
 
-Por tanto, vamos a necesitar una forma de decirle a Meteor qué **subconjunto** de los datos se pueden al cliente, y lo conseguiremos esto a través las **publicaciones**.
+Por lo tanto, vamos a necesitar una forma de decirle a Meteor qué **subconjunto** de los datos se pueden enviar al cliente, y lo podremos hacer utilizando las **publicaciones**.
 
-Volvamos a microscope. Aquí están todos los posts de nuestra aplicación que hay en la base de datos:
+Volvamos a Microscope. Aquí están todos los posts de nuestra aplicación que hay en la base de datos:
 
 <%= diagram "collections-1", "Todos los posts que contiene la base de datos.", "pull-center" %>
 
@@ -102,11 +102,11 @@ Entonces podríamos definir ese parámetro cuando *nos suscribimos* a esa public
 Meteor.subscribe('posts', 'bob-smith');
 ~~~
 
-Esta es la forma de hacer escalable una aplicación Meteor: en lugar de suscribirse a *todos* los datos disponibles, sólo escogemos las piezas que necesitamos en un momento dado. De esta manera, evitaremos sobrecargar la memoria del navegador, aunque el tamaño de la base de datos del servidor sea enorme.
+Esta es la forma de hacer escalable una aplicación Meteor: en lugar de suscribirse a *todos* los datos disponibles, sólo escogemos las piezas que necesitamos en un momento dado. De esta manera, evitaremos sobrecargar la memoria del navegador, sin importar si el tamaño de la base de datos del servidor es enorme.
 
 ### Búsquedas
 
-Ahora resulta que los mensajes de Bob tienen varias categorías (por ejemplo: "JavaScript", "Ruby", y "Python"). Tal vez todavía queremos cargar todos los Mensajes de Bob en la memoria, pero sólo en este momento sólo queremos mostrar los de la categoría "JavaScript". Aquí es donde "la búsqueda" entra en juego
+Ahora resulta que los mensajes de Bob tienen varias categorías (por ejemplo: "JavaScript", "Ruby", y "Python"). Tal vez todavía queremos cargar todos los Mensajes de Bob en la memoria, pero en este momento sólo queremos mostrar los de la categoría "JavaScript". Aquí es donde "la búsqueda" entra en juego
 
 <%= diagram "collections-4", "Selección de un subconjunto de documentos en el cliente.", "pull-center" %>
 
@@ -121,7 +121,7 @@ Template.posts.helpers({
 });
 ~~~
 
-Ahora que tenemos una buena comprensión de cómo funcionan publicaciones y suscripciones, vamos a profundizar un poco más, repasando los patrones de diseño más comunes.
+Ahora que tenemos una buena comprensión de cómo funcionan las publicaciones y suscripciones, vamos a profundizar un poco más, repasando los patrones de diseño más comunes.
 
 ### Autopublicación
 
@@ -133,7 +133,7 @@ El objetivo de `Autopublish` es que sea muy fácil empezar a desarrollar y lo ha
 
 ¿Y cómo funciona? Supon que tienes una colección en el servidor llamada `'posts'`. Entonces `Autopublish` buscará todos los posts que haya en la base de datos Mongo y los enviará automáticamente a una colección llamada `'posts'` en el cliente.
 
-Así que si usas `Autopublish`, no necesitas pensar en publicaciones. Los datos son omnipresentes, y todos es sencillo. Por supuesto, aparecen problemas obvios al tener una copia completa de la base de datos en la caché de cada usuario.
+Así que si usas `Autopublish`, no necesitas pensar en publicaciones. Los datos son omnipresentes, y todo es más sencillo. Por supuesto, aparecen problemas obvios al tener una copia completa de la base de datos en la caché de cada usuario.
 
 Por esta razón, Autopublish sólo es apropiado cuando estamos empezando, cuándo todavía no se ha pensado en las publicaciones.
 
@@ -169,14 +169,14 @@ Meteor.publish('somePosts', function(){
 
 Si has leído la [documentación de Meteor sobre publicaciones](http://docs.meteor.com/#publishandsubscribe), tal vez te habrás sentido abrumado al oír hablar de `added()` y `ready()` para establecer los atributos de los registros en el cliente, y te habrá costado cuadrarlo con aplicaciones basadas en Meteor que hayas podido ver y que nunca usan esos métodos.
 
-La razón es que Meteor ofrece una comodidad muy importante: el método `_publishCursor()`. ¿Todavía no lo has utilizado? Tal vez no directamente, pero eso es exactamente lo Meteor utiliza cuando se devuelve un [cursor](/chapter/meteor-vocabulary/) (por ejemplo, `Posts.find({'author':'Tom'})`) desde una función `publish`.
+La razón es que Meteor ofrece una comodidad muy importante: el método `_publishCursor()`. ¿Todavía no lo has utilizado? Tal vez no directamente, pero eso es exactamente lo que Meteor utiliza cuando devuelve un [cursor](/chapter/meteor-vocabulary/) (por ejemplo, `Posts.find({'author':'Tom'})`) desde una función `publish`.
 
 Cuando Meteor comprueba que la publicación `somePosts` ha devuelto un cursor, automáticamente llama a `_publishCursor ()` para publicar ese cursor.
 
 Esto es lo que hace `_publishCursor()`:
 
 - Se comprueba el nombre de la colección en el servidor.
-- Coge todos los documentos que coinciden con el cursor y los envía al cliente en una colección *del mismo nombre*. (Para hacer esto, utiliza `.added()`).
+- Toma todos los documentos que coinciden con el cursor y los envía al cliente en una colección *del mismo nombre*. (Para hacer esto, utiliza `.added()`).
 - Cada vez que se añade, elimina o modifica un documento, envía esos cambios a la colección del lado del cliente. (Para hacerlo, utiliza `.observe()` en el cursor y `.added()`, `.changed()` y `removed()`).
 
 Así, en el ejemplo anterior, podemos asegurar que el usuario sólo tiene en la caché, los posts en los que está interesado (los escritos por Tom).
@@ -185,7 +185,7 @@ Así, en el ejemplo anterior, podemos asegurar que el usuario sólo tiene en la 
 
 ### Publicando propiedades parciales
 
-Hemos visto cómo publicar sólo algunos de nuestros posts, pero ¡topdavía podemos seguir recortando! Vamos a ver cómo publicar sólo algunas *propiedades*.
+Hemos visto cómo publicar sólo algunos de nuestros posts, pero ¡todavía podemos seguir recortando! Vamos a ver cómo publicar sólo algunas *propiedades*.
 
 Al igual que antes, vamos a utilizar `find()` para devolver un cursor, pero esta vez vamos a excluir ciertos campos:
 
