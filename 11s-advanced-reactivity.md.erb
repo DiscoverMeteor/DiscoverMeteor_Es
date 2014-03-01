@@ -12,7 +12,7 @@ Es raro tener que escribir el seguimiento de dependencias por ti mismo, pero es 
 
 Imagina que quisiéramos rastrear a cuántos amigos del usuario actual de Facebook le ha gustado cada post en Microscope. Asumamos que ya hemos trabajado los detalles de cómo autenticar el usuario con Facebook, hacer las llamadas necesarias a la API, y procesar los datos relevantes. Ahora tenemos una función asincrónica del lado del cliente que devuelve el número de "me gusta": `getFacebookLikeCount(user, url, callback)`.
 
-Lo importante a recordar sobre una función de esta naturaleza es que *no es reactiva* ni en tiempo real. Hará un pedido HTTP a Facebook, tomar algunos datos, y hacerlos disponibles a la aplicación a través de un llamado asincrónico, pero la función no se va a volver a ejecutar por sí sola cuando haya un cambio en Facebook, ni nuestra UI va a cambiar cuando los datos lo hagan.
+Lo importante a recordar sobre una función de esta naturaleza es que *no es reactiva* ni en tiempo real. Hará un pedido HTTP a Facebook, tomará algunos datos, y los hará disponibles a la aplicación a través de un llamado asincrónico, pero la función no se va a volver a ejecutar por sí sola cuando haya un cambio en Facebook, ni nuestra UI va a cambiar cuando los datos lo hagan.
 
 Para solucionar esto, podemos comenzar utilizando `setInterval` para llamar a la función cada algunos segundos:
 
