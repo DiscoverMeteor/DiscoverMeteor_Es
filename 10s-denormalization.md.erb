@@ -18,7 +18,7 @@ De todas maneras, la técnica normal también tiene sus desventajas: sin una pro
 
 <% note do %>
 
-### A Special Publication
+### Una publicación especial
 
 *Sería* posible crear una publicación especial que sólo envíe la cantidad de comentarios que nos interesan (por ejemplo, la cantidad de comentarios en los posts que actualmente estamos viendo, haciendo más consultas al servidor).
 
@@ -28,7 +28,7 @@ Pero vale la pena considerar si la complejidad de dicha publicación superaría 
 
 Por supuesto, dichas consideraciones son específicas para cada aplicación: si estás escribiendo código donde la integridad de datos es fundamental, entonces evadir inconsistencias en los datos es por lejos más importante y de mayor prioridad que cualquier mejora de performance.
 
-### Embedding Documents or Using Multiple Collections
+### Incrustar Documentos o Usar Múltiples Colleciones
 
 Si tienes experiencia con Mongo, podrás haberte sorprendido al ver que hemos creado una segunda colección sólo para los comentarios: ¿por qué no simplemente integrar los comentarios en una lista dentro del documento post?
 
@@ -43,7 +43,7 @@ Mongo sugiere incrustar documentos para reducir la cantidad de consultas costosa
 
 <% note do %>
 
-### The Downsides of Denormalization
+### Las Desventajas de la Denormalización
 
 Hay beunos argumentos sobre por qué *no deberías* denormalizar tus datos. Para ver un buen caso contra la denormalización, recomendamos [Por qué nunca deberías usar MongoDB](http://www.sarahmei.com/blog/2013/11/11/why-you-should-never-use-mongodb/) por Sarah Mei.
 
