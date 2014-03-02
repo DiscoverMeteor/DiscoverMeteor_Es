@@ -4,15 +4,15 @@ slug: creating-a-meteorite-package
 date: 0009/01/02
 number: 9.5
 sidebar: true
-contents: Write a local in-app package.|Write some tests for your package.|Release your package on Atmosphere.
+contents: Escribiremos un paquete Meteor para nuestra aplicación de forma local.|Escribiremos tests para nuestro paquete.|Publicaremos el paquete en repositorio Atmosphere.
 paragraphs: 22
 ---
 
-////
+Durante nuestro trabajo en los errores, hemos construido un modelo reutilizable, ¿por qué no lo metemos dentro de elegant paquete y lo compartimos con el resto de la comunidad Meteor?
 
-////
+En primer lugar, tenemos colocar el código del paquete dentro de una estructura. Vamos a hacerlo  dentro del de un directorio llamado `packages/errors/`. Lo que se pone dentro del directorio `packages` se utiliza de forma automática como paquetes. (Posiblemente, ya te habrás dado cuenta de que Meteorite instala los paquetes desde enlaces simbólicos en el directorio `packages/`).
 
-////
+En segundo lugar, dentro de nuestro nuevo directorio, creamos `package.js`, el archivo que informa a Meteor de cómo se debe utilizar el paquete, y los símbolos que exporta.
 
 ~~~js
 Package.describe({
@@ -30,7 +30,7 @@ Package.on_use(function (api, where) {
 ~~~
 <%= caption "packages/errors/package.js" %>
 
-////
+Vamos a añadir al paquete los tres archivos que se pasan en la llamada a `add_files`. Podemos usar los mismos que tenemos para Microscope, haciendo sólo, unos pequeños cambios para los espacios de nombres y para dejar la API un poco más limpia:
 
 ~~~js
 Errors = {
@@ -80,18 +80,18 @@ Template.meteorError.rendered = function() {
 ~~~
 <%= caption "packages/errors/errors_list.js" %>
 
-### Testing the package out with Microscope
+### Probando el paquete con Microscope
 
-////
+Vamos a probar el paquete localmente con Microscope para asegurarnos de que nuestros cambios funcionan. Para enlazar el paquete en nuestro proyecto, ejecutaremos `meteor add errors`. A continuación, debemos eliminar los archivos a los que reemplaza el nuevo paquete:
 
 ~~~bash
 $ rm client/helpers/errors.js
 $ rm client/views/includes/errors.html
 $ rm client/views/includes/errors.js
 ~~~
-<%= caption "removing old files on the bash console" %>
+<%= caption "Eliminando los archivos antiguos" %>
 
-////
+Otra cosa que debemos hacer es hacer algunos pequeños cambios en el código de la aplicación para que use la API correcta:
 
 ~~~js
 Router.before(function() { Errors.clearSeen(); });
@@ -121,15 +121,15 @@ Posts.update(currentPostId, {$set: postProperties}, function(error) {
 ~~~
 <%= caption "client/views/posts/post_edit.js" %>
 
-<%= scommit "9-5-1", "Created basic errors package and linked it in." %>
+<%= scommit "9-5-1", "Creado y enlazado un paquete básico." %>
 
-////
+Una vez hechos estos cambios, deberíamos ver el mismo comportamiento que con el código sin empaquetar.
 
-### Writing tests
+### Escribiendo tests
 
-////
+El primer paso en el desarrollo de un paquete es probarlo contra una aplicación, pero el siguiente es escribir un conjunto de tests que evalúen adecuadamente el comportamiento del paquete. Meteor incluye Tinytest, que permite ejecutar este tipo de pruebas de forma fácil y, de esta forma, tener la conciencia tranquila cuando compartimos el paquete con los demás.
 
-////
+Vamos a crear un fichero que usa Tinytest para ejecutar tests contra el código de los errores. 
 
 ~~~js
 Tinytest.add("Errors collection works", function(test) {
@@ -163,11 +163,11 @@ Tinytest.addAsync("Errors template works", function(test, done) {
 ~~~
 <%= caption "packages/errors/errors_tests.js" %>
 
-////
+Con estos tests comprobamos que las funciones básicas de `Meteor.Errors` funcionan correctamente, así como que el código `mostrado` en la plantilla sigue funcionando bien.
 
-////
+No vamos a cubrir los aspectos específicos sobre cómo escribir tests de paquetes (porque la API todavía no está acabada y podría cambiar mucho), pero viendo el código, puedes hacerte una idea cómo funciona.
 
-////
+Para decirle a Meteor que ejecute los tests, añadimos éste código a `package.js`
 
 ~~~js
 Package.on_test(function(api) {
@@ -179,22 +179,22 @@ Package.on_test(function(api) {
 ~~~
 <%= caption "packages/errors/package.js" %>
 
-<%= scommit "9-5-2", "Added tests to the package." %>
+<%= scommit "9-5-2", "Tests añadidos al paquete." %>
 
-////
+Ya podemos ejecutar los tests con:
 
 ~~~bash
 $ meteor test-packages errors
 ~~~
 <%= caption "Terminal" %>
 
-<%= screenshot "s7-1", "Passing all tests" %>
+<%= screenshot "s7-1", "Pasados todos los tests" %>
 
-### Releasing the package
+### Publicando el paquete
 
-////
+Ahora, queremos liberar el paquete y lo ponerlo a disposición de todo el mundo. Lo haremos publicándolo en el repositorio Atmosphere.
 
-////
+En primer lugar, tenemos que añadir un archivo llamado `smart.json` dónde pondremos los detalles importantes del paquete para Meteorite y Atmosphere:
 
 ~~~json
 {
@@ -210,13 +210,13 @@ $ meteor test-packages errors
 ~~~
 <%= caption "packages/errors/smart.json" %>
 
-<%= scommit "9-5-3", "Added a smart.json" %>
+<%= scommit "9-5-3", "Añadido smart.json" %>
 
-////
+Ponemos algunos metadatos con la información del paquete, incluyendo lo que hace, el repositorio git donde lo vamos a alojar, y un número de versión. Si nuestro paquete depende a su vez de otros paquetes Atmosphere, podríamos utilizar una sección `"packages"` para definir sus dependencias.
 
-////
+Una vez que todo esta en su sitio, publicar es fácil. Tenemos que crear un repositorio git, subirlos a un servidor, y enlazar su ubicación en `smart.json`.
 
-////
+El proceso para hacer esto usando [GitHub](http://github.com) es crear un nuevo repositorio, y luego seguir la práctica habitual para meter el código dentro. A continuación, se utiliza el comando `mrt release` para publicarlo:
 
 ~~~bash
 $ git init
@@ -227,20 +227,20 @@ $ git push origin master
 $ mrt release .
 Done!
 ~~~
-<%= caption "Terminal (run from within `packages/errors`)" %>
+<%= caption "Terminal (ejecutar dentro de `packages/errors`)" %>
 
-////
+Nota: Los nombres de los paquetes tienen que ser únicos. Si utilizas el mismo nombre que otro paquete se producirá un conflicto y no funcionará. En el futuro, en Atmosphere, el nombre se construirá con el nombre del paquete seguido del autor, así que es posible que todo esto cambie.
 
-////
+Segunda nota: Tendrás que iniciar sesión en [Atmosphere](http://atmosphere.meteor.com) y crear un usuario y usar la contraseña para llamar a `mrt release`.
 
-////
+Ahora que hemos publicado el paquete, podemos eliminarlo del proyecto y luego añadirlo de nuevo  directamente con Meteorite:
 
 ~~~bash
 $ rm -r packages/errors
 $ mrt add errors
 ~~~
-<%= caption "Terminal (run from the top level of the app)" %>
+<%= caption "Terminal (ejecutar desde el directorio raíz de la aplicación)" %>
 
-<%= scommit "9-5-4", "Removed package from development tree." %>
+<%= scommit "9-5-4", "Paquete eliminado del árbol de desarrollo." %>
 
-////
+Ahora debemos ver a Meteorite descargar nuestro paquete por primera vez. ¡Bien hecho!
