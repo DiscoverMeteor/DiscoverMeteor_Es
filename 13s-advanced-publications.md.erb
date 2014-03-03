@@ -8,19 +8,19 @@ contents: Aprenderemos patrones más avanzados para manipular publicaciones.|Ver
 paragraphs: 36
 ---
 
-////
+A esta altura ya deberías tener una buena base de cómo interactúan las suscripciones y las publicaciones. Así que vamos a deshacernos de las ruedas de entrenamiento y examinar unos escenarios más avanzados.
  
-### Publishing a Collection Multiple Times
+### Publicar una Colección Varias Veces
 
-////
- 
-////
- 
-////
- 
-////
- 
-////
+En [nuestras primeras publicaciones en sidebar](/chapter/publications-and-subscriptions/), vimos algunas de los patrones más comunes de publicación y suscripción, y aprendimos cómo la función `_publishCursor` hizo muy fácil implementarlos en nuestros propios sitios.
+
+Primero, vamos a recapitular exactamente qué hace por nosotros la función `_publishCursor`: toma todos los documentos que concuerdan con un cursor dado, y los envía a la colección del cliente *del mismo nombre*. Nótese que el nombre de la _publicación_ no está involucrado.
+
+Esto significa que podemos tener _más de una publicación_ de cualquier colección, que enlaza al cliente y al servidor
+
+Ya hemos encontrado este patrón en nuestro [capítulo de paginación](/chapter/pagination/), cuando publicamos un subconjunto paginado de todos los posts, además del post actual.
+
+Otro caso de uso similar es publicar una *overview* de un largo conjunto de documentos, así como también los detalles completos de un simple ítem:
  
 <%= diagram "doublecollection", "Publishing a collection twice", "pull-center" %>
 
