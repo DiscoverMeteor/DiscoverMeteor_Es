@@ -8,11 +8,11 @@ contents: Aprenderemos a crear fuentes de datos reactivas.|Crearemos un sencillo
 paragraphs: 29
 ---
 
-No es común tener que escribir código de seguimiento de dependencias por ti mismo, pero para comprenderlo es verdaderamente útil trazar el camino de cómo funciona el flujo de dependencias.
+No es común tener que escribir código de seguimiento de dependencias por ti mismo, pero para comprender el concepto, es verdaderamente útil seguir el camino de cómo funciona el flujo de dependencias.
 
-Imagina que quisiéramos rastrear a cuántos amigos del usuario actual de Facebook le ha gustado cada post en Microscope. Asumamos que ya hemos trabajado los detalles de cómo autenticar el usuario con Facebook, hacer las llamadas necesarias a la API, y procesar los datos relevantes. Ahora tenemos una función asincrónica del lado del cliente que devuelve el número de "me gusta": `getFacebookLikeCount(user, url, callback)`.
+Imagina que quisiéramos saber a cuántos amigos del usuario actual de Facebook le ha gustado cada post en Microscope. Asumamos que ya hemos trabajado los detalles de cómo autenticar el usuario con Facebook, hacer las llamadas necesarias a la API, y procesar los datos relevantes. Ahora tenemos una función asincrónica del lado del cliente que devuelve el número de "me gusta": `getFacebookLikeCount(user, url, callback)`.
 
-Lo importante a recordar sobre una función de esta naturaleza es que *no es reactiva* ni en tiempo real. Hará un pedido HTTP a Facebook, tomará algunos datos, y los hará disponibles a la aplicación a través de un llamado asincrónico, pero la función no se va a volver a ejecutar por sí sola cuando haya un cambio en Facebook, ni nuestra UI va a cambiar cuando los datos lo hagan.
+Lo importante a recordar sobre una función de esta naturaleza es que *no es reactiva* ni funciona en tiempo real. Hará un pedido HTTP a Facebook, tomará algunos datos, y los hará disponibles a la aplicación a través de un llamado asincrónico. Pero la función no se va a volver a ejecutar por sí sola cuando haya un cambio en Facebook, ni nuestra UI va a cambiar cuando los datos lo hagan.
 
 Para solucionar esto, podemos comenzar utilizando `setInterval` para llamar a la función cada algunos segundos:
 
@@ -30,7 +30,7 @@ Meteor.setInterval(function() {
 }, 5 * 1000);
 ~~~
 
-Cada vez que usemos esa variable `currentLikeCount`, podemos esperar obtener el número correcto con un margen de error de cinco segundos. Ahora podemos usar esa variable en un ayudante:
+Cada vez que usemos esa variable `currentLikeCount`, obtendremos el número correcto con un margen de error de cinco segundos. Ahora podemos usar esa variable en un ayudante:
 
 ~~~js
 Template.postItem.likeCount = function() {
@@ -94,19 +94,19 @@ La segunda característica que nos ayuda a controlar la reactividad es el bloque
 
 De modo que si una de las fuentes de datos reactiva en el bloque aislado cambia, esa área se redibujará, pero el resto de la plantilla no lo hará. Sin embargo, si la plantilla contenedora se redibuja, el área aislada se redibujará también.
 
-### Comparing Deps to Angular
+### Comparando Deps con Angular
 
-////
+[Angular](http://angularjs.org/) es una librería de renderizado reactivo del lado del cliente, desarrollada por la buena gente de Google. Sólo se puede comparar el seguimiento de dependencias de Meteor con el de Angular de un modo ilustrativo, ya que sus enfoques son bastante diferentes.
 
-////
+Hemos visto que el modelo de Meteor usa bloques de código llamados computaciones. Éstas son seguidas por fuentes de datos "reactivas" (funciones) que se ocupan de invalidarlos cuando sea apropiado. Así, la fuente de datos informa _explícitamente_ todas sus dependencias cuando necesita lamar a `invalidate()`. Nótese que a pesar de que esto sucede generalmente cuando los datos cambian, la fuente de los datos puede además decidir ejecutar la invalidación por otras razones.
 
-////
+Además, por más que usualmente las computaciones simplemente se re-ejecutan cuando son invalidadas, se pueden configurar para que se comporten como uno quiera. Esto nos da un alto nivel de control sobre la reactividad.
 
-////
+En Angular, la reactividad es medida por el objeto `scope`. Un scope, o alcance, puede ser pensado como un simple objeto de JavaScript con algunos métodos especiales.
 
-////
+Cuando se desea depender reactivamente de un valor dentro del scope, se llama a `scope.$watch`, declarando la expresión en la que uno está interesado (por ejemplo, qué partes del scope te importan) y una función que se ejecutará cada vez que esa expresión cambie. Así, se puede declarar explícitamente qué hacer cada vez que ese valor sea modificado.
 
-////
+Volviendo a nuestro ejemplo con Facebook, escribiríamos:
 
 ~~~js
 $rootScope.$watch('currentLikeCount', function(likeCount) {
@@ -114,13 +114,13 @@ $rootScope.$watch('currentLikeCount', function(likeCount) {
 });
 ~~~
 
-////
+Por supuesto, tal como rara vez tienes que configurar computaciones en Meteor, tampoco deberás llamar muy seguido a `$watch` explícitamente en Angular, ya que las directivas `ng-model` y las `{{expressions}}` automáticamente se ocupan de re-renderizarse cuando haya un cambio.
 
-////
+Cuando dicho valor reactivo sea cambiado, `scope.$apply()` debe ser llamado. Esto vuelve a evaluar cada "watcher" del scope, pero sólo llama a las funciones de aquellos "watchers" que contengan valores modificados.
 
-////
+Entonces, `scope.$apply()` es similar a `dependency.changed()`, excepto que actúa al nivel del scope, en lugar de darle el control al desarrollador para decirle precisamente cuáles funciones deberían ser re-evaluadas. Con eso aclarado, esta pequeña falta de control le da a Angular la habilidad de ser muy inteligente y eficiente, ya que determina precisamente qué debe ser vuelto a evaluar.
 
-////
+Con Angular, nuestra función `getFacebookLikeCount()` habría sigo algo así:
 
 ~~~js
 Meteor.setInterval(function() {
@@ -135,4 +135,4 @@ Meteor.setInterval(function() {
 ~~~
 <%= highlight "5~6" %>
 
-////
+Decididamente, Meteor se ocupa de la parte más pesada por nosotros y nos deja beneficiarnos de la reactividad sin demasiado trabajo. Pero tal vez, aprender sobre estos patrones será de ayuda si alguna vez necesitas empujar las cosas un poco más.
