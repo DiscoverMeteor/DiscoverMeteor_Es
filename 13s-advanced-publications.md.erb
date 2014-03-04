@@ -40,7 +40,7 @@ Como pueden darse cuenta, el post publicado por `postDetail` también lo está s
  
 Esto es genial, porque ahora cuando renderizamos la lista de posts, estamos lidiando con objetos de datos que tienen apenas suficiente informacion para mostrar. Sin embargo, cuando renderizamos la página para un solo post, tenemos todo lo que necesitamos mostrar. Por supuesto, tenemos que tener cuidado en el cliente para no esperar que todos los campos estén disponibles en todos los posts -- esto es una fuente común de problemas!
  
-Debe tenerse en cuenta que no estás limitado a variar las propiedades del documento. Podrías perfectamente publicar las mismas propiedades en ambas publicaciones, pero ordenar los items de otra manera.
+Debe tenerse en cuenta que no están limitados a variar las propiedades del documento. Pueden perfectamente publicar las mismas propiedades en ambas publicaciones, pero, ordenar los items de otra manera.
  
 ~~~js
 Meteor.publish('newPosts', function(limit) {
