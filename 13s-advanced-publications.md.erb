@@ -151,19 +151,19 @@ Meteor.publish('topPosts', function(limit) {
  
 ////
  
-### Linking different collections
+### Enlazando colecciones diferentes
 
-////
- 
+¿Qué mas puede darnos nuestro nuevo conocimiento sobre la flexibilidad de las suscripciones? Bueno, si no usamos `_publishCursor`, no tendremos la restricción de que la fuente de la colección en el servidor necesita tener el mismo nombre que la colección de destino en el cliente.
+
 <%= diagram "linkedcollections", "One collection for two subscriptions", "pull-center" %>
 
-////
- 
-////
- 
-////
- 
-////
+Una razón por la que no querríamos hacer esto es la *Herencia de Tabla Simple*
+
+Supongamos que quisiéramos referenciar varios tipos de objetos desde nuestros posts, cada uno alojado en campos comunes pero ligeramente diferentes en contenido. Por ejemplo, podríamos estar creando un motor de blogging al estilo de Tumblr en el que cada post posee el habitual ID, un timestamp, y el título. Pero también puede tener imágenes, videos, links o simplemente texto.
+
+Podríamos guardar todos estos objetos en una colección llamada `'resources'` (recursos), usando un atributo de `type` que indique qué tipo de objeto son. (`video`, `image`, `link`, etc.)
+
+Y aunque tendríamos una sola colección `Resources` en el servidor, podríamos transformar esa única colección en múltiples colecciones en el cliente, como `Videos`, `Images`, etc., con la siguiente porción de magia::
  
 ~~~js
   Meteor.publish('videos', function() {
@@ -177,7 +177,7 @@ Meteor.publish('topPosts', function(limit) {
   });
 ~~~
 
-////
- 
-////
+Le estamos diciendo a `_publishCursor` que publique nuestros videos (como hacer un return) como lo haría el cursor, pero en lugar de publicar la colección `resources` en el cliente, pubilcamos de `resources` a `videos`.
+
+¿Es una buena idea hacer esto? No estamos en posición de juzgarlo. De cualquier manera, es bueno saber qué es posible hacer en Meteor para sacarle el mayor provecho!
  
