@@ -34,13 +34,13 @@ Meteor.publish('postDetail', function(postId) {
 });
 ~~~
 
-////
- 
-////
- 
-////
- 
-////
+Ahora cuando el cliente se suscriba a esas dos publicaciones (utilizando `autorun` para asegurarnos que el `postId` correcto está siendo enviado a la suscripción `postDetail`), su colección `'posts'` es populada de dos fuentes: una lista de títulos y nombre de los autores por la primera suscripción, y los detalles completos de un post de la segunda.
+
+Tal vez te hayas dado cuenta que el post publicado por `postDetail` es también publicado por `allPosts` (aunque sólo con un subconjunto de sus propiedades). Sin embargo, Meteor se hace cargo de la superposición fusionando los campos y asegurando que no haya posts duplicados.
+
+Esto es genial, porque ahora cuando renderizemos la lista de los resúmenes de los posts, estaremos lidiando con objetos de datos que tienen sólo lo suficiente para mostrar lo que necesitamos. De todos modos, cuando renderizemos la página de un post entero, tenemos todo lo necesario para hacerlo. Por supuesto, tenemos que ocuparnos de que el cliente no espere que todos los campos estén disponibles en todos los posts en este caso -- eso es un error común!
+
+Nótese que uno no está limitado a modificar las propiedades de los documentos. Podrías tranquilamente publicar las mismas propiedades en ambas publicaciones, pero ordenar los items de otra manera.
  
 ~~~js
 Meteor.publish('newPosts', function(limit) {
