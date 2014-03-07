@@ -55,15 +55,15 @@ Meteor.publish('bestPosts', function(limit) {
 
 ### Subscribing to a Publication Multiple Times
 
-////
+Acabamos de ver cómo se puede publicar una sola colección más de una vez. Resulta que se puede lograr un resultado muy similar con otro patrón: creando una única publicación, pero suscribiendonos a ella varias veces.
  
-////
+En Microscope, nos suscribimos a la publicacion de `posts` varias veces, pero Iron Router establece y derriba cada suscripción por nosotros. Aun así, no hay ninguna razón por la cual no podamos suscribirnos muchas veces _simultaneamente_.
  
-////
+Por ejemplo, digamos que queremos cargar tanto las publicaciones más recientes y mejores en la memoria al mismo tiempo:
  
 <%= diagram "subscribetwice", "Subscribing twice to one publication", "pull-center" %>
 
-////
+Estamos estableciendo una sola publicación:
  
 ~~~js
 Meteor.publish('posts', function(options) {
@@ -71,32 +71,32 @@ Meteor.publish('posts', function(options) {
 });
 ~~~
 
-////
+Luego, nos suscribimos a esta publicación multiples veces. De hecho esto es más o menos exactamente lo que estamos haciendo en Microscope:
  
 ~~~js
 Meteor.subscribe('posts', {submitted: -1, limit: 10});
 Meteor.subscribe('posts', {baseScore: -1, submitted: -1, limit: 10});
 ~~~
 
-////
+Entonces, ¿qué está pasando exactamente? Cada navegador ábre _dos_ suscripciones diferentes, cada uno se conecta a la _misma_ publicación en el servidor.
  
-////
+Cada suscripción ofrece diferentes argumentos para esa publicación, pero fundamentalmente, cada vez que un conjunto de documentos (diferente) está siendo sacado de la colección de `posts` y se envía por el canal a la colección del lado del cliente.
  
 ### Multiple Collections in a Single Subscription
 
-////
+A diferencia de las bases de datos relacionales tradicionales como MySQL que hacen uso de _joins_ , las bases de datos NoSQL como Mongo se basan en la _denormalización_ e _incrustación_. Vamos a ver cómo funciona en el contexto de Meteor.
  
-////
+Veamos un ejemplo concreto. Hemos añadido comentarios a nuestros posts, y hasta ahora, hemos sido felices por haber publicado los comentarios en el único post que el usuario puede ver.
  
-////
+Sin embargo, supongamos que queremos mostrar _todos_ los comentarios en los posts en la página principal (teniendo en cuenta que estos posts van a cambiar a medida que paginamos a través de ellos). Este caso de uso presenta una buena razón para insertar comentarios en los posts, y de hecho es lo que nos empuja a desnormalizar la _colección_ de comentarios.
  
-////
+Por supuesto que siempre se puede insertar comentarios en los posts, deshacerse de la colección de `comentarios` por completo. Pero, como hemos visto anteriormente en el capítulo _Desnormalización_ , al hacerlo estaríamos perdiendo algunos beneficios adicionales de trabajar con colecciones separadas.
  
-////
+Pero resulta que hay un truco que implica suscripciones que hacen posible embeber, nuestro comentarios, preservando colecciones separadas.
  
-////
+Supongamos que, junto con la lista de la página principal de posts, queremos suscribirnos a una lista de los mejores 2 comentarios para cada uno de ellos.
  
-////
+Sería difícil de lograr esto con una publicación de comentarios independiente, sobre todo si la relación de posts se limita de alguna manera (por ejemplo, los 10 más recientes). Tendríamos que escribir una publicación que parecía algo como esto:
  
 <%= diagram "multiplecollections", "Two collections in one subscription", "pull-center" %>
 
@@ -106,9 +106,9 @@ Meteor.publish('topComments', function(topPostIds) {
 });
 ~~~
 
-////
+Esto sería un problema desde el punto de vista de rendimiento, ya que la publicación necesitaría ser eliminada y vuelta a ser establecida cada vez que la lista de `topPostIds` fuera a cambiar.
  
-////
+Existe una manera de evitar esto. Acabamos de utilizar el hecho de que no sólo podemos tener más de una _publicación_ por _colección_, pero también podemos tener más de una _colección_ por _publicación_:
  
 ~~~js
 Meteor.publish('topPosts', function(limit) {
@@ -145,11 +145,11 @@ Meteor.publish('topPosts', function(limit) {
 });
 ~~~
 
-////
+Tengamos en cuenta que no estamos devolviendo nada en esta publicación, le enviamos mensajes manualmente a la `sub` nosotros mismos (a través de `.added()` y amigos). Así que no necesitamos preguntar `_publishCursor` que lo haga por nosotros mediante la devolución de un cursor.
  
-////
+Ahora, cada vez que publiquemos un post también publicaremos automáticamente los dos primeros comentarios adjuntados. Y todo con una sola llamada de suscripción!
  
-////
+Aunque Meteor no hace este enfoque muy sencillo aún, también se puede utilizar el paquete `publish-with-relations` dentro de Atmosphere, cuyo objetivo es que este patrón sea más fácil de usar.
  
 ### Enlazando colecciones diferentes
 
