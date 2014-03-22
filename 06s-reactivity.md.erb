@@ -10,7 +10,7 @@ paragraphs: 20
 
 Si las colecciones son la característica principal de Meteor, entonces la *reactividad* es lo que las hace útiles.
 
-Las colecciones transforman radicalmente la forma en que la aplicación maneja cambios en los datos. En lugar de tener que comprobarlo manualmente (por ejemplo, con una llamada AJAX) y parchear los cambios en el código HTML, con Meteor, los cambios pueden llegar en cualquier momento y aplicarse a la interfaz de usuario sin complicaciones. 
+Las colecciones transforman radicalmente la forma en que la aplicación maneja cambios en los datos. En lugar de tener que comprobarlo manualmente (por ejemplo, con una llamada AJAX) y actualizar los cambios en el código HTML, con Meteor, los cambios pueden llegar en cualquier momento y aplicarse a la interfaz de usuario sin complicaciones. 
 
 Vamos a verlo con detenimiento: entre bastidores, Meteor es capaz de cambiar *cualquier* parte de la interfaz de usuario cuando se actualiza una colección subyacente. 
 
@@ -40,7 +40,7 @@ Es probable que ya se pueda ver cómo este tipo de código va a tender a hacerse
 
 ### ¿Cuándo deberíamos usar `observe()`?
 
-A veces es necesario usar el patrón anterior, sobre todo cuando se trata con widgets de terceros. Por ejemplo, imaginemos que queremos añadir o quitar puntos en un mapa en tiempo real dentro de una Colección (por ejemplo, para mostrar las localizaciones de los usuarios actualmente conectados).
+A veces es necesario usar el patrón anterior, sobre todo cuando se trabaja con widgets de terceros. Por ejemplo, imaginemos que queremos añadir o quitar puntos en un mapa en tiempo real dentro de una Colección (por ejemplo, para mostrar las localizaciones de los usuarios actualmente conectados).
 
 En tal caso, tendrás que usar callbacks `observe()` para conseguir que el mapa "hable" con la colección Meteor y saber cómo reaccionar a los cambios en los datos. Por ejemplo, tendrías que confiar en los callbacks `added` y `removed` para llamar a los métodos `dropPin` o `removePin()` de la API del mapa.
 
@@ -86,7 +86,7 @@ Ten en cuenta que, por lo general, no es necesario hacerlo de forma explícita, 
 
 Todas las fuente de datos reactivas hacen un seguimiento de todas las computaciónes que las usan para poder avisarles de que su valor ha cambiado y deben "volver a computarse". Para hacer esto, se llama a la función `invalidate()`.
 
-Generalmente, las computaciones se establecen para volver a evaluar su contenido, y esto es lo que ocurre con las computaciones de que Meteor crea para las plantillas (aunque, además, se añade un poco más de magia para redibujar la página de manera más eficiente). Aunque, si es necesario, se puede tener más control sobre lo que hace uno de estas computaciones, en la práctica, no va a ser necesario porque Meteor nos va a dar justo el comportamiento que vamos a necesitar.
+Generalmente, las computaciones se establecen para volver a evaluar su contenido, y esto es lo que ocurre con las computaciones que Meteor crea para las plantillas (aunque, además, se añade un poco más de magia para redibujar la página de manera más eficiente). Aunque, si es necesario, se puede tener más control sobre lo que hace una de estas computaciones, en la práctica, no va a ser necesario porque Meteor nos va a dar justo el comportamiento que vamos a necesitar.
 
 ### Configuración de una computación
 
