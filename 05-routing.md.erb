@@ -43,7 +43,7 @@ En este capítulo vamos a tocar un montón de características del Router. Si ti
 - **Filters**: Son simplemente Hooks o acciones que se definen de forma global para una o más rutas.
 - **Route Templates**: Cada ruta debe apuntar a una plantilla. Si no se especifica una, el router buscará una plantilla con el mismo nombre que la ruta por defecto.
 - **Layouts**: Son como marcos de fotos digitales. Contienen todo el código HTML que envuelve la plantilla actual, y seguirá siendo el mismo, aunque la plantilla cambie.
-- **Controllers**:  veces, nos daremos cuenta de que muchos de nuestras plantillas utilizan los mismos parámetros. En lugar de duplicar el código, podemos dejar que todas estas rutas se heredan desde un solo _controlador de encaminamiento_ que contendrá toda la lógica necesaria. 
+- **Controllers**:  Algunas veces, nos daremos cuenta de que muchos de nuestras plantillas utilizan los mismos parámetros. En lugar de duplicar el código, podemos dejar que todas estas rutas se hereden desde un solo _controlador de enrutamiento que contendrá toda la lógica necesaria. 
 
 Para obtener más información acerca de Iron Router, echa un vistazo a la [documentación completa en GitHub](https://github.com/EventedMind/iron-router).
 
@@ -234,7 +234,7 @@ Ten en cuenta que solamente estamos usando el `_id` porque queremos. El router n
 
 Ya enrutamos a la plantilla correcta, pero todavía nos falta algo: el router conoce el `_id` del post que nos gustaría ver, pero la plantilla todavía no tiene ni idea. Entonces, ¿cómo solucionamos este problema?
 
-Afortunadamente, el router integra una inteligente solución: permite especificar el **contexto de datos** de una plantilla. Puedes pensar en el contexto de datos como lo que rellena un delicioso pastel hecho de plantillas y diseños. En pocas palabras, son los datos con los que rellenamos la plantilla:
+Afortunadamente, el router integra una solución inteligente: permite especificar el **contexto de datos** de una plantilla. Puedes pensar en el contexto de datos como lo que rellena un delicioso pastel hecho de plantillas y diseños. En pocas palabras, son los datos con los que rellenamos la plantilla:
 
 <%= diagram "router-diagram-2", "El contexto de datos.", "pull-center" %>
 
@@ -292,7 +292,7 @@ Resulta que se consigue el mismo resultado pasando el contexto como un argumento
 
 Por último, tenemos que asegurarnos de que apuntamos al lugar correcto cuando queramos enlazar a un post individual. Podríamos hacer algo como `<a href="/posts/{{_id}}>`, pero es mucho más fiable, utilizar un ayudante de ruta.
 
-Hemos llamado a la ruta al post `postPage`, así que podemos usar el ayudante `{{'postpage' pathFor}}` en `client/views/posts/post_item.html`:
+Hemos llamado a la ruta al post `postPage`, así que podemos usar el ayudante `{{pathFor 'postpage'}}` en `client/views/posts/post_item.html`:
 
 ~~~html
 <template name="postItem">
