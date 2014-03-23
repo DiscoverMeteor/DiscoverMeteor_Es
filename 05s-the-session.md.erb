@@ -31,7 +31,7 @@ La sesión está disponible en todas partes como `Session`. Para establecer un v
 ~~~
 <%= caption "Consola del navegador" %>
 
-Puedes leer los datos de nuevo con `Session.get('mySessionProperty');`. Hemos dicho que la Sesión es una fuente de datos de reactiva, lo que significa que si lo pones en un ayudante, verías un cambio en el navegador cuando cambia la variable de sesión.
+Puedes leer los datos de nuevo con `Session.get('mySessionProperty');`. Hemos dicho que la Sesión es una fuente de datos reactiva, lo que significa que si lo pones en un ayudante, verías un cambio en el navegador cuando cambia la variable de sesión.
 
 Para probarlo, añade el siguiente código a la plantilla layout:
 
@@ -72,7 +72,7 @@ Si modificas una variable de sesión con `Session.set()` pero la estableces al m
 
 ### Presentamos a Autorun
 
-Hemos visto un ejemplo de una fuente de datos de reactivo, y la hemos visto en acción dentro de un ayudante de plantilla. Pero mientras que algunos contextos en Meteor (como ayudantes de plantilla) son inherentemente reactivos, la mayoría de código de la aplicación sigue siendo el viejo y simple JavaScript.
+Hemos visto un ejemplo de una fuente de datos reactiva, y la hemos visto en acción dentro de un ayudante de plantilla. Pero mientras que algunos contextos en Meteor (como ayudantes de plantilla) son inherentemente reactivos, la mayoría de código de la aplicación sigue siendo el viejo y simple JavaScript.
 
 Supongamos que tenemos el siguiente fragmento de código en algún lugar de nuestra aplicación:
 
@@ -84,7 +84,7 @@ helloWorld = function() {
 
 A pesar de que llamamos a una variable de sesión, el *contexto* en el que se hace no es reactivo, lo que significa que no vamos a ver `alerts` cada vez que cambia su valor.
 
-Aquí es dónde entra en juego [Autorun](http://docs.meteor.com/#deps_autorun). Como su nombre indica, el código dentro de un bloque `autorun` se ejecutará automáticamente vez que cambien las fuentes de datos reactivas utilizadas dentro.
+Aquí es dónde entra en juego [Autorun](http://docs.meteor.com/#deps_autorun). Como su nombre indica, el código dentro de un bloque `autorun` se ejecutará automáticamente cada vez que cambien las fuentes de datos reactivas utilizadas dentro.
 
 Prueba a escribir esto en la consola del navegador:
 
@@ -113,7 +113,7 @@ Deps.autorun(function() {
   alert(Session.get('message'));
 }
 ~~~
-Como acabamos de ver, los autorruns pueden ser muy útiles para rastrear fuentes de datos reactivas y reaccionar inmediatamente ante ellos.
+Como acabamos de ver, los autorun pueden ser muy útiles para rastrear fuentes de datos reactivas y reaccionar inmediatamente ante ellos.
 
 ### Recarga automática de código
 
