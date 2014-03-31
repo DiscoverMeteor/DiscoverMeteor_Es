@@ -53,13 +53,13 @@ Para obtener más información acerca de Iron Router, echa un vistazo a la [docu
 
 Hasta ahora, hemos construido nuestro diseño usando una plantilla fija (como `{{> postsList}}`). Así que, aunque el contenido de nuestra aplicación puede cambiar, la estructura básica de la página es siempre la misma: una cabecera, con una lista de posts debajo de ella.
 
-El Iron Router nos permite romper este molde al tomar el control de lo que se muestra en el interior de la etiqueta HTML `<body>`. Por eso no vamos a definir el contenido, como lo haríamos con una página HTML normal. En vez de eso, vamos a indicar al router que apunte a una plantilla especial que contiene un ayudante `{{yield}}`.
+El Iron Router nos permite romper este molde al tomar el control de lo que se muestra en el interior de la etiqueta HTML `<body>`. Por eso no vamos a definir el contenido, como lo haríamos con una página HTML normal. En vez de eso, vamos a indicar al router que apunte a una plantilla especial que contiene un ayudante `{{> yield}}`.
 
-El ayudante `{{yield}}` definirá una zona dinámica especial que mostrará automáticamente lo que corresponde a la ruta actual (a modo de convención, llamaremos a esta plantilla especial "route templates" o "plantillas de ruta"):
+El ayudante `{{> yield}}` definirá una zona dinámica especial que mostrará automáticamente lo que corresponde a la ruta actual (a modo de convención, llamaremos a esta plantilla especial "route templates" o "plantillas de ruta"):
 
 <%= diagram "router-diagram", "Plantillas y layouts.", "pull-center" %>
 
-Empezaremos creando nuestro layout y añadiendo el ayudante {{yield}}. En primer lugar, vamos a eliminar la etiqueta `<body>` del fichero `main.html`, y movemos su contenido a su propia plantilla, `layout.html`.
+Empezaremos creando nuestro layout y añadiendo el ayudante {{> yield}}. En primer lugar, vamos a eliminar la etiqueta `<body>` del fichero `main.html`, y movemos su contenido a su propia plantilla, `layout.html`.
 
 Nuestro `main.html` adelgazado quedará así:
 

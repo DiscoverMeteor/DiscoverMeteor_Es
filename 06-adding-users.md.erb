@@ -15,7 +15,7 @@ Veamos cómo arreglamos esto.
 
 ### Cuentas de usuario de forma sencilla
 
-En la mayoría de los frameworks web, agregar cuentas de usuario es un problema familiar. Hay que hacerlo en casi todos los proyectos, pero nunca es tan fácil como debería. Y si además hay que tratar con OAuth u otros esquemas de autenticación de terceros, las cosas tienden a ponerse feas rápidamente.
+En la mayoría de los frameworks web, agregar cuentas de usuario es un problema familiar. Hay que hacerlo en casi todos los proyectos, pero nunca resulta tan fácil como quisiéramos. Y si además hay que tratar con OAuth u otros esquemas de autenticación de terceros, las cosas tienden a ponerse feas rápidamente.
 
 Por suerte, Meteor nos ampara. Gracias a la forma en la que los paquetes Meteor pueden contribuir al código del servidor (JavaScript) y al del cliente (JavaScript, HTML y CSS), podemos obtener un sistema de cuentas casi sin esfuerzo.
 
@@ -27,16 +27,16 @@ $ mrt add accounts-password
 ~~~
 <%= caption "Terminal" %>
 
-Estos dos comandos hacen accesibles las plantillas para cuentas de forma que podemos incluirlas en nuestro sitio usando el ayudante `{{loginButtons}}`. Un consejo muy útil: se puede controlar en qué lado aparece el desplegable de inicio de sesión con el atributo `align` (por ejemplo: `{{loginButtons align="right"}})`.
+Estos dos comandos hacen accesibles las plantillas para cuentas de forma que podemos incluirlas en nuestro sitio usando el ayudante `{{> loginButtons}}`. Un consejo muy útil: se puede controlar en qué lado aparece el desplegable de inicio de sesión con el atributo `align` (por ejemplo: `{{> loginButtons align="right"}})`.
 
 Vamos a añadir los botones a nuestra cabecera. Y puesto que la cabecera está empezando a crecer, vamos a darle más espacio en su propia plantilla (la pondremos en el `client/views/includes/`). Estamos utilizando algunas clases de Bootstrap para que todo se vea mejor:
 
 ~~~html
 <template name="layout">
   <div class="container">
-    {{>header}}
+    {{> header}}
     <div id="main" class="row-fluid">
-      {{yield}}
+      {{> yield}}
     </div>
   </div>
 </template>
@@ -56,7 +56,7 @@ Vamos a añadir los botones a nuestra cabecera. Y puesto que la cabecera está e
       <a class="brand" href="{{pathFor 'postsList'}}">Microscope</a>
       <div class="nav-collapse collapse">
         <ul class="nav pull-right">
-          <li>{{loginButtons}}</li>
+          <li>{{> loginButtons}}</li>
         </ul>
       </div>
     </div>
@@ -117,7 +117,7 @@ Definitivamente hay 2 pero, ¿porqué sólo se ve uno en el navegador?
 
 ### ¡Una publicación misteriosa!
 
-Si recuerdas, en el capítulo 4 deshabilitamos la auto-publicación `autopublish` y creamos un canal de publicación/subscripción para intercambiar datos.
+Si recuerdas, en el capítulo 4 deshabilitamos la auto-publicación `autopublish` y creamos un canal de publicación/suscripción para intercambiar datos.
 
 Sin embargo, no hemos creado ninguna publicación para usuarios. Así que ¿cómo es que podemos ver esos datos?
 
