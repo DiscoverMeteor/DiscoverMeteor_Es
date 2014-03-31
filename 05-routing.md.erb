@@ -81,7 +81,7 @@ Mientras que el el nuevo fichero `layout.html`, contendrá ahora el diseño exte
     </div>
   </header>
   <div id="main" class="row-fluid">
-    {{yield}}
+    {{> yield}}
   </div>
   </div>
 </template>
@@ -155,17 +155,17 @@ Router.configure({
 Router.map(function() {
   this.route('postsList', {path: '/'});
 });
+
+Router.onBeforeAction('loading');
 ~~~
 <%= caption "lib/router.js" %>
 <%= highlight "3,4" %>
 
 Vamos a analizar las cosas. En primer lugar, hemos modificado el bloque `Router.configure()` para proporcionar al router el nombre de la plantilla de carga (que crearemos en breve) a la que redirigir mientras esperamos los datos.
 
-En segundo lugar, hemos añadido una función `waitOn` que devuelve nuestra suscripción. Lo que significa es que el router se asegurará de que la suscripción se completa antes de enviar al usuario a través de la ruta que había solicitado.
+En segundo lugar, hemos añadido una función `waitOn` que devuelve nuestra suscripción a la colección `posts`. Y por último, hemos habilitado el *hook* `loading`. Con todo esto, el router se asegurará de que la suscripción se completa antes de enviar al usuario a la ruta que había solicitado.
 
-Ten en cuenta que, dado que estamos definiendo nuestra función waitOn a nivel global al nivel del router, esta secuencia sólo ocurrirá cuando un usuario accede por primera vez a su aplicación. Después de eso, los datos que ya se cargarán en la memoria del navegador y el router no tendrá que esperar a que carguen otra vez.
-
-Además, dado que definimos la función waitOn a nivel global al nivel del router, esta secuencia sólo ocurrirá una vez, cuando un usuario accede por primera vez a la aplicación. Después, los datos que ya estarán en la memoria del navegador y el router no tendrá que esperar de nuevo.
+Ten en cuenta que, dado que estamos definiendo nuestra función `waitOn` a nivel global al nivel del router, esta secuencia sólo ocurrirá cuando un usuario accede por primera vez a su aplicación. Después de eso, los datos que ya se cargarán en la memoria del navegador y el router no tendrá que esperar a que carguen otra vez.
 
 Puesto que ahora dejamos que el router maneje nuestra suscripción, puedes eliminarla de forma segura en el `main.js` (que ahora debe estar vacío).
 
@@ -230,7 +230,7 @@ Router.map(function() {
 
 La sintaxis especial `:_id` le dice dos cosas al router: primero, que encuentre cualquier ruta de la forma `/posts/xyz/`, donde "xyz" puede ser cualquier cadena. En segundo lugar, poner lo que encuentra dentro de una propiedad `_id` en el vector de parámetros del router.
 
-Ten en cuenta que solamente estamos usando el `_id` porque queremos. El router no tiene manera de saber si usted está pasándole un `_id` real, o simplemente una cadena de caracteres al azar.
+Ten en cuenta que usamos el `_id` como cadena porque así lo queremos. El router no tiene manera de saber si le pasamos un `_id` real, o simplemente una cadena de caracteres al azar.
 
 Ya enrutamos a la plantilla correcta, pero todavía nos falta algo: el router conoce el `_id` del post que nos gustaría ver, pero la plantilla todavía no tiene ni idea. Entonces, ¿cómo solucionamos este problema?
 
@@ -272,7 +272,7 @@ Esto se hace implícitamente con el iterador `{{#each}}`, que ajusta automática
 {{/each}}
 ~~~
 
-Pero también podemos hacerlo explícitamente utilizando `{{#with}}`, que simplemente dice "coje este objeto, y le aplicas la siguiente plantilla". Por ejemplo, se puede escribir:
+Pero también podemos hacerlo explícitamente utilizando `{{#with}}`, que simplemente dice "toma este objeto, y le aplicas la siguiente plantilla". Por ejemplo, se puede escribir:
 
 ~~~html
 {{#with myWidget}}
@@ -290,7 +290,7 @@ Resulta que se consigue el mismo resultado pasando el contexto como un argumento
 
 ### Usando nuestro enrutador dinámico
 
-Por último, tenemos que asegurarnos de que apuntamos al lugar correcto cuando queramos enlazar a un post individual. Podríamos hacer algo como `<a href="/posts/{{_id}}>`, pero es mucho más fiable, utilizar un ayudante de ruta.
+Por último, tenemos que asegurarnos de que apuntamos al lugar correcto cuando queramos enlazar a un post individual. Podríamos hacer algo como `<a href="/posts/{{_id}}">`, pero es mucho más fiable, utilizar un ayudante de ruta.
 
 Hemos llamado a la ruta al post `postPage`, así que podemos usar el ayudante `{{pathFor 'postpage'}}` en `client/views/posts/post_item.html`:
 
@@ -328,6 +328,6 @@ Una cosa que hay que tener en cuenta es que estos cambios en las URLs suceden gr
 
 El router recoge los clics en URL internas, y evita que el navegador salga fuera de la aplicación haciendo los cambios necesarios en su estado.
 
-Si todo funciona correctamente la página debería cambiar instantáneamente. De hecho, a veces las cosas cambian tan rápido que podría ser necesario añadir algún tipo de transición. Esto está fuera del alcance de este capítulo, pero, no obstante, es un tema interesante.
+Si todo funciona correctamente la página debería cambiar instantáneamente. De hecho, a veces las cosas cambian tan rápido que podría ser necesario añadir algún tipo de transición. Esto está fuera del alcance de este capítulo, aunque, no obstante, es un tema interesante.
 
 <% end %>
