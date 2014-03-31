@@ -4,15 +4,15 @@ slug: creating-a-meteorite-package
 date: 0009/01/02
 number: 9.5
 sidebar: true
-contents: Escribiremos un paquete Meteor para nuestra aplicación de forma local.|Escribiremos tests para nuestro paquete.|Publicaremos el paquete en repositorio Atmosphere.
+contents: Escribiremos un paquete de Meteor para nuestra aplicación de forma local.|Escribiremos tests para nuestro paquete.|Publicaremos el paquete en el repositorio de Atmosphere.
 paragraphs: 22
 ---
 
-Durante nuestro trabajo en los errores, hemos construido un modelo reutilizable, ¿por qué no lo metemos dentro de elegant paquete y lo compartimos con el resto de la comunidad Meteor?
+Durante nuestro trabajo en los errores, hemos construido un modelo reutilizable, ¿por qué no ponerlo dentro de un paquete y compartirlo con el resto de la comunidad Meteor?
 
-En primer lugar, tenemos colocar el código del paquete dentro de una estructura. Vamos a hacerlo  dentro del de un directorio llamado `packages/errors/`. Lo que se pone dentro del directorio `packages` se utiliza de forma automática como paquetes. (Posiblemente, ya te habrás dado cuenta de que Meteorite instala los paquetes desde enlaces simbólicos en el directorio `packages/`).
+En primer lugar, tenemos que colocar el código del paquete dentro de una estructura. Vamos a hacerlo dentro de un directorio llamado `packages/errors/`. Lo que se pone dentro del directorio `packages` se utiliza de forma automática como paquetes. (Posiblemente, ya te habrás dado cuenta de que Meteorite instala paquetes usando enlaces simbólicos dentro del directorio `packages/`).
 
-En segundo lugar, dentro de nuestro nuevo directorio, creamos `package.js`, el archivo que informa a Meteor de cómo se debe utilizar el paquete, y los símbolos que exporta.
+En segundo lugar, dentro de nuestro nuevo directorio, crearemos `package.js`, el archivo que informa a Meteor de cómo debe utilizar el paquete, y los símbolos que exporta.
 
 ~~~js
 Package.describe({
@@ -91,7 +91,7 @@ $ rm client/views/includes/errors.js
 ~~~
 <%= caption "Eliminando los archivos antiguos" %>
 
-Otra cosa que debemos hacer es hacer algunos pequeños cambios en el código de la aplicación para que use la API correcta:
+Otra cosa que debemos hacer es efectuar algunos pequeños cambios en el código de la aplicación para que use la API correcta:
 
 ~~~js
 Router.before(function() { Errors.clearSeen(); });
@@ -123,13 +123,13 @@ Posts.update(currentPostId, {$set: postProperties}, function(error) {
 
 <%= scommit "9-5-1", "Creado y enlazado un paquete básico." %>
 
-Una vez hechos estos cambios, deberíamos ver el mismo comportamiento que con el código sin empaquetar.
+Una vez hechos estos cambios, deberíamos ver el mismo comportamiento que teníamos con el código sin empaquetar.
 
 ### Escribiendo tests
 
 El primer paso en el desarrollo de un paquete es probarlo contra una aplicación, pero el siguiente es escribir un conjunto de tests que evalúen adecuadamente el comportamiento del paquete. Meteor incluye Tinytest, que permite ejecutar este tipo de pruebas de forma fácil y, de esta forma, tener la conciencia tranquila cuando compartimos el paquete con los demás.
 
-Vamos a crear un fichero que usa Tinytest para ejecutar tests contra el código de los errores. 
+Vamos a crear un archivo que usa Tinytest para ejecutar tests contra el código de los errores. 
 
 ~~~js
 Tinytest.add("Errors collection works", function(test) {
@@ -192,7 +192,7 @@ $ meteor test-packages errors
 
 ### Publicando el paquete
 
-Ahora, queremos liberar el paquete y lo ponerlo a disposición de todo el mundo. Lo haremos publicándolo en el repositorio Atmosphere.
+Ahora, queremos liberar el paquete y ponerlo a disposición de todo el mundo. Lo haremos publicándolo en el repositorio Atmosphere.
 
 En primer lugar, tenemos que añadir un archivo llamado `smart.json` dónde pondremos los detalles importantes del paquete para Meteorite y Atmosphere:
 
@@ -214,7 +214,7 @@ En primer lugar, tenemos que añadir un archivo llamado `smart.json` dónde pond
 
 Ponemos algunos metadatos con la información del paquete, incluyendo lo que hace, el repositorio git donde lo vamos a alojar, y un número de versión. Si nuestro paquete depende a su vez de otros paquetes Atmosphere, podríamos utilizar una sección `"packages"` para definir sus dependencias.
 
-Una vez que todo esta en su sitio, publicar es fácil. Tenemos que crear un repositorio git, subirlos a un servidor, y enlazar su ubicación en `smart.json`.
+Una vez que todo esta en su sitio, publicarlo es fácil. Tenemos que crear un repositorio git, subirlos a un servidor, y enlazar su ubicación en `smart.json`.
 
 El proceso para hacer esto usando [GitHub](http://github.com) es crear un nuevo repositorio, y luego seguir la práctica habitual para meter el código dentro. A continuación, se utiliza el comando `mrt release` para publicarlo:
 
