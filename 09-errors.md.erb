@@ -3,13 +3,13 @@ title: Errores
 slug: errors
 date: 0009/01/01
 number: 9
-contents: "Crearemos un mecanismo mejor para mostrar errores y mensajes.|Aprenderemos a usar Template.rendered para saber cuándo un usuario ha visto un error.|Utilizaremos un filtro en el router para asegurarnos de que los errores sólo se muetran una vez."
+contents: "Crearemos un mecanismo mejor para mostrar errores y mensajes.|Aprenderemos a usar `Template.rendered` para saber cuándo un usuario ha visto un error.|Utilizaremos un filtro en el router para asegurarnos de que los errores sólo se muetran una vez."
 paragraphs: 31
 ---
 
 Usar simplemente un `alert()` del navegador para advertir al usuario cuando hay un problema es poco elegante. Podemos hacerlo mejor.
 
-En vez de eso, vamos a construir un mecanismo de presentación de errores más versátil, que va a hacer mejor el trabajo de decirle al usuario qué está pasando sin tener que romper el flujo de trabajo.
+En vez de eso, vamos a construir un mecanismo de presentación de errores más versátil, que va a hacer mejor el trabajo de decirle al usuario qué está pasando sin tener que romper su flujo de trabajo.
 
 ### Introduciendo las colecciones locales
 
@@ -17,7 +17,7 @@ Vamos a implementar un sistema simple que mantenga un registro de los errores qu
 
 Lo que vamos a crear es algo parecido a los mensajes flash que encontramos a menudo  en aplicaciones Ruby on Rails, pero implementado en en el lado del cliente y sabiendo cuándo un usuario ha visto un mensaje.
 
-Para empezar, crearemos una colección para almacenar nuestros errores. Pusto que los errores sólo son relevantes en la sesión actual y no necesitan ser persistentes, crearemos siempre una nueva colección local. Es decir, la colección `Errors` sólo existirá en el navegador, y no se sincronizará con el servidor.
+Para empezar, crearemos una colección para almacenar nuestros errores. Pusto que los errores sólo son relevantes en la sesión actual y no necesitan ser persistentes, crearemos siempre una nueva _colección local_. Es decir, la colección `Errors` sólo existirá en el navegador, y no se sincronizará con el servidor.
 
 Para conseguirlo, creamos la colección de errores en un archivo de cliente, con el nombre de la colección establecido a `null` y una función `throwError` que  inserta errores en la nueva colección local:
 
@@ -27,7 +27,7 @@ Errors = new Meteor.Collection(null);
 ~~~
 <%= caption "client/helpers/errors.js" %>
 
-Now that the collection has been created, we can add a `throwError` function which we'll call to add errors to it. We don't need to worry about `allow` or `deny` or anything like that, as this is a local collection and will not be saved to the Mongo database.
+Ahora que hemos creado la colección, podemos agregar una función `throwError`, que usaremos para añadir errores. Al tratarse de una colección local, no tenemos que preocuparnos por definir `allow` o `deny` porque no se guardará en la base de datos de Mongo.
 
 ~~~js
 throwError = function(message) {
@@ -48,7 +48,7 @@ Mostraremos los errores en la parte de arriba de nuestro layout:
     {{> header}}
     {{> errors}}
     <div id="main" class="row-fluid">
-      {{yield}}
+      {{> yield}}
     </div>
   </div>
 </template>
@@ -84,7 +84,7 @@ Te habrás dado cuenta de que estamos definiendo dos plantillas en un solo archi
 
 <% end %>
 
-Sólo nos falta integrar el ayudante de plantilla y estará listo
+Sólo nos falta integrar el ayudante de plantilla y ¡estará listo!
 
 ~~~js
 Template.errors.helpers({
@@ -148,7 +148,7 @@ De modo que si no queremos que vuelvan los errores una y otra vez, es mejor que 
 En primer lugar, vamos a modificar la función `throwError` para incluir una propiedad `seen`. Esto nos será útil después para realizar un seguimiento de
 si un error ha sido visto por el usuario.
 
-Una vez hecho esto, podemos crear una función `ClearErrors` que borra los errores que ya se han visto:
+Una vez hecho esto, podemos crear una función `clearErrors` que borra los errores que ya se han visto:
 
 ~~~js
 // Local (client-only) collection
@@ -165,18 +165,18 @@ clearErrors = function() {
 <%= caption "client/helpers/errors.js" %>
 <%= highlight "5,8~10" %>
 
-A continuación, vamos a limpiar los errores en el router para que cuando naveguemos por otras páginas, estos errores desaparezcan para siempre:
+A continuación, vamos a limpiar los errores en el router para que, cuando naveguemos por otras páginas, éstos desaparezcan para siempre:
 
 ~~~js
 // ...
 
-Router.before(requireLogin, {only: 'postSubmit'})
-Router.before(function() { clearErrors() });
+Router.onBeforeAction(requireLogin, {only: 'postSubmit'})
+Router.onBeforeAction(function() { clearErrors() });
 ~~~
 <%= caption "lib/router.js" %>
 <%= highlight "4" %>
 
-Para que nuestra función `clearErrors()` haga su trabajo, los errores deben marcarse como vistos `seen`. Para hacerlo correctamente, hay un un caso en el que tenemos que poner especial cuidado: cuando lanzamos un error y redirigimos al usuario a otro lugar (como cuando tratan de enviar un enlace duplicado), la redirección ocurre instantáneamente. Esto significa que el usuario no puede ver el error antes de que se borre.
+Para que nuestra función `clearErrors()` haga bien su trabajo, los errores deben marcarse como vistos `seen`. Para hacerlo correctamente, hay un un caso en el que tenemos que poner especial cuidado: cuando lanzamos un error y redirigimos al usuario a otro lugar (como cuando tratan de enviar un enlace duplicado), la redirección ocurre instantáneamente. Esto significa que el usuario no puede ver el error antes de que se borre.
 
 Aquí es donde nuestra propiedad `seen` será útil. Tenemos que asegurarnos de que sólo tendrá valor `true` si el usuario en realidad ha visto el error.
 
@@ -213,7 +213,8 @@ El callback `rendered` se dispara una vez mostrada la plantilla. Dentro de él, 
 
 ### El callback `rendered`
 
-El callback `rendered` se activa cada vez que se muestra la plantilla. Por supuesto, también la primera vez que aparece en la pantalla, pero es importante recordar que también se activaré cada vez que la plantilla se vuelva mostrar como, por ejemplo, cada vez que cambie cualquiera de sus datos.1
+El callback `rendered` se activa cada vez que se muestra la plantilla. Por supuesto, también la primera vez que aparece en la pantalla, pero es importante recordar que también se activaré cada vez que la plantilla se vuelva mostrar como, por ejemplo, cada vez que cambie cualquiera de sus datos.
+
 Los callbacks `rendered` se dispararan al menos dos veces: una, cuando se carga la aplicación, y otra, cuando se cargan los datos de la colección. Por lo que hay que tener cuidado de no poner en ellos ningún código que no se deba ejecutar varias veces (como una alerta o código de análisis y seguimiento de eventos).
 
 <% end %>

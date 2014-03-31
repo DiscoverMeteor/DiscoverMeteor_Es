@@ -475,7 +475,7 @@ Vamos a añadir los enlaces en la cabecera:
           {{/if}}
         </ul>
         <ul class="nav pull-right">
-          <li>{{loginButtons}}</li>
+          <li>{{> loginButtons}}</li>
         </ul>
       </div>
     </div>
@@ -526,7 +526,7 @@ La razón por la que queremos permitir varias rutas es que tanto la ruta `home` 
           {{/if}}
         </ul>
         <ul class="nav pull-right">
-          <li>{{loginButtons}}</li>
+          <li>{{> loginButtons}}</li>
         </ul>
       </div>
     </div>
@@ -543,7 +543,7 @@ Template.header.helpers({
     args.pop();
     
     var active = _.any(args, function(name) {
-      return Router.current().route.name === name
+      return Router.current() && Router.current().route.name === name
     });
     
     return active && 'active';
