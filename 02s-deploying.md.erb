@@ -34,19 +34,7 @@ Desplegar en Meteor es muy simple. Sólo tienes que abrir el terminal, ir al dir
 $ meteor deploy myapp.meteor.com
 ~~~
 
-Tenemos que elegir con cuidado el nombre de la aplicación porque puede que ya esté en uso y que Meteor te solicite una contraseña. Si ocurre esto, cancela la operación con `ctrl + c` e inténtalo de nuevo con otro nombre.
-
-Si todo va bien, después de unos segundos podrás acceder a tu aplicación en `http://myapp.meteor.com`.
-
-### Protección con contraseña
-
-Por defecto, no hay ninguna restricción en los subdominios de Meteor. Cualquiera puede utilizar cualquier nombre, y sobrescribir la aplicación existente. Así que es probable que quieras proteger con una contraseña tu nombre de dominio utilizando la opción `-p`, como se muestra a continuación:
-
-~~~~bash
-$ meteor deploy myapp.meteor.com -p
-~~~~
-
-Meteor te pedirá que establezcas una contraseña, y desde ese momento, Meteor te pedirá la contraseña cada vez que quieras desplegar esta aplicación en particular.
+Tendrás que elegir con cuidado el nombre porque podría no estar disponible si otro desarrollador lo ha usado. Si es la primera vez que despliegas una aplicación, te pedirá crear una cuenta en Meteor. Y si todo va bien, después de unos segundos podrás acceder a la aplicación desde `http://myapp.meteor.com`.
 
 Puedes mirar [la documentación oficial](http://docs.meteor.com/#deploying) para obtener más información sobre cosas como el acceso a la base de datos de la instancia, o cómo configurar un dominio personalizado.
 

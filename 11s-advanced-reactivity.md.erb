@@ -78,21 +78,7 @@ Meteor.setInterval(function() {
 
 Lo que hemos hecho es configurar una dependencia `_currentLikeCountListeners`, que rastreará todas las computaciones en las cuales se utilice `currentLikeCount()`. Cuando el valor de `_currentLikeCount` cambie, podemos llamar a la función `changed()` en esa dependencia, que invalida todas las computaciones realizadas.
 
-Estas computaciones pueden luego lidiar con el cambio individualmente. En el caso de una plantilla, esto significaría redibujarse.
-
-### Computación de Plantilla y Controlar Redibujados
-
-La razón por la que cada plantilla tiene su propia computación es para controlar la cantidad de redibujados que suceden en pantalla.
-
-Cuando llamamos a una plantilla desde otra, estamos configurando una segunda computación dentro de la primera. Entonces, cuando los datos reactivos utilizados dentro de la plantilla interna cambien, esa plantilla interna es redibujada pero la *externa* sigue sin cambiar. De esta forma, las computaciones son utilizadas para controlar el alcance de los cambios reactivos.
-
-Meteor además nos da un poco de ayuda adicional para aumentar los mecanismos básicos de anidar plantillas.
-
-Primero, el bloque ayudante `{{#constant}}` *mata* la reactividad dentro de sí mismo, para que los datos que fueron recolectados por los ayudantes dentro del bloque sólo sean usados una vez. Y si la plantilla contenedora es redibujada, el HTML del area "constant" no cambia y se renderiza de la misma manera. Esto hace que las regiones constantes sean una gran forma de manejar "widgets" que no esperan que Meteor redibuje el DOM que está dentro suyo.
-
-La segunda característica que nos ayuda a controlar la reactividad es el bloque ayudante `{{#isolate}}`, que configura una *nueva* computación dentro de una plantilla. En otras palabras, tiene el mismo efecto que mover esa sección de la plantilla hacia una sub-plantilla, en términos de reactividad y redibujo.
-
-De modo que si una de las fuentes de datos reactiva en el bloque aislado cambia, esa área se redibujará, pero el resto de la plantilla no lo hará. Sin embargo, si la plantilla contenedora se redibuja, el área aislada se redibujará también.
+Estas computaciones pueden entonces seguir adelante y evaluar los cambios caso por caso.
 
 ### Comparando Deps con Angular
 

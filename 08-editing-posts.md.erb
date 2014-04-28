@@ -13,7 +13,9 @@ Primero vamos a enlazar nuestro router. Añadiremos una ruta para acceder a la p
 
 ~~~js
 Router.configure({
-  layoutTemplate: 'layout'
+  layoutTemplate: 'layout',
+  loadingTemplate: 'loading',
+  waitOn: function() { return Meteor.subscribe('posts'); }
 });
 
 Router.map(function() {
@@ -34,21 +36,21 @@ Router.map(function() {
   });
 });
 
-var requireLogin = function() {
+var requireLogin = function(pause) {
   if (! Meteor.user()) {
     if (Meteor.loggingIn())
       this.render('loading')
     else
       this.render('accessDenied');
   
-    this.stop();
+    pause();
   }
 }
 
 Router.onBeforeAction(requireLogin, {only: 'postSubmit'});
 ~~~
 <%= caption "lib/router.js" %>
-<%= highlight "12~15" %>
+<%= highlight "14~17" %>
 
 ### La plantilla de edición de posts
 

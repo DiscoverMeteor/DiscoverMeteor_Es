@@ -146,9 +146,7 @@ Tinytest.addAsync("Errors template works", function(test, done) {
   test.equal(Errors.collection.find({seen: false}).count(), 1);
   
   // render the template
-  OnscreenDiv(Spark.render(function() {
-    return Template.meteorErrors();
-  }));
+  UI.insert(UI.render(Template.meteorErrors), document.body);
   
   // wait a few milliseconds
   Meteor.setTimeout(function() {
@@ -231,7 +229,7 @@ Done!
 
 Nota: Los nombres de los paquetes tienen que ser únicos. Si utilizas el mismo nombre que otro paquete se producirá un conflicto y no funcionará. En el futuro, en Atmosphere, el nombre se construirá con el nombre del paquete seguido del autor, así que es posible que todo esto cambie.
 
-Segunda nota: Tendrás que iniciar sesión en [Atmosphere](http://atmosphere.meteor.com) y crear un usuario y usar la contraseña para llamar a `mrt release`.
+Segunda nota: Tendrás que iniciar sesión en [Atmosphere](http://atmosphere.meteor.com/accounts) y crear un usuario y usar la contraseña para llamar a `mrt release`.
 
 Ahora que hemos publicado el paquete, podemos eliminarlo del proyecto y luego añadirlo de nuevo  directamente con Meteorite:
 

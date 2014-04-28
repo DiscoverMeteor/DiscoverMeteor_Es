@@ -270,7 +270,7 @@ Creamos el ayudante `upvotedClass` para cambiar la clase `.upvote` por `.upvotab
 Ahora nos damos cuenta de que los posts con un solo voto están etiquetados como "1 vote**s**", por lo que vamos a pararnos a pluralizar las etiquetas correctamente. La pluralización puede ser un proceso complicado, pero por ahora vamos a hacerlo de una manera bastante simple. Crearemos un nuevo ayudante Handlebars en `client/helpers/handlebars.js`, que podemos utilizar desde cualquier lugar:
 
 ~~~js
-Handlebars.registerHelper('pluralize', function(n, thing) {
+UI.registerHelper('pluralize', function(n, thing) {
   // fairly stupid pluralizer
   if (n === 1) {
     return '1 ' + thing;
@@ -398,7 +398,7 @@ PostsListController = RouteController.extend({
     return Posts.find({}, this.findOptions());
   },
   data: function() {
-    var hasMore = this.posts().fetch().length === this.limit();
+    var hasMore = this.posts().count() === this.limit();
     return {
       posts: this.posts(),
       nextPath: hasMore ? this.nextPath() : null
@@ -439,11 +439,21 @@ Router.map(function() {
 });
 ~~~
 <%= caption "lib/router.js" %>
-<%= highlight "8,16,21~34,36~49" %>
+<%= highlight "8,20,25~37,40~53" %>
 
 Ten en cuenta que ahora que tenemos más de una ruta, sacamos la lógica para `NextPath` de `PostsListController` y la ponemos en `NewPostsListController` y `BestPostsListController`, ya que el path será diferente en uno y otro caso.
 
 Además, cuando clasificamos por votos, establecemos un segundo orden por fecha para garantizar que el orden es correcto.
+
+Una vez listos los nuevos controladores podemos deshacernos de la ruta anterior a `postsList`. Simplemente eliminamos el siguiente código:
+
+```
+ this.route('postsList', {
+  path: '/:postsLimit?',
+  controller: PostsListController
+ })
+```
+<%= caption "lib/router.js" %>
 
 Vamos a añadir los enlaces en la cabecera:
 
@@ -483,10 +493,27 @@ Vamos a añadir los enlaces en la cabecera:
 </template>
 ~~~
 <%= caption "client/views/include/header.html" %>
-<%= highlight "9, 15~21" %>
+<%= highlight "9, 12~17" %>
 
 
-With all this done, we now gain a best posts list:
+También necesitamos actualizar el controlador de eventos para borrar posts:
+
+~~~html
+  'click .delete': function(e) {
+    e.preventDefault();
+    
+    if (confirm("Delete this post?")) {
+      var currentPostId = this._id;
+      Posts.remove(currentPostId);
+      Router.go('home');
+    }
+  }
+~~~
+<%= caption "client/views/posts_edit.js" %>
+<%= highlight "7" %>
+
+
+Con todo listo, ahora obtenemos lista de posts mejorada:
 
 <%= screenshot "13-4", "Posts ordenados" %>
 

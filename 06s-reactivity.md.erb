@@ -93,10 +93,14 @@ Generalmente, las computaciones se establecen para volver a evaluar su contenido
 Ahora que entendemos la teoría de las computaciones, configurar una te va aparecer desproporcionadamente fácil. Simplemente usaremos la función `Deps.autorun` para encerrar un bloque de código:
 
 ~~~js
-Deps.autorun(function() {
-  console.log('There are ' + Posts.find().count() + ' posts');
+Meteor.startup(function() {
+  Deps.autorun(function() {
+    console.log('There are ' + Posts.find().count() + ' posts');
+  });
 });
 ~~~
+
+Ten en cuenta que para asegurarnos de que el bloque `Deps` se ejecuta una sola vez cuando Meteor ha terminado de cargar la colección `Posts`, tenemos que envolverlo dentro de un bloque `Meteor.startup()`.
 
 Entre bastidores, `autorun` crea una computación, y la configura para que se vuelva a evaluar cada vez que cambian las fuentes de datos de las que depende. El ejemplo es muy sencillo, simplemente muestra el número actual de posts en la consola. Como `Posts.find()` es una fuente de datos de reactiva, será ésta la que se encargue de hacer que se vuelva a ejecutar la computación cada vez que cambie el número de posts.
 

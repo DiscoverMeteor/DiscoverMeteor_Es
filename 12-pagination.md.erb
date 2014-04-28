@@ -161,6 +161,8 @@ Lo que significa es que en lugar de disponer implícitamente de los datos en `th
 
 ~~~js
 Router.map(function() {
+  //..
+
   this.route('postsList', {
     path: '/:postsLimit?',
     waitOn: function() {
@@ -174,12 +176,10 @@ Router.map(function() {
       };
     }
   });
-  
-  //..
 });
 ~~~
 <%= caption "lib/router.js" %>
-<%= highlight "8~13" %>
+<%= highlight "10~15" %>
 
 Ahora que hemos establecido el contexto de datos a nivel de router podemos deshacernos del ayudante de plantilla `posts` del archivo `posts_list.js`. Y como hemos llamado `posts` al contexto de datos (igual que en el ayudante), ¡ni siquiera necesitamos tocar la plantilla `postsList`!
 
@@ -315,7 +315,7 @@ PostsListController = RouteController.extend({
     return Posts.find({}, this.findOptions());
   },
   data: function() {
-    var hasMore = this.posts().fetch().length === this.limit();
+    var hasMore = this.posts().count() === this.limit();
     var nextPath = this.route.path({postsLimit: this.limit() + this.increment});
     return {
       posts: this.posts(),
@@ -325,7 +325,7 @@ PostsListController = RouteController.extend({
 });
 ~~~
 <%= caption "lib/router.js" %>
-<%= highlight "16~23" %>
+<%= highlight "13~15,17~22" %>
 
 Echemos un vistazo en profundidad a este pequeño truco de magia que hemos puesto en el router. Recuerda que la ruta `postsList` (que se hereda del controlador `PostsListController` con el que estamos trabajando) toma un parámetro `postsLimit`.
 
@@ -337,7 +337,7 @@ Estamos cogiendo ese path y añadiendolo al contexto de datos de nuestra plantil
 
 Sabemos que `this.limit()` devuelve el número actual de posts que nos gustaría mostrar, que puede ser el valor de la URL actual, o el valor por defecto (5) si la URL no contiene ningún parámetro.
 
-Por otro lado, `this.posts` se refiere al cursor actual, de modo que `this.posts.fetch().length` es el número de mensajes que hay en el cursor.
+Por otro lado, `this.posts` se refiere al cursor actual, de modo que `this.posts.count()` es el número de mensajes que hay en el cursor.
 
 Así que lo que estamos diciendo es que si pedimos `n` posts y obtenemos `n`, seguiremos mostrando el botón "load more". Pero si pedimos `n` y tenemos _menos_ de `n`, significa que hemos llegado al límite y deberíamos dejar de mostrarlo.
 
@@ -368,15 +368,6 @@ Así es como se debería ver la lista ahora:
 <%= screenshot "12-3", "El botón “load more”." %>
 
 <%= commit "12-4", "Añadido nextPath() al controlador para desplazarnos por la lista de posts" %>
-
-
-<% note do %>
-
-### Count vs Length
-
-Podrías preguntarte por qué usamos `this.posts.fetch().length` en lugar de `this.posts.count()`. Esto es sólo una solución temporal para hacer frente a un bug en Meteor presente en el momento de escribir esto. ¡Esperemos que se arregle pronto!
-
-<% end %>
 
 ### Mejorando la barra de progreso
 
