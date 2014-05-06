@@ -3,7 +3,7 @@ title: Votos
 slug: voting
 date: 0013/01/01
 number: 13
-contents: "Construiremos un sistema que permita a los usuarios votar los posts.|Crearemos una nueva página con los más votados.|Aprenderemos cómo escribir un ayudante tipo handlebars más general.|Aprenderemos un poco más sobre la seguridad de los datos en Meteor.|Cubriremos algunas consideraciones importantes acerca del rendimiento de MongoDB."
+contents: "Construiremos un sistema que permita a los usuarios votar los posts.|Crearemos una nueva página con los más votados.|Aprenderemos cómo escribir un ayudante tipo Spacebars más general.|Aprenderemos un poco más sobre la seguridad de los datos en Meteor.|Cubriremos algunas consideraciones importantes acerca del rendimiento de MongoDB."
 paragraphs: 49
 ---
 
@@ -267,7 +267,7 @@ Creamos el ayudante `upvotedClass` para cambiar la clase `.upvote` por `.upvotab
 
 <%= commit "13-2", "Deshabilitado el botón upvote si el usuario no ha accedido o ya ha votado el post." %>
 
-Ahora nos damos cuenta de que los posts con un solo voto están etiquetados como "1 vote**s**", por lo que vamos a pararnos a pluralizar las etiquetas correctamente. La pluralización puede ser un proceso complicado, pero por ahora vamos a hacerlo de una manera bastante simple. Crearemos un nuevo ayudante Handlebars en `client/helpers/handlebars.js`, que podemos utilizar desde cualquier lugar:
+Ahora nos damos cuenta de que los posts con un solo voto están etiquetados como "1 vote**s**", por lo que vamos a pararnos a pluralizar las etiquetas correctamente. La pluralización puede ser un proceso complicado, pero por ahora vamos a hacerlo de una manera bastante simple. Crearemos un nuevo ayudante Spacebars en `client/helpers/Spacebars.js`, que podemos utilizar desde cualquier lugar:
 
 ~~~js
 UI.registerHelper('pluralize', function(n, thing) {
@@ -279,9 +279,9 @@ UI.registerHelper('pluralize', function(n, thing) {
   }
 });
 ~~~
-<%= caption "client/helpers/handlebars.js" %>
+<%= caption "client/helpers/Spacebars.js" %>
 
-Los ayudantes que hemos creado con anterioridad siempre han estado relacionados con la plantilla a la que se aplican. Pero usando `Handlebars.registerHelper`, hemos creado un ayudante global que se puede utilizar dentro de cualquier plantilla:
+Los ayudantes que hemos creado con anterioridad siempre han estado relacionados con la plantilla a la que se aplican. Pero usando `Spacebars.registerHelper`, hemos creado un ayudante global que se puede utilizar dentro de cualquier plantilla:
 
 ~~~html
 <template name="postItem">
@@ -492,7 +492,7 @@ Vamos a añadir los enlaces en la cabecera:
   </header>
 </template>
 ~~~
-<%= caption "client/views/include/header.html" %>
+<%= caption "client/views/includes/header.html" %>
 <%= highlight "9, 12~17" %>
 
 
@@ -585,11 +585,11 @@ Template.header.helpers({
 
 ### Argumentos de los ayudantes
 
-Hasta ahora no hemos usado este modelo en concreto, pero al igual que para cualquier otro tag de Handlebars, los tags de los ayudantes de plantilla también pueden tomar argumentos.
+Hasta ahora no hemos usado este modelo en concreto, pero al igual que para cualquier otro tag de Spacebars, los tags de los ayudantes de plantilla también pueden tomar argumentos.
 
 Y aunque por supuesto, se pueden pasar argumentos específicos a la función, también se pueden pasar un número indeterminado de ellos y recuperarlos mediante una llamada al objeto `arguments` dentro de la función.
 
-En este último caso, es probable que queramos convertir el objeto `arguments` a un array JavaScript y luego llamar a `pop()` sobre él para deshacernos del hash que añade Handlebars.
+En este último caso, es probable que queramos convertir el objeto `arguments` a un array JavaScript y luego llamar a `pop()` sobre él para deshacernos del hash que añade Spacebars.
 
 <% end %>
 

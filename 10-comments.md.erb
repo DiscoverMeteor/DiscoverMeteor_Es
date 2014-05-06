@@ -141,7 +141,7 @@ Template.postPage.helpers({
 
 Ponemos el bloque `{{#each comments}}` dentro de la plantilla del post, por lo que `this` es un post para el ayudante `comments`. Para encontrar los comentarios adecuados, buscamos los que están vinculados a ese post a través de `postId`.
 
-Con todo lo que hemos aprendido acerca de ayudantes y handlebars, sabemos que mostrar un comentario es bastante sencillo. Vamos a crear un nuevo directorio `comments` dentro de `views` para almacenar toda la información acerca de los comentarios:
+Con todo lo que hemos aprendido acerca de ayudantes y Spacebars, sabemos que mostrar un comentario es bastante sencillo. Vamos a crear un nuevo directorio `comments` dentro de `views` para almacenar toda la información acerca de los comentarios:
 
 ~~~html
 <template name="comment">
@@ -335,7 +335,21 @@ Pero ahora queremos nuestra suscripción dependa de un parámetro de ruta, y, ob
 
 Esto tiene otra consecuencia: en vez de cargar nuestros datos cuando se inicializa la aplicación, ahora los cargaremos cada vez que llegamos a una ruta concreta. Esto significa que ahora tendremos _tiempos de carga_ mientras navegamos por la aplicación. Esto es un inconveniente inevitable a no ser que queramos cargar siempre todos los datos.
 
-Así es como queda la función `waitOn` a nivel de ruta:
+Primero, dejaremos de pre-cargar todos los comentarios en el bloque `configure`, eliminando la línea `Meteor.subscribe('comments')`:
+
+~~~js
+Router.configure({
+  layoutTemplate: 'layout',
+  loadingTemplate: 'loading',
+  waitOn: function() { 
+    return Meteor.subscribe('posts');
+  }
+});
+~~~
+<%= caption "lib/router.js" %>
+<%= highlight "5" %>
+
+Y añadiremos una nueva función `waitOn` a nivel de ruta:
 
 ~~~js
 Router.map(function() {
@@ -356,8 +370,6 @@ Router.map(function() {
 ~~~
 <%= caption "lib/router.js" %>
 <%= highlight "7~9" %>
-
-*Nota del traductor: en el libro no se explica que hay que eliminar la suscripción a `comments` en la función `waitOn` de la configuración global del router.*
 
 Te darás cuenta de que estamos pasando `this.params._id` como argumento a la suscripción. Así que, utilicemos esa nueva información para asegurarnos de que limitamos el conjunto de datos a los comentarios que pertenecen al post actual:
 

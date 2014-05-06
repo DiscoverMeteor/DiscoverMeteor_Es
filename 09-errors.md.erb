@@ -54,7 +54,7 @@ Mostraremos los errores en la parte de arriba de nuestro layout:
 </template>
 ~~~
 <%= caption "client/views/application/layout.html" %>
-<%= highlight "7" %>
+<%= highlight "4" %>
 
 Ahora vamos a crear las plantilla de error en `errors.html`:
 
@@ -208,13 +208,3 @@ Template.error.rendered = function() {
 El callback `rendered` se dispara una vez mostrada la plantilla. Dentro de él, `this` se refiere a la instacia actual de la plantilla y `this.data` nos da acceso a los datos del objeto que se muestra en este momento (en nuestro caso, un error).
 
 ¡Por fin! Ha sido mucho trabajo para algo que, esperamos que nuestros usuarios nunca necesiten ver.
-
-<% note do %>
-
-### El callback `rendered`
-
-El callback `rendered` se activa cada vez que se muestra la plantilla. Por supuesto, también la primera vez que aparece en la pantalla, pero es importante recordar que también se activaré cada vez que la plantilla se vuelva mostrar como, por ejemplo, cada vez que cambie cualquiera de sus datos.
-
-Los callbacks `rendered` se dispararan al menos dos veces: una, cuando se carga la aplicación, y otra, cuando se cargan los datos de la colección. Por lo que hay que tener cuidado de no poner en ellos ningún código que no se deba ejecutar varias veces (como una alerta o código de análisis y seguimiento de eventos).
-
-<% end %>

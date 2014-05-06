@@ -4,7 +4,7 @@ slug: templates
 date: 0003/01/01
 number: 3
 points: 10
-contents: "Aprenderemos a usar Handlebars, el sistema de plantillas de Meteor.|Crearemos nuestras primeras tres plantillas.|Aprenderemos cómo funcionan los gestores de plantilla.|Obtendremos un prototipo básico funcional con datos estáticos."
+contents: "Aprenderemos a usar Spacebars, el sistema de plantillas de Meteor.|Crearemos nuestras primeras tres plantillas.|Aprenderemos cómo funcionan los gestores de plantilla.|Obtendremos un prototipo básico funcional con datos estáticos."
 paragraphs: 46
 ---
 
@@ -79,7 +79,7 @@ Y `post_item.html`:
 
 Fíjate en el atributo `name="postsList"` porque éste será el nombre que Meteor usará para sincronizar los datos que contiene la plantilla.
 
-Es el momento de introducir [ Handlebars](http://handlebarsjs.com), el sistema de plantillas de Meteor. Handlebars es simplemente HTML añadiendo tres cosas: plantillas parciales (*partials*), expresiones (*expressions*) y bloques de ayuda (*block helpers*).
+Es el momento de introducir Spacebars el sistema de plantillas de Meteor. Spacebars es simple HTML mas tres cosas: plantillas parciales (*partials*), expresiones (*expressions*) y bloques de ayuda (*block helpers*).
 
 Las *plantillas parciales* usan la sintaxis `{{> templateName}}` y simplemente le dicen a Meteor que reemplace la plantilla parcial por la plantilla del mismo nombre (en nuestro caso `postItem`).
 
@@ -91,7 +91,7 @@ Los *bloques de ayuda* son tags especiales para mantener el control del flujo de
 
 ### Ir más lejos
 
-Si quieres saber más sobre Handlebars puedes consultar el [sitio oficial]() o este [práctico tutorial](http://javascriptissexy.com/handlebars-js-tutorial-learn-everything-about-handlebars-js-javascript-templating/).
+Si quieres saber más sobre Spacebars puedes consultar el [sitio oficial]().
 
 <% end %>
 
@@ -107,7 +107,7 @@ Hemos mencionado a los "ayudantes de plantilla" sin explicar qué son y lo que h
 
 ### Gestores de plantillas
 
-Hasta ahora hemos estado tratando con Handlebars, que es poco más que HTML con algunas etiquetas extra. A diferencia de otros lenguajes como PHP (o páginas HTML con JavaScript), Meteor mantiene las plantillas y su lógica separadas, de forma que nuestras plantillas por sí mismas no hacen casi nada.
+Hasta ahora hemos estado tratando con Spacebars, que es poco más que HTML con algunas etiquetas extra. A diferencia de otros lenguajes como PHP (o páginas HTML con JavaScript), Meteor mantiene las plantillas y su lógica separadas, de forma que nuestras plantillas por sí mismas no hacen casi nada.
 
 Para que una plantilla tenga vida necesita un **gestor** (manager), que es el que, en realidad hace el trabajo pesado, asignando un valor a cada una de las variables de la plantilla.
 

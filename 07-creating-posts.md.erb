@@ -307,7 +307,7 @@ La forma fácil de evitar que los usuarios lleguen al formulario es esconder el 
 
 <%= commit "7-5", "No mostrar el enlace a la página de envío si el usuario no se ha identificado." %>
 
-El paquete `accounts` nos ofrece el ayudante `currentUser` que es el equivalente a `Meteor.user()` en handlebars. Puesto que es reactivo, el enlace aparecerá o desaparecerá según el estado del usuario.
+El paquete `accounts` nos ofrece el ayudante `currentUser` que es el equivalente a `Meteor.user()` en Spacebars. Puesto que es reactivo, el enlace aparecerá o desaparecerá según el estado del usuario.
 
 ### El método Meteor para mejorar la seguridad y la abstracción
 
@@ -403,7 +403,7 @@ En primer lugar, definimos la variable `user` y comprobamos si ya existe una ent
 
 A continuación, si existe otro post con la misma URL, lanzamos un error `302` (redirect) indicando al usuario que debe ir a ver ese post ya creado.
 
-La clase `Error` de Meteor toma tres argumentos. El primero (`error`) será el código numérico `302`, el segundo (`reason`) es una breve explicación del error, y el último (`details`) puede ser alguna información adicional.
+La clase `Error` de Meteor toma tres argumentos. El primero (`error`) es el código de error deseado (en este caso, esperamos un `302`), el segundo (`reason`) es una breve explicación del error, y el último (`details`) puede ser alguna información adicional.
 
 En nuestro caso, vamos a utilizar este tercer argumento para pasar el identificador del post que acabamos de encontrar puesto que lo usaremos más adelante para redirigir al usuario al post pre-existente.
 

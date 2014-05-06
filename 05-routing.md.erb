@@ -26,7 +26,7 @@ $ mrt add iron-router
 ~~~
 <%= caption "Terminal" %>
 
-Este comando descarga e instala el paquete iron-router dentro de nuestra aplicación. Hay que tener en cuenta que a veces puede ser necesario reiniciar la aplicación (con `ctrl+c` para parar y `mrt` para iniciar de nuevo) antes de pode usar algunos paquetes.
+Este comando descarga e instala el paquete iron-router dentro de nuestra aplicación. Hay que tener en cuenta que a veces puede ser necesario reiniciar la aplicación (con `ctrl+c` para parar y `meteor` para iniciar de nuevo) antes de pode usar algunos paquetes.
 
 Iron Router es un paquete de terceros, lo que significa que necesitamos Meteorite para instalarlo (`meteor add iron-router` no funciona).
 
@@ -121,9 +121,9 @@ Vamos a aclarar un poco las cosas. Hemos llamado a nuestra ruta `postsList`, per
 
 De forma predeterminada, Iron Router buscará una plantilla con el mismo nombre que la ruta. De hecho, incluso intentará buscar un camino basado en el nombre de la ruta, lo que significa que si no hubiéramos definido una ruta personalizada (cosa que hicimos al proporcionar una opción `path` en la definición de la ruta), nuestra plantilla hubiera sido accesible en la URL `/postsList`.
 
-Te estarás preguntando por qué necesitamos nombrar nuestras rutas. Hacerlo nos permite utilizar algunas características del Iron Router que hacen que sea más fácil construir enlaces dentro de nuestra aplicación. La más útil es el ayudante de Handlebars `{{pathFor}}`, que devuelve los componentes del `path` de cualquier ruta.
+Te estarás preguntando por qué necesitamos nombrar nuestras rutas. Hacerlo nos permite utilizar algunas características del Iron Router que hacen que sea más fácil construir enlaces dentro de nuestra aplicación. La más útil es el ayudante de Spacebars `{{pathFor}}`, que devuelve los componentes del `path` de cualquier ruta.
 
-Queremos el enlace principal apunte de nuevo a la lista de mensajes, así que en vez de especificar una URL estática `/`, podemos utilizar el ayudante Handlebars. El resultado final será el mismo, pero tendremos más flexibilidad porque el ayudante siempre obtendrá la dirección correcta, incluso si cambiamos el path de la ruta en la configuración del router.
+Queremos el enlace principal apunte de nuevo a la lista de mensajes, así que en vez de especificar una URL estática `/`, podemos utilizar el ayudante Spacebars. El resultado final será el mismo, pero tendremos más flexibilidad porque el ayudante siempre obtendrá la dirección correcta, incluso si cambiamos el path de la ruta en la configuración del router.
 
 ~~~html
 <header class="navbar">

@@ -191,6 +191,7 @@ Template.postItem.helpers({
 
   //..
 
+  },
   attributes: function() {
     var post = _.extend({}, Positions.findOne({postId: this._id}), this);
     var newPosition = post._rank * POST_HEIGHT;
@@ -214,7 +215,7 @@ Template.postItem.helpers({
 //..
 ~~~
 <%= caption "/client/views/posts/post_item.js" %>
-<%= highlight "1~2, 8~25" %>
+<%= highlight "1~2, 8~26" %>
 
 Primero establecemos la altura de cada elemento del DOM, en otras palabras, nuestros divs `.post`. Esto presenta el inconveniente obvio de que cualquier cambio en esta altura (por ejemplo, un título de una entrada que ocupe dos líneas) romperá toda nuestra lógica animación. Pero por el bien de mantener las cosas simples, por ahora, vamos a suponer que todos los posts tendrán exactamente 80 píxeles de alto.
 

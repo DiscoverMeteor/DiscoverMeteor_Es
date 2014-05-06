@@ -331,7 +331,7 @@ Echemos un vistazo en profundidad a este pequeño truco de magia que hemos puest
 
 Cuando alimentamos `{postsLimit: this.limit() + this.increment}` a `this.route.path()`, le estamos diciendo a la ruta `postsList` que  construya su propio path utilizando ese objeto JavaScript como contexto de datos.
 
-En otras palabras, es exactamente lo mismo que usar el ayudante Handlebars `{{'postsList' pathFor}}`, salvo que reemplazamos el `this` implícito por nuestro propio contexto de datos a medida.
+En otras palabras, es exactamente lo mismo que usar el ayudante Spacebars `{{'postsList' pathFor}}`, salvo que reemplazamos el `this` implícito por nuestro propio contexto de datos a medida.
 
 Estamos cogiendo ese path y añadiendolo al contexto de datos de nuestra plantilla, pero _sólo_ si hay más posts que mostrar. La forma de hacerlo es un poco complicada.
 
@@ -410,8 +410,6 @@ Router.map(function() {
       path: '/posts/:_id/edit',
       disableProgress: true
     });
-
-*Además, hay que resaltar que se nota un aumento considerable en el consumo de CPU del navegador al hacer uso del paquete `iron-router-progress`. Hay una [issue abierta al respecto en en el repositorio del paquete](https://github.com/Multiply/iron-router-progress/issues/14).*
 
 ### Accediendo a cualquier post
 
