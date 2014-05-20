@@ -55,7 +55,7 @@ Hasta ahora, hemos construido nuestro diseño usando una plantilla fija (como `{
 
 El Iron Router nos permite romper este molde al tomar el control de lo que se muestra en el interior de la etiqueta HTML `<body>`. Por eso no vamos a definir el contenido, como lo haríamos con una página HTML normal. En vez de eso, vamos a indicar al router que apunte a una plantilla especial que contiene un ayudante `{{> yield}}`.
 
-El ayudante `{{> yield}}` definirá una zona dinámica especial que mostrará automáticamente lo que corresponde a la ruta actual (a modo de convención, llamaremos a esta plantilla especial "route templates" o "plantillas de ruta"):
+El ayudante `{{> yield}}` definirá una zona dinámica especial que mostrará automáticamente lo que corresponde a la ruta actual (a modo de convención, llamaremos a esta plantilla especial "route template" o "plantilla de ruta"):
 
 <%= diagram "router-diagram", "Plantillas y layouts.", "pull-center" %>
 

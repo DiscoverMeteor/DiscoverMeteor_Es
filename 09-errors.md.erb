@@ -139,11 +139,9 @@ Vamos a probarlo intentando crear un post con una URL que ya existe. Deberías v
 
 ### Limpiando los errores
 
-Si hacemos click en el botón de cerrar, podremos hacer desaparecer el error pero vuelve a aparecer si cargamos cualquier otra página. ¿Qué está pasando?
+Si haces click en el botón cerrar, verás desaparecer el error porque se ejecuta el JavaScript embebido en el Bootstrap de Twitter.
 
-Ese botón de cierre activa el JavaScript de Twitter Bootstrap: no tiene nada que ver con Meteor! Lo que ocurre es que Bootstrap está quitando el `<div>` del DOM, pero no de nuestra colección local. Es decir, el error, se mostrará de nuevo en cuanto Meteor vuelva a mostrar otra página.
-
-De modo que si no queremos que vuelvan los errores una y otra vez, es mejor que añadamos una forma de eliminarlos también de la colección local.
+Pero aunque Bootstrap elimina del DOM el `<div>` del error, no está borrando el objeto error de la colección Meteor. Así que vamos a añadir una forma de limpiar nuestra colección local una vez que un error ha hecho su trabajo.
 
 En primer lugar, vamos a modificar la función `throwError` para incluir una propiedad `seen`. Esto nos será útil después para realizar un seguimiento de
 si un error ha sido visto por el usuario.
