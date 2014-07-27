@@ -8,11 +8,11 @@ contents: "Aprenderemos cómo desplegar aplicaciones en Meteor.com.|Aprenderemos
 paragraphs: 46
 ---
 
-A algunos gusta trabajar silenciosamente en un proyecto hasta queda perfecto. Otros quieren mostrarlo al mundo lo más pronto posible.
+A algunos les gusta trabajar silenciosamente en un proyecto hasta queda perfecto. Otros quieren mostrarlo al mundo lo más pronto posible.
 
 Si eres de los primeros y prefieres desarrollar a nivel local, no dudes en saltarte este capítulo. Pero si prefieres aprender a desplegar tu aplicación Meteor en línea, aquí te explicamos cómo.
 
-Vamos a aprender a desplegar una aplicación Meteor de diferentes formas. Eres libre de utilizar cualquiera de ellas en cualquier etapa del desarrollo, ya sea trabajando en microscopie o en otra aplicación. ¡Vamos a empezar!
+Vamos a aprender a desplegar una aplicación Meteor de diferentes formas. Eres libre de utilizar cualquiera de ellas en cualquier etapa del desarrollo, ya sea trabajando en Microscope o en otra aplicación. ¡Vamos a empezar!
 
 <% note do %>
 
@@ -50,7 +50,7 @@ Modulus liberó una herramienta llamada [demeteorizer](https://github.com/onmodu
 
 <% end %>
 
-Empieza [creando una cuenta](https://modulus.io/register). Para desplegar nuestra aplicación, vamos a necesitar instalar la herramienta línea de comandos de Modulus:
+Empieza [creando una cuenta](https://modulus.io/register). Para desplegar nuestra aplicación, vamos a necesitar instalar la herramienta en línea de comandos de Modulus:
 
 
 ~~~bash
@@ -81,7 +81,7 @@ Ahora hemos desplegado con éxito nuestra aplicación en Modulus. Echa un vistaz
 
 ### Meteor Up
 
-Aunque todos los días aparecen nuevas soluciones en la nube, a menudo vienen con su propia cuota de problemas y limitaciones. Así que, a día de hoy, el despliegue en tu propio servidor sigue siendo la mejor manera de poner una aplicación Meteor en producción. El problema es que, hacerlo uno mismo no es tan sencillo, especialmente si lo que estás buscando es un despliegue de calidad. 
+Aunque todos los días aparecen nuevas soluciones en la nube, a menudo vienen con su propia cuota de problemas y limitaciones. Así que, a día de hoy, el despliegue en tu propio servidor sigue siendo la mejor manera de poner una aplicación Meteor en producción. El problema es que, hacerlo uno mismo no es tan sencillo, especialmente si lo que estás buscando es un despliegue de calidad.
 
 [Meteor Up](https://github.com/arunoda/meteor-up) (o `mup`, para abreviar) es un intento de solucionar este problema con una utilidad de línea de comandos que se encarga por tí de la instalación y el despliegue. Así que veamos cómo desplegar microscope utilizando Meteor Up.
 
@@ -97,7 +97,7 @@ Para empezar, necesitmos instalar Meteor Up vía `npm`::
 $ npm install -g mup
 ~~~
 
-A continuación, crearemos un directorio especial donde se pondremos la configuración de Meteor Up para un despliegue en particular. Vamos a utilizar un directorio independiente por dos razones: primero, porque, por lo general, es la mejor manera de evitar incluir credenciales privadas en tu repositorio Git, especialmente si estás trabajando en un repositorio público.
+A continuación, crearemos un directorio especial donde pondremos la configuración de Meteor Up para un despliegue en particular. Vamos a utilizar un directorio independiente por dos razones: primero, porque, por lo general, es la mejor manera de evitar incluir credenciales privadas en tu repositorio Git, especialmente si estás trabajando en un repositorio público.
 
 En segundo lugar, mediante el uso de directorios separados, podremos manejar múltiples configuraciones en paralelo. Esto será muy útil para, por ejemplo, desplegar instancias de producción y almacenamiento.
 
@@ -119,7 +119,7 @@ Una manera de asegurarse de que todo el equipo de desarrollo utilicen la misma c
 
 ### Configuración de Meteor Up
 
-Cuando inicializamos un nuevo proyecto, Meteor Up crea dos archivos: `mup.json` y `settings.json`. 
+Cuando inicializamos un nuevo proyecto, Meteor Up crea dos archivos: `mup.json` y `settings.json`.
 
 `mup.json` contendrá los ajustes relacionados con el despliegue, mientras que `settings.json` contendrá todos los ajustes relacionados con la aplicación (tokens OAuth, tokens para análisis, etc.)
 

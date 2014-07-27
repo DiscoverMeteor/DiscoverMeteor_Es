@@ -4,13 +4,13 @@ slug: denormalization
 date: 0010/01/02
 number: 10.5
 sidebar: true
-contents: Comprenderemos qué es la denormalización.|Compararemos Mongo con las bases de datos tradicionales.|Aprenderemos cuándo *no* debemos denormalizar nuestros datos. 
+contents: Comprenderemos qué es la denormalización.|Compararemos Mongo con las bases de datos tradicionales.|Aprenderemos cuándo *no* debemos denormalizar nuestros datos.
 paragraphs: 15
 ---
 
 Denormalizar los datos significa no almacenar esos datos de una manera "normal". En otras palabras, significa tener múltiples copias de de la misma porción de datos.
 
-En el capítulo anterior, denormalizamos la cantidad de comentarios dentro del objeto post para evitar tener que cargar todos los comentarios todo el tiempo. Teniendo en cuenta la modelación de datos esto es redundante, ya que podríamos en su lugar simplemente contar el número correcto de comentarios en cualquier momento para averiguar su valor (dejando de lado las consideraciones de performance).
+En el capítulo anterior, denormalizamos la cantidad de comentarios dentro del objeto post para evitar tener que cargar todos los comentarios todo el tiempo. Teniendo en cuenta el modelado de datos esto es redundante, ya que en su lugar podríamos simplemente contar el número correcto de comentarios en cualquier momento para averiguar su valor (dejando de lado las consideraciones de rendimiento).
 
 Denormalizar a menudo significa un trabajo extra para el desarrollador. En nuestro ejemplo, cada vez que agregamos o eliminamos un comentario además tenemos que acordarnos de actualizar el post en cuestión para asegurarnos que el campo `commentsCount` siga siendo correcto. Esto es exactamente la razón por la cual las bases de datos relacionales como MySQL desaprueban esta técnica.
 
@@ -22,21 +22,21 @@ De todas maneras, la técnica normal también tiene sus desventajas: sin una pro
 
 *Sería* posible crear una publicación especial que sólo envíe la cantidad de comentarios que nos interesan (por ejemplo, la cantidad de comentarios en los posts que actualmente estamos viendo, haciendo más consultas al servidor).
 
-Pero vale la pena considerar si la complejidad de dicha publicación superaría o no las dificultades creadas por denormalizar…
+Pero vale la pena considerar si la complejidad de dicha publicación superaría o no las dificultades creadas al denormalizar…
 
 <% end %>
 
-Por supuesto, dichas consideraciones son específicas para cada aplicación: si estás escribiendo código donde la integridad de datos es fundamental, entonces evadir inconsistencias en los datos es por lejos más importante y de mayor prioridad que cualquier mejora de performance.
+Por supuesto, dichas consideraciones son específicas para cada aplicación: si estás escribiendo código donde la integridad de datos es fundamental, entonces evitar inconsistencias en los datos es de lejos más importante y de mayor prioridad que cualquier mejora de rendimiento.
 
-### Incrustar Documentos o Usar Múltiples Colleciones
+### Incrustar Documentos o Usar Múltiples Coleciones
 
 Si tienes experiencia con Mongo, podrás haberte sorprendido al ver que hemos creado una segunda colección sólo para los comentarios: ¿por qué no simplemente integrar los comentarios en una lista dentro del documento post?
 
 Resulta que muchas de las herramientas que Meteor nos da, trabajan mucho mejor operando a un nivel de colección. Por ejemplo:
 
-1. El ayudante `{{#each}}` es muy eficiente cuando itera sobre un cursor (el resultado de `collection.find()`). Pero no lo hace cuando itera sobre un array de objetos dentro un documento más largo.
+1. El ayudante `{{#each}}` es muy eficiente cuando itera sobre un cursor (el resultado de `collection.find()`). Pero no lo hace cuando itera sobre un array de objetos dentro un documento más grande.
 2. `allow` y `deny` operan a nivel de documento, por consiguiente facilita la tarea de asegurarse que cualquier modificación de un comentario individual es correcta. Esto sería mucho más complejo si operara a nivel de post.
-3. DDP opera al nivel de los atributos "top-level" de un documento. Esto significa que si `comments` fuese una propiedad de un `post`, cada vez que un comentario fuese creado en un post, el servidor debería enviar toda la lista de comentarios actualizada para ese post a cada uno de los clientes conectados.
+3. DDP opera a nivel de los atributos "top-level" de un documento. Esto significa que si `comments` fuese una propiedad de un `post`, cada vez que un comentario fuese creado en un post, el servidor debería enviar toda la lista de comentarios actualizada para ese post a cada uno de los clientes conectados.
 4. Publicaciones y suscripciones son mucho más fácil de controlar a nivel de documentos. Por ejemplo, si quisiéramos paginar comentarios en un post sería muy difícil a menos que los comentarios estuviesen en su propia colección.
 
 Mongo sugiere incrustar documentos para reducir la cantidad de consultas costosas para buscar los documentos. De todos modos, esto es un problema mínimo cuando se toma en cuenta la arquitectura de Meteor: la mayor parte del tiempo estamos consultando comentarios en el *cliente*, donde el acceso a la base de datos prácticamente no tiene costo.
@@ -45,6 +45,6 @@ Mongo sugiere incrustar documentos para reducir la cantidad de consultas costosa
 
 ### Las Desventajas de la Denormalización
 
-Hay beunos argumentos sobre por qué *no deberías* denormalizar tus datos. Para ver un buen caso contra la denormalización, recomendamos [Por qué nunca deberías usar MongoDB](http://www.sarahmei.com/blog/2013/11/11/why-you-should-never-use-mongodb/) por Sarah Mei.
+Hay buenos argumentos sobre por qué *no deberías* denormalizar tus datos. Para ver un buen caso contra la denormalización, recomendamos [Por qué nunca deberías usar MongoDB](http://www.sarahmei.com/blog/2013/11/11/why-you-should-never-use-mongodb/) por Sarah Mei.
 
 <% end %>

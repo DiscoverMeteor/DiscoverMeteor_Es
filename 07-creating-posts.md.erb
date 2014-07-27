@@ -7,7 +7,7 @@ contents: "Aprenderemos a enviar posts.|Implementaremos un sencillo control de s
 paragraphs: 60
 ---
 
-Hemos visto lo fácil que es crear posts llamando a `Posts.insert` a través de la consola pero, no podemos esperar que nuestros usuarios hagan lo mismo. 
+Hemos visto lo fácil que es crear posts llamando a `Posts.insert` a través de la consola pero, no podemos esperar que nuestros usuarios hagan lo mismo.
 
 Vamos a necesitar construir algún tipo de interfaz de usuario para que los usuarios creen nuevas entradas en la aplicación.
 
@@ -24,12 +24,12 @@ Router.configure({
 
 Router.map(function() {
   this.route('postsList', {path: '/'});
-  
+
   this.route('postPage', {
     path: '/posts/:_id',
     data: function() { return Posts.findOne(this.params._id); }
   });
-  
+
   this.route('postSubmit', {
     path: '/submit'
   });
@@ -95,7 +95,7 @@ Configurar una ruta implica que si un usuario navega a `/submit`, Meteor mostrar
         <div class="controls">
             <textarea name="message" type="text" value=""></textarea>
         </div>
-    </div> 
+    </div>
 
     <div class="control-group">
         <div class="controls">
@@ -122,13 +122,13 @@ Vamos a enlazar un controlador de eventos al evento `submit` del formulario. Es 
 Template.postSubmit.events({
   'submit form': function(e) {
     e.preventDefault();
-    
+
     var post = {
       url: $(e.target).find('[name=url]').val(),
       title: $(e.target).find('[name=title]').val(),
       message: $(e.target).find('[name=message]').val()
     }
-    
+
     post._id = Posts.insert(post);
     Router.go('postPage', post);
   }
@@ -200,7 +200,7 @@ Vamos a empezar por evitar que los usuarios no registrados puedan ver el formula
 
 Una acción intercepta el proceso de enrutamiento y potencialmente, cambia la acción que lleva acabo el router. Puedes pensar en él como un guardia de seguridad que verifica sus credenciales antes de dejarte entrar.
 
-Lo que tenemos que hacer es comprobar si el usuario está conectado. Si no lo está, mostramos la plantilla `AccessDenied` en lugar de la plantilla `postSubmit` (en este momento le diremos al router que se no haga nada más). Así que vamos a modificar `router.js`:
+Lo que tenemos que hacer es comprobar si el usuario está conectado. Si no lo está, mostramos la plantilla `accessDenied` en lugar de la plantilla `postSubmit` (en este momento le diremos al router que se no haga nada más). Así que vamos a modificar `router.js`:
 
 ~~~js
 Router.configure({
@@ -211,12 +211,12 @@ Router.configure({
 
 Router.map(function() {
   this.route('postsList', {path: '/'});
-  
+
   this.route('postPage', {
     path: '/posts/:_id',
     data: function() { return Posts.findOne(this.params._id); }
   });
-  
+
   this.route('postSubmit', {
     path: '/submit'
   });
@@ -250,25 +250,25 @@ Si ahora nos dirigimos a [http://localhost:3000/submit/](http://localhost:3000/s
 
 <%= screenshot "7-3", "Plantilla de error de acceso" %>
 
-Lo bueno de las acciones del router es que son reactivas. Esto significa que cuando el estado del usuario cambia, plantilla cambia instantáneamente de `AccessDenied` a `postSubmit` sin tener que escribir código para manejarlo.
+Lo bueno de las acciones del router es que son reactivas. Esto significa que cuando el estado del usuario cambia, plantilla cambia instantáneamente de `accessDenied` a `postSubmit` sin tener que escribir código para manejarlo.
 
-Iniciemos sesión, y vayamos a la página para crear un nuevo post. Ahora actualizar la página en el navegador. Veremos que, por un instante, se ve la plantilla `AccessDenied` antes de que aparezca el formulario. Esto es porque Meteor empieza a mostrar las plantillas tan pronto como sea posible, antes de haber hablado con el servidor y comprobado si el usuario existe.
+Iniciemos sesión, y vayamos a la página para crear un nuevo post. Ahora actualizar la página en el navegador. Veremos que, por un instante, se ve la plantilla `accessDenied` antes de que aparezca el formulario. Esto es porque Meteor empieza a mostrar las plantillas tan pronto como sea posible, antes de haber hablado con el servidor y comprobado si el usuario existe.
 
-Para evitar este problema (que es uno de los más comunes que nos podemos encontrar cuando se tratamos de lidiar con la latencia entre latencia entre el cliente y el servidor), sólo mostraremos una pantalla de espera durante instante en el que esperamos para ver si el usuario tiene acceso o no.
+Para evitar este problema (que es uno de los más comunes que nos podemos encontrar cuando tratamos de lidiar con la latencia entre el cliente y el servidor), sólo mostraremos una pantalla de espera durante instante en el que esperamos para ver si el usuario tiene acceso o no.
 
-Después de todo en este momento no sabemos si el usuario tiene acceso y no podemos mostrar ninguna de las plantillas, ya sea la de `AccessDenied` o la de `postSubmit` hasta que lo sepamos.
+Después de todo en este momento no sabemos si el usuario tiene acceso y no podemos mostrar ninguna de las plantillas, ya sea la de `accessDenied` o la de `postSubmit` hasta que lo sepamos.
 
 Así que vamos a modificar nuestra acción para añadir la plantilla de espera mientras `Meteor.loggingIn()` sea verdadero en:
 
 ~~~js
 Router.map(function() {
   this.route('postsList', {path: '/'});
-  
+
   this.route('postPage', {
     path: '/posts/:_id',
     data: function() { return Posts.findOne(this.params._id); }
   });
-  
+
   this.route('postSubmit', {
     path: '/submit'
   });
@@ -280,7 +280,7 @@ var requireLogin = function(pause) {
       this.render(this.loadingTemplate);
     else
       this.render('accessDenied');
-    
+
     pause();
   }
 }
@@ -309,7 +309,7 @@ La forma fácil de evitar que los usuarios lleguen al formulario es esconder el 
 
 El paquete `accounts` nos ofrece el ayudante `currentUser` que es el equivalente a `Meteor.user()` en Spacebars. Puesto que es reactivo, el enlace aparecerá o desaparecerá según el estado del usuario.
 
-### El método Meteor para mejorar la seguridad y la abstracción
+### Meteor.methods para mejorar la seguridad y la abstracción
 
 Nos las hemos arreglado para asegurar el acceso a la página de entrada de posts, y no permitir crear posts a usuarios no registrados incluso si intentan hacerlo desde la consola. Sin embargo, todavía quedan cosas que debemos mejorar:
 
@@ -334,17 +334,17 @@ Volvamos a `post_submit.js`. En lugar de insertar directamente en la colección 
 Template.postSubmit.events({
   'submit form': function(e) {
     e.preventDefault();
-    
+
     var post = {
       url: $(e.target).find('[name=url]').val(),
       title: $(e.target).find('[name=title]').val(),
       message: $(e.target).find('[name=message]').val()
     }
-    
+
     Meteor.call('post', post, function(error, id) {
       if (error)
         return alert(error.reason);
-        
+
       Router.go('postPage', {_id: id});
     });
   }
@@ -353,7 +353,7 @@ Template.postSubmit.events({
 <%= caption "client/views/posts/post_submit.js" %>
 
 
-La función `Meteor.call` llama a un método nombrado por su primer argumento. Se pueden proporcionar argumentos a la llamada (en este caso,pasamos el objeto `post`), y, finalmente, habilitamos un callback, que se ejecutará cuando el método del lado del servidor finalice. Aquí simplemente alertamos al usuario si hay un problema, o lo redirigimos a la página de discusión del post recién creado si todo ha ido bien.
+La función `Meteor.call` llama a un método nombrado por su primer argumento. Se pueden proporcionar argumentos a la llamada (en este caso, pasamos el objeto `post`), y, finalmente, habilitamos un callback, que se ejecutará cuando el método del lado del servidor finalice. Aquí simplemente alertamos al usuario si hay un problema, o lo redirigimos a la página de discusión del post recién creado si todo ha ido bien.
 
 A continuación, debemos definir el método en `collections/posts.js`. Eliminaremos el bloque `allow()` de `posts.js` porque los Métodos Meteor los omiten de todos modos. Recuerda que los métodos se ejecutan en el servidor, por lo que Meteor supone que se puede confiar en ellos.
 
@@ -364,31 +364,31 @@ Meteor.methods({
   post: function(postAttributes) {
     var user = Meteor.user(),
       postWithSameLink = Posts.findOne({url: postAttributes.url});
-    
+
     // ensure the user is logged in
     if (!user)
       throw new Meteor.Error(401, "You need to login to post new stories");
-    
+
     // ensure the post has a title
     if (!postAttributes.title)
       throw new Meteor.Error(422, 'Please fill in a headline');
-    
+
     // check that there are no previous posts with the same link
     if (postAttributes.url && postWithSameLink) {
-      throw new Meteor.Error(302, 
-        'This link has already been posted', 
+      throw new Meteor.Error(302,
+        'This link has already been posted',
         postWithSameLink._id);
     }
-    
+
     // pick out the whitelisted keys
     var post = _.extend(_.pick(postAttributes, 'url', 'title', 'message'), {
-      userId: user._id, 
-      author: user.username, 
+      userId: user._id,
+      author: user.username,
       submitted: new Date().getTime()
     });
-    
+
     var postId = Posts.insert(post);
-    
+
     return postId;
   }
 });

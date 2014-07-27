@@ -4,13 +4,13 @@ slug: meteor-vocabulary
 date: 0099/01/01
 number: 14.5
 appendix: true
-contents: Revisaremos los términos más comunes que se usan en Meteor. 
+contents: Revisaremos los términos más comunes que se usan en Meteor.
 paragraphs: 24
 ---
 
 #### Cliente
 
-Cuando hablamos del Cliente, nos referimos al código que se ejecuta en el navegador de los los usuarios, ya sea uno tradicional, como Firefox o Safari, o algo tan complejo como un UIWebView en una aplicación nativa para el iPhone.
+Cuando hablamos del Cliente, nos referimos al código que se ejecuta en el navegador de los usuarios, ya sea uno tradicional, como Firefox o Safari, o algo tan complejo como un UIWebView en una aplicación nativa para el iPhone.
 
 #### Colección
 
@@ -22,8 +22,8 @@ Una computación es un bloque de código que se ejecuta cada vez que cambia una 
 
 #### Cursor
 
-Un cursor es el resultado de ejecutar una consulta en una colección Mongo. En el lado del cliente, un cursor no es tan sólo un conjunto de resultados, sino que es un objeto *reactivo* desde el que se puede observer (de `observe()`) los cambios (añadir, eliminar o actualizar) en la colección correspondiente.
- 
+Un cursor es el resultado de ejecutar una consulta en una colección Mongo. En el lado del cliente, un cursor no es tan sólo un conjunto de resultados, sino que es un objeto *reactivo* desde el que se puede observar (con `observe()`) los cambios (añadir, eliminar o actualizar) en la colección correspondiente.
+
 #### DDP
 
 El DDP es el Protocolo de Datos Distribuidos que utiliza Meteor para sincronizar colecciones y efectuar llamadas a métodos. DDP pretende ser un protocolo genérico, que toma el relevo a HTTP para aplicaciones en tiempo real con gran carga de datos.
@@ -82,4 +82,4 @@ Una plantilla es una forma de generar código HTML desde JavaScript. Por defecto
 
 #### Contexto de datos de una plantilla
 
-Cuando se muestra un plantilla, lo que se representa es un objeto JavaScript que proporciona datos específicos para ésta representación en particular. Por lo general, este tipo de objetos son, (de tipo POJO (plain-old-JavaScript-objects), a menudo documentos de una colección, aunque pueden ser más complejos e incluir funciones.
+Cuando se muestra un plantilla, lo que se representa es un objeto JavaScript que proporciona datos específicos para ésta representación en particular. Por lo general, este tipo de objetos son, de tipo POJO (plain-old-JavaScript-objects), a menudo son documentos de una colección, aunque pueden ser más complejos e incluir funciones.

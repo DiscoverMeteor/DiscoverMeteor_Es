@@ -8,9 +8,9 @@ contents: "Aprenderemos a usar Spacebars, el sistema de plantillas de Meteor.|Cr
 paragraphs: 46
 ---
 
-Para aprender a desarrollar con Meteor adoptaremos un enfoque de afuera a adentro, es decir, primero construiremos el envoltorio exterior y luego lo conectaremos al funcionamiento interno de la aplicación.
+Para aprender a desarrollar con Meteor adoptaremos un enfoque de afuera hacia adentro, es decir, primero construiremos el envoltorio exterior y luego lo conectaremos al funcionamiento interno de la aplicación.
 
-Esto implica que, en este capítulo, sólo utilizaremos el directorio `/client`. 
+Esto implica que, en este capítulo, sólo utilizaremos el directorio `/client`.
 
 Empezaremos creando el archivo `main.html` dentro del directorio `client`, rellenándolo con el siguiente código:
 
@@ -64,7 +64,7 @@ Ya estamos listos para crear las otras dos plantillas en el fichero `posts_list.
 ~~~
 <%= caption "client/views/posts/posts_list.html" %>
 
-Y `post_item.html`: 
+Y `post_item.html`:
 
 ~~~html
 <template name="postItem">
@@ -131,12 +131,12 @@ var postsData = [
     title: 'Introducing Telescope',
     author: 'Sacha Greif',
     url: 'http://sachagreif.com/introducing-telescope/'
-  }, 
+  },
   {
     title: 'Meteor',
     author: 'Tom Coleman',
     url: 'http://meteor.com'
-  }, 
+  },
   {
     title: 'The Meteor Book',
     author: 'Tom Coleman',
@@ -172,7 +172,7 @@ Definir el ayudante `posts` implica que está disponible para nuestra plantilla:
 ~~~
 <%= caption "client/views/posts/posts_list.html" %>
 
-Así que nuestra plantilla podrá iterar sobre `postsData` y enviar todos los objetos contenidos en él a la plantilla `PostItem`.
+Así que nuestra plantilla podrá iterar sobre `postsData` y enviar todos los objetos contenidos en él a la plantilla `postItem`.
 
 ### El Valor de "`this`"
 

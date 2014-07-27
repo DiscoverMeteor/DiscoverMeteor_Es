@@ -7,9 +7,9 @@ contents: "Añadiremos una colección para notificar acciones de otros usuarios.
 paragraphs: 25
 ---
 
-Ahora que los usuarios pueden comentar las publicaciones de otros usuario, sería bueno hacerles saber que una ha comenzado una conversación.
+Ahora que los usuarios pueden comentar las publicaciones de otros usuarios, sería bueno hacerles saber que alguien ha comenzado una conversación.
 
-Para ello, notificaremos al dueño de que ha habido un comentario en su post, y le proporcionamos un enlace para poder comentar.
+Para ello, notificaremos al dueño de que ha habido un comentario en su post, y le proporcionaremos un enlace para poder comentar.
 
 En este tipo de funcionalidad es en la que Meteor brilla. Como por defecto, Meteor trabaja en tiempo real, vamos a poder mostrar notificaciones instantáneamente. No necesitamos esperar a que el usuario actualice la página, podemos mostrar nuevas notificaciones sin tener que escribir ningún código especial.
 
@@ -45,7 +45,7 @@ Al igual que con los posts o los comentarios, esta colección estará compartida
 
 También creamos una función que mira qué post está comentando el usuario, averigua qué usuario debe ser notificado e inserta una nueva notificación.
 
-Ya tenemos un método en el servidor para crear comentarios, por lo que podemos ampliarlo para que llame a nuestra nueva función. par guardar el `_id` del nuevo comentario en una variable, cambiamos `return Comments.insert(comment);`, por `comment._id = Comments.insert(comment)` y llamamos a la función `createCommentNotification`:
+Ya tenemos un método en el servidor para crear comentarios, por lo que podemos ampliarlo para que llame a nuestra nueva función. Para guardar el `_id` del nuevo comentario en una variable, cambiamos `return Comments.insert(comment);`, por `comment._id = Comments.insert(comment)` y llamamos a la función `createCommentNotification`:
 
 ~~~js
 Comments = new Meteor.Collection('comments');
@@ -57,10 +57,10 @@ Meteor.methods({
 
     // create the comment, save the id
     comment._id = Comments.insert(comment);
-    
+
     // now create a notification, informing the user that there's been a comment
     createCommentNotification(comment);
-    
+
     return comment._id;
   }
 });
@@ -163,7 +163,7 @@ Y crear las plantillas `notifications` y `notification` (que pondremos en un só
 
 Podemos ver que para cada notificación tendremos un enlace al post que ha sido comentado junto con el usuario que lo ha hecho.
 
-A continuación, hay que asegurarse de que se selecciona la lista de notificaciones correcta desde nuestro gestor, y actualizar las notificaciones como "leídas" cuando el usuario hace clic en el enlace al que apuntan.
+A continuación, hay que asegurarse que se selecciona la lista de notificaciones correcta desde nuestro gestor, y actualizar las notificaciones como "leídas" cuando el usuario hace clic en el enlace al que apuntan.
 
 ~~~js
 Template.notifications.helpers({
@@ -193,7 +193,7 @@ Template.notification.events({
 
 Como podemos ver, las notificaciones no son muy diferentes de los errores, y su estructura es muy similar. Sólo hay una diferencia clave: hemos creado una colección sincronizada cliente-servidor. Esto significa que nuestras notificaciones son persistentes y, siempre y cuando se utilice la misma cuenta de usuario, persistirá en distintos navegadores y dispositivos.
 
-Abrir un segundo navegador, crea una nueva cuenta de usuario, y haz un comentario en un post del anterior usuario. Deberías ver algo así:
+Abre un segundo navegador, crea una nueva cuenta de usuario, y añade un comentario en un post del usuario anterior. Deberías ver algo así:
 
 <%= screenshot "11-1", "Mostrando las notificaciones." %>
 
@@ -244,4 +244,4 @@ Si ahora se busca en las consolas de los dos navegadores, deberíamos ver dos co
 
 De hecho, la lista de notificaciones cambiará si accedes y sales de la aplicación. Esto se debe a que las publicaciones se re-publican automáticamente cada vez que cambia el estado del usuario.
 
-Nuestra aplicación es cada vez más funcional, ya medida que cada vez más usuarios entran y empiezan a publicar enlaces, corremos el riesgo de acabar con una página de inicio muy larga. Vamos a abordar este problema en el próximo capítulo: la paginación.
+Nuestra aplicación es cada vez más funcional, y a medida que cada vez más usuarios entran y empiezan a publicar enlaces, corremos el riesgo de acabar con una página de inicio muy larga. Vamos a abordar este problema en el próximo capítulo: la paginación.

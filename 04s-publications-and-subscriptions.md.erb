@@ -4,7 +4,7 @@ slug: publications-and-subscriptions
 date: 0004/01/02
 number: 4.5
 sidebar: true
-contents: "Entenderemos cómo funcionan las publicaciones y las suscripciones.|Aprenderemos qué hace el paquete Autopublish.|Veremos algunos ejemplos de patrones de diseño de publicaciones."
+contents: "Entenderemos cómo funcionan las publicaciones y las suscripciones.|Aprenderemos qué hace el paquete autopublish.|Veremos algunos ejemplos de patrones de diseño de publicaciones."
 paragraphs: 52
 ---
 
@@ -36,11 +36,11 @@ Así que lo que ocurre es que el empleado de la tienda, no sólo encuentra el li
 
 Esta arquitectura permite a Meteor hacer cosas muy interesantes, la más importante es lo que Meteor llama [base de datos en todas partes](http://docs.meteor.com/#sevenprinciples). En pocas palabras, Meteor tomará un subconjunto de la base de datos y la *copiará en el cliente*.
 
-Esto tiene dos grandes implicaciones: la primera es que en lugar de enviar código HTML, una aplicación Meteor envía **datos actuales en bruto** al cliente y deja que el cliente se ocupe de ellos ([data on the wire](http://docs.meteor.com/#sevenprinciples)). Lo segundo es que serás capaz de acceder a esos datos **instantáneamente** sin tener que esperar al servidor ([latency Compensation](http://docs.meteor.com/#sevenprinciples))).
+Esto tiene dos grandes implicaciones: la primera es que en lugar de enviar código HTML, una aplicación Meteor envía **datos actuales en bruto** al cliente y deja que el cliente se ocupe de ellos ([data on the wire](http://docs.meteor.com/#sevenprinciples)). Lo segundo es que serás capaz de acceder a esos datos **instantáneamente** sin tener que esperar al servidor ([latency compensation](http://docs.meteor.com/#sevenprinciples)).
 
 ### Publicaciones
 
-Una base de datos de una aplicación puede contener decenas de miles de documentos, algunos de los cuales podrían ser privados o confidenciales. Así que, obviamente, por razones de seguridad y escalabilidad, no deberíamos sincronizar toda la base de datos en el cliente. 
+Una base de datos de una aplicación puede contener decenas de miles de documentos, algunos de los cuales podrían ser privados o confidenciales. Así que, obviamente, por razones de seguridad y escalabilidad, no deberíamos sincronizar toda la base de datos en el cliente.
 
 Por lo tanto, vamos a necesitar una forma de decirle a Meteor qué **subconjunto** de los datos se pueden enviar al cliente, y lo podremos hacer utilizando las **publicaciones**.
 
@@ -60,7 +60,7 @@ Este sería el código correspondiente, que estaría en el servidor:
 ~~~js
 // on the server
 Meteor.publish('posts', function() {
-  return Posts.find({flagged: false}); 
+  return Posts.find({flagged: false});
 });
 ~~~
 
@@ -125,23 +125,23 @@ Ahora que tenemos una buena comprensión de cómo funcionan las publicaciones y 
 
 ### Autopublicación
 
-Si creas un proyecto Meteor desde cero (es decir, usando `meteor create`), el paquete `Autopublish` se habilitará automáticamente. Como punto de partida, vamos a hablar acerca de lo que hace exactamente este paquete.
+Si creas un proyecto Meteor desde cero (es decir, usando `meteor create`), el paquete `autopublish` se habilitará automáticamente. Como punto de partida, vamos a hablar acerca de lo que hace exactamente este paquete.
 
-El objetivo de `Autopublish` es que sea muy fácil empezar a desarrollar y lo hace reflejando _todos los datos_ del servidor en el cliente, lo que permite olvidarse de publicaciones y suscripciones y empezar directamente a escribir el código de la aplicación.
+El objetivo de `autopublish` es que sea muy fácil empezar a desarrollar y lo hace reflejando _todos los datos_ del servidor en el cliente, lo que permite olvidarse de publicaciones y suscripciones y empezar directamente a escribir el código de la aplicación.
 
 <%= diagram "autopublish", "Autopublish", "pull-center"%>
 
-¿Y cómo funciona? Supon que tienes una colección en el servidor llamada `'posts'`. Entonces `Autopublish` buscará todos los posts que haya en la base de datos Mongo y los enviará automáticamente a una colección llamada `'posts'` en el cliente.
+¿Y cómo funciona? Supon que tienes una colección en el servidor llamada `'posts'`. Entonces `autopublish` buscará todos los posts que haya en la base de datos Mongo y los enviará automáticamente a una colección llamada `'posts'` en el cliente.
 
-Así que si usas `Autopublish`, no necesitas pensar en publicaciones. Los datos son omnipresentes, y todo es más sencillo. Por supuesto, aparecen problemas obvios al tener una copia completa de la base de datos en la caché de cada usuario.
+Así que si usas `autopublish`, no necesitas pensar en publicaciones. Los datos son omnipresentes, y todo es más sencillo. Por supuesto, aparecen problemas obvios al tener una copia completa de la base de datos en la caché de cada usuario.
 
-Por esta razón, Autopublish sólo es apropiado cuando estamos empezando, cuándo todavía no se ha pensado en las publicaciones.
+Por esta razón, `autopublish` sólo es apropiado cuando estamos empezando, cuándo todavía no se ha pensado en las publicaciones.
 
 ### Publicando colecciones completas
 
-Si eliminamos `Autopublish`, te darás cuenta de que todos los datos han desaparecido del cliente. Una forma fácil de traerlos de vuelta es, simplemente, replicar lo que hace Autopublish publicando una colección en su totalidad. Por ejemplo:
+Si eliminamos `autopublish`, te darás cuenta de que todos los datos han desaparecido del cliente. Una forma fácil de traerlos de vuelta es, simplemente, replicar lo que hace `autopublish` publicando una colección en su totalidad. Por ejemplo:
 
-~~~js 
+~~~js
 Meteor.publish('allPosts', function(){
   return Posts.find();
 });
@@ -155,7 +155,7 @@ Todavía publicamos colecciones completas, pero al menos ahora tenemos control s
 
 El siguiente nivel de control es publicar sólo _una parte_ de una colección. Por ejemplo, sólo los posts que pertenecen a un determinado autor:
 
-~~~js 
+~~~js
 Meteor.publish('somePosts', function(){
   return Posts.find({'author':'Tom'});
 });
@@ -177,7 +177,7 @@ Esto es lo que hace `_publishCursor()`:
 
 - Se comprueba el nombre de la colección en el servidor.
 - Toma todos los documentos que coinciden con el cursor y los envía al cliente en una colección *del mismo nombre*. (Para hacer esto, utiliza `.added()`).
-- Cada vez que se añade, elimina o modifica un documento, envía esos cambios a la colección del lado del cliente. (Para hacerlo, utiliza `.observe()` en el cursor y `.added()`, `.changed()` y `removed()`).
+- Cada vez que se añade, elimina o modifica un documento, envía esos cambios a la colección del lado del cliente. (Para hacerlo, utiliza `.observe()` en el cursor y `.added()`, `.changed()` y `.removed()`).
 
 Así, en el ejemplo anterior, podemos asegurar que el usuario sólo tiene en la caché, los posts en los que está interesado (los escritos por Tom).
 
@@ -211,7 +211,7 @@ Meteor.publish('allPosts', function(){
 
 ### Recapitulando
 
-Hemos visto cómo pasar de publicar todas las propiedades de todos los documentos de todas las colecciones (con `Autopublish`) a publicar sólo _algunas_ propiedades de _algunos_ documentos de _algunas_ colecciones.
+Hemos visto cómo pasar de publicar todas las propiedades de todos los documentos de todas las colecciones (con `autopublish`) a publicar sólo _algunas_ propiedades de _algunos_ documentos de _algunas_ colecciones.
 
 Esto cubre los fundamentos de lo que se puede hacer con las publicaciones en Meteor, y estas técnicas tan sencillas deberían servir para la gran mayoría de casos de uso.
 

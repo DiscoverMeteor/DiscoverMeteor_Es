@@ -10,11 +10,11 @@ paragraphs: 20
 
 Si las colecciones son la característica principal de Meteor, entonces la *reactividad* es lo que las hace útiles.
 
-Las colecciones transforman radicalmente la forma en que la aplicación maneja cambios en los datos. En lugar de tener que comprobarlo manualmente (por ejemplo, con una llamada AJAX) y actualizar los cambios en el código HTML, con Meteor, los cambios pueden llegar en cualquier momento y aplicarse a la interfaz de usuario sin complicaciones. 
+Las colecciones transforman radicalmente la forma en que la aplicación maneja cambios en los datos. En lugar de tener que comprobarlo manualmente (por ejemplo, con una llamada AJAX) y actualizar los cambios en el código HTML, con Meteor, los cambios pueden llegar en cualquier momento y aplicarse a la interfaz de usuario sin complicaciones.
 
-Vamos a verlo con detenimiento: entre bastidores, Meteor es capaz de cambiar *cualquier* parte de la interfaz de usuario cuando se actualiza una colección subyacente. 
+Vamos a verlo con detenimiento: entre bastidores, Meteor es capaz de cambiar *cualquier* parte de la interfaz de usuario cuando se actualiza una colección subyacente.
 
-La forma *imperativa* (o "a mano") de hacerlo sería utilizar `.Observe()`, una función del cursor que dispara callbacks cuando los documentos seleccionados cambian. De esta forma podríamos hacer cambios en el DOM (el HTML de nuestra página web) a través de esos callbacks. El código resultante sería algo como esto:
+La forma *imperativa* (o "a mano") de hacerlo sería utilizar `.observe()`, una función del cursor que dispara callbacks cuando los documentos seleccionados cambian. De esta forma podríamos hacer cambios en el DOM (el HTML de nuestra página web) a través de esos callbacks. El código resultante sería algo como esto:
 
 ~~~js
 Posts.find().observe({
