@@ -17,7 +17,7 @@ Vamos a implementar un sistema simple que mantenga un registro de los errores qu
 
 Lo que vamos a crear es algo parecido a los mensajes flash que encontramos a menudo  en aplicaciones Ruby on Rails, pero implementado en en el lado del cliente y sabiendo cuándo un usuario ha visto un mensaje.
 
-Para empezar, crearemos una colección para almacenar nuestros errores. Pusto que los errores sólo son relevantes en la sesión actual y no necesitan ser persistentes, crearemos siempre una nueva _colección local_. Es decir, la colección `Errors` sólo existirá en el navegador, y no se sincronizará con el servidor.
+Para empezar, crearemos una colección para almacenar nuestros errores. Puesto que los errores sólo son relevantes en la sesión actual y no necesitan ser persistentes, crearemos siempre una nueva _colección local_. Es decir, la colección `Errors` sólo existirá en el navegador, y no se sincronizará con el servidor.
 
 Para conseguirlo, creamos la colección de errores en un archivo de cliente, con el nombre de la colección establecido a `null` y una función `throwError` que  inserta errores en la nueva colección local:
 
@@ -107,18 +107,18 @@ Además, si nos encontramos el error `302` (que indica que ya existe una entrada
 Template.postSubmit.events({
   'submit form': function(e) {
     e.preventDefault();
-    
+
     var post = {
       url: $(e.target).find('[name=url]').val(),
       title: $(e.target).find('[name=title]').val(),
       message: $(e.target).find('[name=message]').val()
     }
-    
+
     Meteor.call('post', post, function(error, id) {
       if (error) {
         // display the error to the user
         throwError(error.reason);
-        
+
         if (error.error === 302)
           Router.go('postPage', {_id: error.details})
       } else {

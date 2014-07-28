@@ -21,7 +21,7 @@ Esto hace de la animación algo complicado ya que no podemos, simplemente mover 
 
 En 1980, en pleno apogeo de la guerra fría, los Juegos Olímpicos se celebraban en Moscú, y los soviéticos estaban decididos a ganar la carrera de 100 metros a cualquier precio. Así que un grupo de brillantes científicos soviéticos equiparon a uno de sus atletas con un teletransportador, y en cuanto sonó el disparo de salida, el corredor fue trasladado de inmediato a la línea de meta.
 
-Afortunadamente, los jueces de la carrera se dieron cuenta de inmediato de la infracción inmediatamente, y el atleta no tuvo más remedio que teletransportarse de nuevo a su casilla de salida, antes de permitirle participar de nuevo corriendo como los demás.
+Afortunadamente, los jueces de la carrera se dieron cuenta de la infracción inmediatamente, y el atleta no tuvo más remedio que teletransportarse de nuevo a su casilla de salida, antes de permitirle participar de nuevo corriendo como los demás.
 
 Mis fuentes históricas no son muy fiables, por lo que debes tomar esa historia como cogida con pinzas. Pero trataremos de mantener en mente la analogía del "corredor soviético con teletransportador" a medida que avancemos en este capítulo.
 
@@ -42,7 +42,7 @@ El siguiente diagrama explica estos pasos con más detalle:
 
 <%= diagram "animation_diagram", "Intercambiendo dos posts", "pull-center" %>
 
-Se nuevo, en los pasos 3 y 4 no estamos *animando* A y B' hasta sus posiciones sino que las "teletransportamos" allí al instante. Dado que el cambio es instantáneo, parecerá que B no se ha borrado pero ya tenemos posicionados correctamente los elementos para que puedan ser animados hasta su nueva posición.
+De nuevo, en los pasos 3 y 4 no estamos *animando* A y B' hasta sus posiciones sino que las "teletransportamos" allí al instante. Dado que el cambio es instantáneo, parecerá que B no se ha borrado pero ya tenemos posicionados correctamente los elementos para que puedan ser animados hasta su nueva posición.
 
 Afortunadamente, Meteor se ocupa de los pasos 1 y 2, así que sólo tendremos que preocuparnos de los pasos 3 al 6.
 
@@ -61,7 +61,7 @@ Así que si quieres que el robot ande durante 10 minutos, tienes que esperar has
 
 El navegador funciona de una manera similar: si le damos dos instrucciones a la vez, las nuevas coordenadas reemplazarán las viejas y no pasaría nada. En otras palabras, el navegador debe registrar los cambios de posición como puntos separados en el tiempo, de lo contrario no será capaz de animarlos.
 
-Meteor no dispone de un callback para manejar esto pero lo podemos simular utilizando `Meteor.setTimeout()`, que simplemente toma una función y aplaza su ejecución unos cuantos milisegundos. 
+Meteor no dispone de un callback para manejar esto pero lo podemos simular utilizando `Meteor.setTimeout()`, que simplemente toma una función y aplaza su ejecución unos cuantos milisegundos.
 
 ### Posicionamiento CSS
 
@@ -71,7 +71,7 @@ Los elementos de una página utilizan posicionamiento **estático** por defecto.
 
 Por otra parte, el posicionamiento **relativo**, implica que el elemento está fijado a la página, pero se puede mover con relación a su posición original.
 
-El posicionamiento **absoluto** va un paso más allá y permite dar coordenadas x/y a un elemento en relación al **documento** o **al primer elemento "padre" posicionado de absoluta o relativa**.
+El posicionamiento **absoluto** va un paso más allá y permite dar coordenadas x/y a un elemento en relación al **documento** o **al primer elemento "padre" posicionado de forma absoluta o relativa**.
 
 Nosotros vamos a usar posicionamiento relativo para animar los posts. Ya disponemos del CSS necesario en `client/stylesheets/style.css`, pero si necesitas añadirlo, este es el código para la hoja de estilo:
 
@@ -85,7 +85,7 @@ Nosotros vamos a usar posicionamiento relativo para animar los posts. Ya dispone
 
 Esto facilita muchos los pasos 5 y 6: todo lo que necesitamos hacer es configurar la parte `top` a `0px` (su valor predeterminado) y nuestros posts se deslizarán de nuevo a su posición "normal".
 
-Esto significa que nuestro único problema es averiguar desde dónde animar los posts (pasos 3 y 4) con respecto a su nueva posición. En otras palabras, en qué posición hay que ponerlo. Pero, esto no es tan difícil: el desplazamiento correcto es la posición anterior restada a la nueva. 
+Esto significa que nuestro único problema es averiguar desde dónde animar los posts (pasos 3 y 4) con respecto a su nueva posición. En otras palabras, en qué posición hay que ponerlo. Pero, esto no es tan difícil: el desplazamiento correcto es la posición anterior restada a la nueva.
 
 <% note do %>
 
@@ -141,7 +141,7 @@ No olvidemos actualizar también la plantilla `postsList`:
     {{#each postsWithRank}}
       {{> postItem}}
     {{/each}}
-    
+
     {{#if hasMorePosts}}
       <a class="load-more" href="{{nextPath}}">Load more</a>
     {{/if}}
@@ -160,11 +160,11 @@ Meteor es uno de los frameworks más vanguardistas y con más visión de futuro.
 
 Siempre que utilices un cursor con `forEach()`, `map()` o `fetch()`, tendrás que rebobinar el cursor antes de que esté listo para usarse de nuevo.
 
-Así que en algunos casos, es más seguro hacerlo de forma preventiva en lugar de arriesgarse a introducir un bug. 
+Así que en algunos casos, es más seguro hacerlo de forma preventiva en lugar de arriesgarse a introducir un bug.
 
 <% end %>
 
-### Juntándolo todo
+### Uniéndolo todo
 
 Dado que nuestra animación tendrá efecto en las clases y atributos CSS del DOM, añadiremos el ayudante dinámico `{{attributes}}` a la plantilla `postItem`:
 
@@ -196,18 +196,18 @@ Template.postItem.helpers({
     var post = _.extend({}, Positions.findOne({postId: this._id}), this);
     var newPosition = post._rank * POST_HEIGHT;
     var attributes = {};
-    
+
     if (! _.isUndefined(post.position)) {
-      var offset = post.position - newPosition;      
+      var offset = post.position - newPosition;
       attributes.style = "top: " + offset + "px";
       if (offset === 0)
         attributes.class = "post animate"
     }
-    
+
     Meteor.setTimeout(function() {
       Positions.upsert({postId: post._id}, {$set: {position: newPosition}})
     });
-    
+
     return attributes;
   }
 });
@@ -217,7 +217,7 @@ Template.postItem.helpers({
 <%= caption "/client/views/posts/post_item.js" %>
 <%= highlight "1~2, 8~26" %>
 
-Primero establecemos la altura de cada elemento del DOM, en otras palabras, nuestros divs `.post`. Esto presenta el inconveniente obvio de que cualquier cambio en esta altura (por ejemplo, un título de una entrada que ocupe dos líneas) romperá toda nuestra lógica animación. Pero por el bien de mantener las cosas simples, por ahora, vamos a suponer que todos los posts tendrán exactamente 80 píxeles de alto.
+Primero establecemos la altura de cada elemento del DOM, en otras palabras, nuestros divs `.post`. Esto presenta el inconveniente obvio de que cualquier cambio en esta altura (por ejemplo, un título de una entrada que ocupe dos líneas) romperá toda nuestra lógica de animación. Pero por el bien de mantener las cosas simples, por ahora, vamos a suponer que todos los posts tendrán exactamente 80 píxeles de alto.
 
 A continuación, declaramos una colección local llamada `Positions`. Ten en cuenta que pasar `null` como argumento permite a Meteor saber que se trata de una local (en otras palabras, sólo para el cliente).
 
@@ -243,7 +243,7 @@ Ahora tenemos que gestionar dos casos distintos: o el ayudante está corriendo p
 
 Sólo queremos animar el elemento en el caso B, por lo que nos aseguramos de que `post.position` está definido (en breve veremos *cómo* está definido).
 
-Lo que es más, el caso B incluye dos sub-casos, B1 y B2: o estamos *teletransportando* el elemento del DOM de nuevo a los "tacos de salida" (su posición anterior), o estamos *animándolo* desde su posición anterior a su nueva posición.
+Además, el caso B incluye dos sub-casos, B1 y B2: o estamos *teletransportando* el elemento del DOM de nuevo a los "tacos de salida" (su posición anterior), o estamos *animándolo* desde su posición anterior a su nueva posición.
 
 Aquí es donde entra en juego la variable `offset`. Dado que estamos utilizando posicionamiento *relativo*, vamos a querer averiguar dónde enviar el elemento *en relación* a su posición actual. Esto significa restar la nueva posición de la anterior.
 
@@ -270,7 +270,7 @@ Y esto es lo que sucede cuando se detecta un upvote:
 - El ayudante `attributes` se ejecuta de manera reactiva.
 - El `offset` vuelve a 0 (con animación) **(B2)**.
 
-Ahora abre el sitio y empieza a votar. ¡Deberías ver mensajes moviendose suavemente hacia arriba y hacia abajo como la gracia de un ballet!
+Ahora abre el sitio y empieza a votar. ¡Deberías ver mensajes moviendose suavemente hacia arriba y hacia abajo elegantamente como en un ballet!
 
 
 <%= commit "14-1", "Añadida la animación de los posts al reordenarse." %>
@@ -286,20 +286,20 @@ attributes: function() {
   var post = _.extend({}, Positions.findOne({postId: this._id}), this);
   var newPosition = post._rank * POST_HEIGHT;
   var attributes = {};
-  
+
   if (_.isUndefined(post.position)) {
     attributes.class = 'post invisible';
   } else {
-    var delta = post.position - newPosition;      
+    var delta = post.position - newPosition;
     attributes.style = "top: " + delta + "px";
     if (delta === 0)
       attributes.class = "post animate"
   }
-  
+
   Meteor.setTimeout(function() {
     Positions.upsert({postId: post._id}, {$set: {position: newPosition}})
   });
-  
+
   return attributes;
 }
 
@@ -319,7 +319,7 @@ Lo que estamos haciendo aquí es aislar el caso **(A)** y añadir la clase CSS `
 
 Te habrás dado cuenta de que estamos usando la clase CSS `.invisible` para activar la animación en lugar de animar la propiedad de `opacity` directamente como hicimos para `top`. Esto se debe a que para `top`, necesitábamos animar la propiedad a un valor específico que depende de los datos de la instancia actual.
 
-Pero aquí sólo queremos mostrar y ocultar un elemento independiente de sus datos. Y como es una buena idea mantener el CSS fuera de JavaScript en la medida de lo posible, a qué sólo agregamos y eliminamos la clase, y especificamos los detalles de la animación en nuestra hoja de estilos.
+Pero aquí sólo queremos mostrar y ocultar un elemento independiente de sus datos. Y como es una buena idea mantener el CSS fuera de JavaScript en la medida de lo posible, aquí sólo agregamos y eliminamos la clase, y especificamos los detalles de la animación en nuestra hoja de estilos.
 
 <% end %>
 

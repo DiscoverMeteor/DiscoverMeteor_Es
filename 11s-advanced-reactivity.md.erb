@@ -10,18 +10,18 @@ paragraphs: 29
 
 No es común tener que escribir código de seguimiento de dependencias por ti mismo, pero para comprender el concepto, es verdaderamente útil seguir el camino de cómo funciona el flujo de dependencias.
 
-Imagina que quisiéramos saber a cuántos amigos del usuario actual de Facebook le ha gustado cada post en Microscope. Asumamos que ya hemos trabajado los detalles de cómo autenticar el usuario con Facebook, hacer las llamadas necesarias a la API, y procesar los datos relevantes. Ahora tenemos una función asincrónica del lado del cliente que devuelve el número de "me gusta": `getFacebookLikeCount(user, url, callback)`.
+Imagina que quisiéramos saber a cuántos amigos del usuario actual de Facebook le ha gustado cada post en Microscope. Supongamos que ya hemos trabajado en los detalles de cómo autenticar el usuario con Facebook, hacer las llamadas necesarias a la API, y procesar los datos relevantes. Ahora tenemos una función asíncrona en el lado del cliente que devuelve el número de "me gusta": `getFacebookLikeCount(user, url, callback)`.
 
-Lo importante a recordar sobre una función de esta naturaleza es que *no es reactiva* ni funciona en tiempo real. Hará un pedido HTTP a Facebook, tomará algunos datos, y los hará disponibles a la aplicación a través de un llamado asincrónico. Pero la función no se va a volver a ejecutar por sí sola cuando haya un cambio en Facebook, ni nuestra UI va a cambiar cuando los datos lo hagan.
+Lo importante a recordar sobre una función de esta naturaleza es que *no es reactiva* ni funciona en tiempo real. Hará una petición HTTP a Facebook, enviando algunos datos, y obtendremos el resultado en la aplicación a través de un llamada asíncrona. Pero la función no se va a volver a ejecutar por sí sola cuando haya un cambio en Facebook, ni nuestra UI va a cambiar cuando los datos lo hagan.
 
-Para solucionar esto, podemos comenzar utilizando `setInterval` para llamar a la función cada algunos segundos:
+Para solucionar esto, podemos comenzar utilizando `setInterval` para llamar a la función cada ciertos segundos:
 
 ~~~js
 currentLikeCount = 0;
 Meteor.setInterval(function() {
   var postId;
   if (Meteor.user() && postId = Session.get('currentPostId')) {
-    getFacebookLikeCount(Meteor.user(), Posts.find(postId), 
+    getFacebookLikeCount(Meteor.user(), Posts.find(postId),
       function(err, count) {
         if (!err)
           currentLikeCount = count;
@@ -44,7 +44,7 @@ Sin embargo, nada le dice todavía a nuestra plantilla que se redibuje cuando ca
 
 La reactividad de Meteor es mediada por *dependencias*, estructuras de datos que rastrean una serie de computaciones.
 
-Como vimos en anteriormente, una computación es una parte de código que usa datos reactivos. En nuestro caso, hay una computación que ha sido implícitamente creada por la plantilla `postItem`. Cada ayudante en el manejador de esa plantilla está funcionando dentro de esa computación.
+Como vimos anteriormente, una computación es una parte de código que usa datos reactivos. En nuestro caso, hay una computación que ha sido implícitamente creada por la plantilla `postItem`. Cada ayudante en el manejador de esa plantilla está funcionando dentro de esa computación.
 
 Puedes pensar de la computación como una parte del código que se "preocupa" por los datos reactivos. Cuando los datos cambien, está computación será informada (a través de `invalidate()`), y es la computación la que debe decidir si algo debe hacerse.
 
@@ -64,7 +64,7 @@ currentLikeCount = function() {
 Meteor.setInterval(function() {
   var postId;
   if (Meteor.user() && postId = Session.get('currentPostId')) {
-    getFacebookLikeCount(Meteor.user(), Posts.find(postId), 
+    getFacebookLikeCount(Meteor.user(), Posts.find(postId),
       function(err, count) {
         if (!err && count !== _currentLikeCount) {
           _currentLikeCount = count;
@@ -100,7 +100,7 @@ $rootScope.$watch('currentLikeCount', function(likeCount) {
 });
 ~~~
 
-Por supuesto, tal como rara vez tienes que configurar computaciones en Meteor, tampoco deberás llamar muy seguido a `$watch` explícitamente en Angular, ya que las directivas `ng-model` y las `{{expressions}}` automáticamente se ocupan de re-renderizarse cuando haya un cambio.
+Por supuesto, es tan raro tener que configurar computaciones en Meteor, como tener que invocar a `$watch` explícitamente en Angular, ya que las directivas `ng-model` y las `{{expressions}}` automáticamente se ocupan de re-renderizarse cuando haya un cambio.
 
 Cuando dicho valor reactivo sea cambiado, `scope.$apply()` debe ser llamado. Esto vuelve a evaluar cada "watcher" del scope, pero sólo llama a las funciones de aquellos "watchers" que contengan valores modificados.
 
@@ -110,7 +110,7 @@ Con Angular, nuestra función `getFacebookLikeCount()` habría sigo algo así:
 
 ~~~js
 Meteor.setInterval(function() {
-  getFacebookLikeCount(Meteor.user(), Posts.find(postId), 
+  getFacebookLikeCount(Meteor.user(), Posts.find(postId),
     function(err, count) {
       if (!err) {
         $rootScope.currentLikeCount = count;
@@ -121,4 +121,4 @@ Meteor.setInterval(function() {
 ~~~
 <%= highlight "5~6" %>
 
-Decididamente, Meteor se ocupa de la parte más pesada por nosotros y nos deja beneficiarnos de la reactividad sin demasiado trabajo. Pero tal vez, aprender sobre estos patrones será de ayuda si alguna vez necesitas empujar las cosas un poco más.
+Decididamente, Meteor se ocupa de la parte más pesada por nosotros y nos deja beneficiarnos de la reactividad sin demasiado trabajo. Pero tal vez, aprender estos patrones será de ayuda si alguna vez necesitas ir mas allá.

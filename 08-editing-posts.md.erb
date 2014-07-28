@@ -42,7 +42,7 @@ var requireLogin = function(pause) {
       this.render('loading')
     else
       this.render('accessDenied');
-  
+
     pause();
   }
 }
@@ -95,14 +95,14 @@ Y aquí está el gestor `post_edit.js` que va con ella:
 Template.postEdit.events({
   'submit form': function(e) {
     e.preventDefault();
-    
+
     var currentPostId = this._id;
-    
+
     var postProperties = {
       url: $(e.target).find('[name=url]').val(),
       title: $(e.target).find('[name=title]').val()
     }
-    
+
     Posts.update(currentPostId, {$set: postProperties}, function(error) {
       if (error) {
         // display the error to the user
@@ -112,10 +112,10 @@ Template.postEdit.events({
       }
     });
   },
-  
+
   'click .delete': function(e) {
     e.preventDefault();
-    
+
     if (confirm("Delete this post?")) {
       var currentPostId = this._id;
       Posts.remove(currentPostId);
@@ -243,7 +243,7 @@ Posts.deny({
 
 Estamos cogiendo el array `fieldNames` que contiene la lista de los campos que quieren modificar, y usamos el método `without()` de [Underscore](http://underscorejs.org/) para devolver un sub-array que contiene los campos que no son `url` o `title`.
 
-Si todo va bien, el array debe estar vacío y su longitud debe ser 0 pero si alguien está tratando de enrredar, la longitud de la matriz será mayor que 0, y devolveremos `true` (denegando así la actualización).
+Si todo va bien, el array debe estar vacío y su longitud debe ser 0. Pero si alguien está tratando de enrredar, la longitud del array será mayor que 0, y devolveremos `true` (denegando así la actualización).
 
 <% note do %>
 
