@@ -24,12 +24,12 @@ Router.configure({
 
 Router.map(function() {
   this.route('postsList', {path: '/'});
-
+  
   this.route('postPage', {
     path: '/posts/:_id',
     data: function() { return Posts.findOne(this.params._id); }
   });
-
+  
   this.route('postSubmit', {
     path: '/submit'
   });
@@ -38,9 +38,7 @@ Router.map(function() {
 Router.onBeforeAction('loading');
 ~~~
 <%= caption "lib/router.js" %>
-<%= highlight "14~17" %>
-
-Usamos la función `data` del router para establecer el contexto de datos de la plantilla `postPage`. Recuerda que todo lo que ponemos en el contexto de datos estará disponible como `this` dentro de los ayudantes de la plantilla.
+<%= highlight "15~17" %>
 
 ### Añadiendo un enlace en la cabecera
 
@@ -407,7 +405,7 @@ La clase `Error` de Meteor toma tres argumentos. El primero (`error`) es el cód
 
 En nuestro caso, vamos a utilizar este tercer argumento para pasar el identificador del post que acabamos de encontrar puesto que lo usaremos más adelante para redirigir al usuario al post pre-existente.
 
-Si se pasan todos los controles, cogemos todos los datos que queremos insertar (garantizando que un usuario que llame a este método desde la consola de navegador no pueda poner datos falsos en nuestra base de datos), e incluimos la información del usuario así como de la hora actual.
+Si se pasan todos los controles, cogemos todos los datos que queremos insertar usando [Underscore](http://underscorejs.org/)'s [pick](http://underscorejs.org/#pick) (garantizando que un usuario que llame a este método desde la consola de navegador no pueda poner datos falsos en nuestra base de datos), e incluimos la información del usuario así como de la hora actual.
 
 Por último, insertamos el post, y devolvemos su `id` al usuario.
 

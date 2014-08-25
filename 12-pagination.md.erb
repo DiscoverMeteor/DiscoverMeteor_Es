@@ -384,6 +384,56 @@ mrt add iron-router-progress
 
 Gracias a la magia de los paquetes inteligentes, ¡el nuevo indicador de progreso funcionará nada más instalarlo! La barra de progreso se activará para cada ruta, y se completará automáticamente una vez que los datos requeridos de la ruta se hayan cargado.
 
+Dado que deseamos mostrar la lista de posts, aún cuando naveguemos entre páginas, no queremos que el hook se ejecute para las páginas `PostListController` -- podemos hacer esto eliminando espera a la  suscripción:
+
+~~~js
+PostsListController = RouteController.extend({
+  // ...
+  
+  onBeforeAction: function() {
+    this.postsSub = Meteor.subscribe('posts', this.findOptions());
+  },
+  posts: function() {
+    return Posts.find({}, this.findOptions());
+  },
+  data: function() {
+    var hasMore = this.posts().count() === this.limit();
+    return {
+      posts: this.posts(),
+      ready: this.postsSub.ready,
+      nextPath: hasMore ? this.nextPath() : null
+    };
+  }
+});
+~~~
+<%= caption "lib/router.js" %>
+<%= highlight "3~5,13" %>
+
+En lugar de suscribirnos en un `waitOn`, nos suscribiremos en un hook `onBeforeAction`, manteniendo en `this.postsSub`, una referencia al manejador de la suscripción que podremos usar en la plantilla.
+
+A continuación en la plantilla, cuando estamos cargando un nuevo conjunto de posts, podemos mostrar una rueda de espera (spinner) en la parte inferior de la lista comprobando el estado de la suscripción (ready):
+
+~~~html
+<template name="postsList">
+  <div class="posts">
+    {{#each postsWithRank}}
+      {{> postItem}}
+    {{/each}}
+    
+    {{#if nextPath}}
+      <a class="load-more" href="{{nextPath}}">Load more</a>
+    {{else}}
+      {{#unless ready}}
+        {{> spinner}}
+      {{/unless}}
+    {{/if}}
+  </div>
+</template>
+~~~
+<%= caption "client/views/posts/posts_list.html" %>
+<%= highlight "10~12" %>
+
+
 Sólo utilizaremos un pequeño truco. Vamos a desactivar `iron-router-progress` para la ruta `postSubmit` ya que esta ruta no tiene que esperar datos (después de todo, es sólo un formulario vacío):
 
 ~~~js

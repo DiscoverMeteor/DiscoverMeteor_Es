@@ -37,12 +37,12 @@ Dado que vamos a confiar en paquetes de terceros para algunas de las funciones d
 
 ### Instalando Meteorite
 
-Para instalar Meteorite necesitamos tener instalados Node y Git. Los instalaremos de la forma predeterminada para nuestro OS o lo intentaremos con estos enlaces:
+Para instalar Meteorite necesitamos tener instalados Node.js y Git. Los instalaremos de la forma predeterminada para nuestro OS o lo intentaremos con estos enlaces:
 
-- [Sitio de descarga de Node](http://nodejs.org/download/)
+- [Sitio de descarga de Node.js](http://nodejs.org/download/)
 - [Sitio de descarga de Git](http://git-scm.com/downloads)
 
-A continuación, vamos a instalar Meteorite. Como se trata de un paquete [npm](https://npmjs.org/) (Node Packaged Module, el formato de módulo estándar de node), lo instalamos desde la consola:
+A continuación, vamos a instalar Meteorite. Como se trata de un paquete [npm](https://npmjs.org/) (Node.js Packaged Module, el formato de módulo estándar de node), lo instalamos desde la consola:
 
 ~~~bash
 $ npm install -g meteorite
@@ -108,6 +108,8 @@ Ahora abrimos `http://localhost:3000/` (o su equivalente `http://0.0.0.0:3000/`)
 
 ¡Enhorabuena! ya tenemos nuestra primera aplicación Meteor funcionando. Por cierto, para parar la aplicación, todo lo que hay que hacer es abrir la pestaña terminal donde se ejecuta y pulsar `ctrl+c`.
 
+Si estás utilizando Git, este sería un buen momento para el repo con `init` git.
+
 ### Añadir un paquete
 
 Ahora vamos a usar Meteorite para añadir un paquete que nos permitirá incluir [Bootstrap](http://twitter.github.com/bootstrap/) en nuestro proyecto:
@@ -128,7 +130,7 @@ Al hablar acerca de los paquetes en el contexto de Meteor, vale la pena ser espe
 - Los **smart packages** son [un grupo de 37 paquetes](http://docs.meteor.com/#packages) incluidos en Meteor `meteor list` e instalables con `meteor add` o con `mrt add`.
 - Los **local packages** son nuestros propios paquetes ubicados en `/packages`.
 - Los **atmosphere smart packages** son paquetes de terceros listados en [Atmosphere](http://atmosphere.meteor.com/).
-- Los **NPM packages** (Node Packaged Modules) son paquetes de node que pueden necesitar los anteriores.
+- Los **NPM packages** (Node.js Packaged Modules) son paquetes de node que pueden necesitar los anteriores.
 
 <% end %>
 
