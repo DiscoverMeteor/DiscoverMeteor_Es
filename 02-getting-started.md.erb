@@ -25,61 +25,16 @@ Si no podemos (o no queremos) instalar Meteor localmente, recomendamos usar [Nit
 
 Nitrous.io es un servicio que te permite ejecutar aplicaciones y editar el código directamente en tu navegador, nosotros hemos escrito una breve guía para ayudarte a ponerte en marcha.
 
-Sólo tienes que seguir [esta guía](https://www.discovermeteor.com/blog/meteor-nitrous) hasta terminar con la sección "Installing Meteor and Meteorite", y luego seguir con este capítulo a partir de la sección "Crear y ejecutar una aplicación".
-
-<% end %>
-
-### Meteorite
-
-Debido a que Meteor todavía no soporta paquetes de terceros, Tom Coleman (uno de los autores de este libro) y algunos miembros de la comunidad han creado [Meteorite](http://oortcloud.github.com/meteorite/), un envoltorio o wrapper para Meteor. Meteorite permite instalar Meteor y conectarlo con los paquetes que necesitemos.
-
-Dado que vamos a confiar en paquetes de terceros para algunas de las funciones de  microscope, vamos a instalar Meteorite.
-
-### Instalando Meteorite
-
-Para instalar Meteorite necesitamos tener instalados Node.js y Git. Los instalaremos de la forma predeterminada para nuestro OS o lo intentaremos con estos enlaces:
-
-- [Sitio de descarga de Node.js](http://nodejs.org/download/)
-- [Sitio de descarga de Git](http://git-scm.com/downloads)
-
-A continuación, vamos a instalar Meteorite. Como se trata de un paquete [npm](https://npmjs.org/) (Node.js Packaged Module, el formato de módulo estándar de node), lo instalamos desde la consola:
-
-~~~bash
-$ npm install -g meteorite
-~~~
-
-<% note do %>
-
-### ¿Errores de permisos?
-
-En algunas máquinas es necesario ser administrador para instalar Meteorite. Para evitar problemas, asegúrate de usar `sudo -H`:
-
-~~~bash
-$ sudo -H npm install -g meteorite
-~~~
-
-Puedes leer más sobre este tema en la [Meteorite documentation](https://github.com/oortcloud/meteorite/blob/master/README.md#permission-woes).
-
-<% end %>
-
-¡Y ya está! A partir de ahora Meteorite se encargará de todo.
-
-Nota: de momento, no hay soporte para Meteorite en Windows, aunque puedes echar un vistazo a [nuestro tutorial para Windows](https://www.discovermeteor.com/blog/using-meteor-and-atmopshere-on-windows/).
-
-<% note do %>
-
-  ### `mrt` vs `meteor`
-
-  Meteorite instala el ejecutable `mrt` que utilizaremos para instalar paquetes en nuestra aplicación. Sin embargo, cuando queramos ejecutar nuestro servidor se utilizará el comando `meteor`.
+Sólo tienes que seguir [esta guía](https://www.discovermeteor.com/blog/meteor-nitrous) hasta completar la sección "Installing Meteor", y luego seguir con este capítulo a partir de la sección "Crear y ejecutar una aplicación".
 
 <% end %>
 
 ### Crear y ejecutar nuestra aplicación
 
-Ahora que tenemos instalado Meteorite, vamos a crear nuestra aplicación. Para ello, utilizaremos la herramienta de línea de comandos `mrt` de Meteorite:
+Ahora que tenemos instalado Meteor, vamos a crear nuestra aplicación. Para ello, utilizaremos la herramienta de línea de comandos `meteor`:
 
 ~~~bash
-$ mrt create microscope
+$ meteor create microscope
 ~~~
 
 Este comando descarga Meteor (si no está instalado), y crea un proyecto básico listo para usar. Cuando termina, deberíamos tener un directorio `microscope/`, que contiene lo siguiente:
@@ -88,7 +43,6 @@ Este comando descarga Meteor (si no está instalado), y crea un proyecto básico
 microscope.css
 microscope.html
 microscope.js
-smart.json
 ~~~
 
 La aplicación que se ha creado es una aplicación básica que demuestra sólo algunas pautas simples.
@@ -110,12 +64,22 @@ Ahora abrimos `http://localhost:3000/` (o su equivalente `http://0.0.0.0:3000/`)
 
 Si estás utilizando Git, este sería un buen momento para el repo con `init` git.
 
+<% note do %>
+
+### Bye Bye Meteorite
+
+Hubo un tiempo en el que Meteor utilizaba un gestor de paquetes externo llamado Meteorite. Desde la versión 0.9.0 de Meteor, Meteorite ya no es necesario, ya que sus características se han incorporado a Meteor.
+
+Así que si encuentras referencias a `mrt` de de Meteorite a lo largo de este libro o mientras lees material relacionado con Meteor, puedes reemplazarlo con total seguridad por el habitual `meteor`.
+
+<% end %>
+
 ### Añadir un paquete
 
-Ahora vamos a usar Meteorite para añadir un paquete que nos permitirá incluir [Bootstrap](http://twitter.github.com/bootstrap/) en nuestro proyecto:
+Ahora vamos a usar Meteor para añadir un paquete que nos permitirá incluir [Bootstrap](http://twitter.github.com/bootstrap/) en nuestro proyecto:
 
 ~~~bash
-$ mrt add bootstrap
+$ meteor add bootstrap
 ~~~
 
 <%= commit "2-2", "Añadido el paquete bootstrap." %>
@@ -127,7 +91,7 @@ $ mrt add bootstrap
 Al hablar acerca de los paquetes en el contexto de Meteor, vale la pena ser específico. Meteor puede usar cinco tipos de paquetes distintos:
 
 - Los **core packages** son los paquetes que componen Meteor y probablemente nunca tengas que preocuparte por ellos.
-- Los **smart packages** son [un grupo de 37 paquetes](http://docs.meteor.com/#packages) incluidos en Meteor `meteor list` e instalables con `meteor add` o con `mrt add`.
+- Los **smart packages** de Meteor son [un grupo de 37 paquetes](http://docs.meteor.com/#packages) incluidos en Meteor `meteor list` e instalables con `meteor add`.
 - Los **local packages** son nuestros propios paquetes ubicados en `/packages`.
 - Los **atmosphere smart packages** son paquetes de terceros listados en [Atmosphere](http://atmosphere.meteor.com/).
 - Los **NPM packages** (Node.js Packaged Modules) son paquetes de node que pueden necesitar los anteriores.
@@ -282,6 +246,10 @@ body {
     text-decoration: none;
     background: rgba(0, 0, 0, 0.1);
 }
+.posts .spinner-container{
+  position: relative;
+  height: 100px;
+}
 ~~~
 <%= caption "client/stylesheets/style.css" %>
 
@@ -293,6 +261,6 @@ body {
 
 En este libro vamos usar JavaScript puro. Pero si quisiéramos usar CoffeeScript, bastaría con añadir el paquete CoffeeScript y estaríamos listos para continuar:
 
-`mrt add coffeescript`
+`meteor add coffeescript`
 
 <% end %>

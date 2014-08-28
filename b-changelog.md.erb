@@ -1,0 +1,113 @@
+---
+title: Changelog
+slug: changelog
+date: 0099/01/02
+number: 99
+points: 1
+appendix: true
+version: 1.5
+updated: 08/27/2014
+note: feel free to adapt the contents of this document to your own translation, but please keep the same version numbers
+---
+
+### August 27, 2014 <span class="marker version-marker">1.5</span>
+
+- Updated Pagination chapter.
+- Fixed typos.
+- Removed mentions of Meteorite throughout the book.
+- Updated Creating A Package sidebar for Meteor 0.9.0. 
+- Now including changelog in book repo.
+- Book version is now tracked in changelog, not in intro chapter.
+- Added section about manual.meteor.com in Going Further chapter. 
+
+### May 30, 2014 <span class="marker version-marker">1.3.4</span>
+
+- Replaced Vocabulary chapter with [Going Further](/chapter/going-further) chapter.
+- Added new Vocabulary sidebar. 
+
+### May 20, 2014 <span class="marker version-marker">1.3.3</span>
+
+- Various typos and highlighting fixes. 
+- Small correction in [Errors](/chapter/errors) chapter.
+
+### May 5, 2014 <span class="marker version-marker">1.3.2</span>
+
+Various typos fixes. 
+
+### April 8, 2014 <span class="marker version-marker">1.3.1</span>
+
+Finished 0.8.0 Update.
+
+- [12 – Pagination](/chapter/pagination): Use `count()` instead of `fetch().length()`.
+- [14 – Animations](/chapter/animations): Rewrote the chapter to use a helper instead of the `rendered` callback.
+
+### March 31, 2014 <span class="marker version-marker">1.3</span>
+
+Updated to support Meteor 0.8.0 and Blaze.
+
+- [5 – Routing](/chapter/routing): Routing changes to support IR 0.7.0:
+  - `{{yield}}` becomes `{{> yield}}`
+  - Explicitly add `loading` hook.
+  - Use `onBeforeAction` rather than `before`.
+- [6 – Adding Users](/chapter/adding-users): Minor change for Blaze:
+  - `{{loginButtons}}` becomes `{{> loginButtons}}`
+- [7 – Creating Posts](/chapter/creating-posts): 
+  - HTML changes for stricter parser.
+  - Update our `onBeforeAction` hook to use `pause()` rather than `this.stop()`
+- [13 – Voting](/chapter/voting): Small change to the `activeRouteClass` helper.
+
+### January 13, 2014 <span class="marker version-marker">1.2</span>
+
+The first update of 2014 is a big one! First of all, you'll notice a beautiful, photo-based layout that makes each chapter stand out more and introduces a bit of variety in the book. 
+
+And on the content side, we've updated parts of the book and even written two whole new chapters:
+
+#### New Chapters
+
+- **[NEW!]** [3.5 – Using GitHub](/chapter/github): New sidebar on how to use GitHub. 
+- **[NEW!]** [17.5 – Migrations](/chapter/migrations):  New sidebar about database migrations. 
+
+#### Updates
+
+- [2.5 – Deploying](/chapter/deploying): Rewrote chapter from scratch to be more up to date. 
+- [4.5 – Publications and Subscriptions](/chapter/publications-and-subscriptions): Merged in content from [Understanding Meteor Publications & Subscriptions](https://www.discovermeteor.com/2014/01/02/understanding-meteor-publications-and-subscriptions/)
+- [15 – RSS Feeds & APIs](/chapter/rss-api): Updated chapter to use Iron Router. 
+- [16 – Using External APIs](/chapter/external-api): Updated chapter to use Iron Router.
+- [17 – Implementing Intercom](/chapter/intercom): Rewrote chapter to match the [Intercom package](https://github.com/percolatestudio/meteor-intercom). 
+
+### December 1, 2013 <span class="marker version-marker">1.1</span>
+
+#### Major Updates
+
+- [5 – Routing](/chapter/routing): Rewrote chapter from scratch to use [Iron Router](https://github.com/EventedMind/iron-router).
+- [5.5 – The Session](/chapter/the-session): Added a section about Autorun. 
+- [10 – Comments](/chapter/comments): Updated chapter to use IR. 
+- [12 – Pagination](/chapter/pagination): Rewrote chapter from scratch, now managing pagination with IR.
+- [13 – Voting](/chapter/voting): Updated the chapter to use IR, simplifed the template structure. 
+
+#### Minor Updates
+
+Minor updates include API changes between the old Router and Iron Router, file paths updates, and small rewordings. 
+
+- [6 – Adding Users](/chapter/adding-users)
+- [7 – Creating Posts](/chapter/creating-posts)
+- [7.5 – Latency Compensation](/chapter/latency-compensation)
+- [8 – Editing Posts](/chapter/editing-posts)
+- [9 – Errors](/chapter/errors)
+- [11 – Notifications](/chapter/notifications)
+- [12 – Animations](/chapter/animations)
+
+If you'd like to confirm what exactly has changed, we've created a [full diff of our Markdown source files [PDF]](http://f.cl.ly/items/3C2j0z2U2q083y0A0G3O/iron-router-update-diff.pdf). 
+
+### October 4, 2013 <span class="marker version-marker">1.02</span>
+
+- Various typo fixes
+
+### September 4, 2013 <span class="marker version-marker">1.01</span>
+
+- Updated "Creating a Meteorite Package" chapter to Meteor 0.6.5
+- Updated package syntax in Intercom and API extra chapters.
+
+### May 5, 2013 <span class="marker version-marker">1.0</span>
+
+First version.

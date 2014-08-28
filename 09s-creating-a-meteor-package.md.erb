@@ -1,14 +1,18 @@
 ---
-title: Creando un paquete meteorite
-slug: creating-a-meteorite-package
+title: Creando un paquete Meteor
+slug: creating-a-meteor-package
 date: 0009/01/02
 number: 9.5
 sidebar: true
-contents: Escribiremos un paquete de Meteor para nuestra aplicación de forma local.|Escribiremos tests para nuestro paquete.|Publicaremos el paquete en el repositorio de Atmosphere.
+contents: Escribiremos un paquete de Meteor para nuestra aplicación de forma local.|Escribiremos tests para nuestro paquete.|Publicaremos el paquete en el repositorio Atmosphere.
 paragraphs: 22
 ---
 
 Durante nuestro trabajo en los errores, hemos construido un modelo reutilizable, ¿por qué no ponerlo dentro de un paquete y compartirlo con el resto de la comunidad Meteor?
+
+Para empezar, tenemos que asegurarnos de que tenemos una cuenta de desarrollador Meteor. Puedes hacerte una en meteor.com. Para continuar debes conocer tu nombre de usuario, ya que lo vamos a usar mucho en este capítulo.
+
+En este capítulo usaremos `tmeasday` como usuario -- puedes cambiarlo por el tuyo.
 
 En primer lugar, tenemos que colocar el código del paquete dentro de una estructura. Vamos a hacerlo dentro de un directorio llamado `packages/errors/`. Lo que se pone dentro del directorio `packages` se utiliza de forma automática como paquetes. (Posiblemente, ya te habrás dado cuenta de que Meteorite instala paquetes usando enlaces simbólicos dentro del directorio `packages/`).
 
@@ -16,19 +20,24 @@ En segundo lugar, dentro de nuestro nuevo directorio, crearemos `package.js`, el
 
 ~~~js
 Package.describe({
-  summary: "A pattern to display application errors to the user"
+  summary: "A pattern to display application errors to the user",
+  version: "1.0.0"
 });
 
-Package.on_use(function (api, where) {
+Package.onUse(function (api, where) {
+  api.versionsFrom('METEOR@0.9.0');
+  
   api.use(['minimongo', 'mongo-livedata', 'templating'], 'client');
 
   api.add_files(['errors.js', 'errors_list.html', 'errors_list.js'], 'client');
-
-  if (api.export)
+  
+  if (api.export) 
     api.export('Errors');
 });
 ~~~
-<%= caption "packages/errors/package.js" %>
+<%= caption "packages/tmeasday:errors/package.js" %>
+
+Cuando desarrollamos un paquete para su uso en el mundo-real, es una buena práctica rellenar la sección `Package.describe` con la URL del repositorio Git (como por ejemplo, `https://github.com/tmeasday/meteor-errors.git`). De esta manera los usuarios pueden acceder al código fuente, y (si usas GitHub) ver el readme del paquete en Atmosphere.
 
 Vamos a añadir al paquete los tres archivos que se pasan en la llamada a `add_files`. Podemos usar los mismos que tenemos para Microscope, haciendo sólo, unos pequeños cambios para los espacios de nombres y para dejar la API un poco más limpia:
 
@@ -46,7 +55,7 @@ Errors = {
 };
 
 ~~~
-<%= caption "packages/errors/errors.js" %>
+<%= caption "packages/tmeasday:errors/errors.js" %>
 
 ~~~html
 <template name="meteorErrors">
@@ -62,7 +71,7 @@ Errors = {
   </div>
 </template>
 ~~~
-<%= caption "packages/errors/errors_list.html" %>
+<%= caption "packages/tmeasday:errors/errors_list.html" %>
 
 ~~~js
 Template.meteorErrors.helpers({
@@ -78,7 +87,7 @@ Template.meteorError.rendered = function() {
   });
 };
 ~~~
-<%= caption "packages/errors/errors_list.js" %>
+<%= caption "packages/tmeasday:errors/errors_list.js" %>
 
 ### Probando el paquete con Microscope
 
@@ -159,7 +168,7 @@ Tinytest.addAsync("Errors template works", function(test, done) {
   }, 500);
 });
 ~~~
-<%= caption "packages/errors/errors_tests.js" %>
+<%= caption "packages/tmeasday:errors/errors_tests.js" %>
 
 Con estos tests comprobamos que las funciones básicas de `Meteor.Errors` funcionan correctamente, así como que el código `mostrado` en la plantilla sigue funcionando bien.
 
@@ -168,21 +177,21 @@ No vamos a cubrir los aspectos específicos sobre cómo escribir tests de paquet
 Para decirle a Meteor que ejecute los tests, añadimos éste código a `package.js`
 
 ~~~js
-Package.on_test(function(api) {
-  api.use('errors', 'client');
-  api.use(['tinytest', 'test-helpers'], 'client');
-
+Package.onTest(function(api) {
+  api.use('tmeasday:errors', 'client');
+  api.use(['tinytest', 'test-helpers'], 'client');  
+  
   api.add_files('errors_tests.js', 'client');
 });
 ~~~
-<%= caption "packages/errors/package.js" %>
+<%= caption "packages/tmeasday:errors/package.js" %>
 
 <%= scommit "9-5-2", "Tests añadidos al paquete." %>
 
 Ya podemos ejecutar los tests con:
 
 ~~~bash
-$ meteor test-packages errors
+$ meteor test-packages tmeasday:errors
 ~~~
 <%= caption "Terminal" %>
 
@@ -190,55 +199,24 @@ $ meteor test-packages errors
 
 ### Publicando el paquete
 
-Ahora, queremos liberar el paquete y ponerlo a disposición de todo el mundo. Lo haremos publicándolo en el repositorio Atmosphere.
+Ahora, queremos liberar el paquete y ponerlo a disposición de todo el mundo. Para ellom tendremos que subirlo al servidor de paquetes de Meteor y, hacerlo miembro del repositorio Atmosphere.
 
-En primer lugar, tenemos que añadir un archivo llamado `smart.json` dónde pondremos los detalles importantes del paquete para Meteorite y Atmosphere:
-
-~~~json
-{
-  "name": "errors",
-  "description": "A pattern to display application errors to the user",
-  "homepage": "https://github.com/tmeasday/meteor-errors",
-  "author": "Tom Coleman <tom@thesnail.org>",
-  "version": "0.1.0",
-  "git": "https://github.com/tmeasday/meteor-errors.git",
-  "packages": {
-  }
-}
-~~~
-<%= caption "packages/errors/smart.json" %>
-
-<%= scommit "9-5-3", "Añadido smart.json" %>
-
-Ponemos algunos metadatos con la información del paquete, incluyendo lo que hace, el repositorio git donde lo vamos a alojar, y un número de versión. Si nuestro paquete depende a su vez de otros paquetes Atmosphere, podríamos utilizar una sección `"packages"` para definir sus dependencias.
-
-Una vez que todo está en su sitio, publicarlo es fácil. Tenemos que crear un repositorio git, subirlos a un servidor, y enlazar su ubicación en `smart.json`.
-
-El proceso para hacer esto usando [GitHub](http://github.com) es crear un nuevo repositorio, y luego seguir la práctica habitual para meter el código dentro. A continuación, se utiliza el comando `mrt release` para publicarlo:
+Afortunadamente, es muy fácil. Entramos en el directorio del paquete, y ejecutamos `meteor publish --create`:
 
 ~~~bash
-$ git init
-$ git add -A
-$ git commit -m "Created Errors Package"
-$ git remote add origin https://github.com/tmeasday/meteor-errors.git
-$ git push origin master
-$ mrt release .
-Done!
+cd packages/tmeasday:errors
+meteor publish --create
 ~~~
-<%= caption "Terminal (ejecutar dentro de `packages/errors`)" %>
+<%= caption "Terminal" %>
 
-Nota: Los nombres de los paquetes tienen que ser únicos. Si utilizas el mismo nombre que otro paquete se producirá un conflicto y no funcionará. En el futuro, en Atmosphere, el nombre se construirá con el nombre del paquete seguido del autor, así que es posible que todo esto cambie.
-
-Segunda nota: Tendrás que iniciar sesión en [Atmosphere](http://atmosphere.meteor.com/accounts) y crear un usuario y usar la contraseña para llamar a `mrt release`.
-
-Ahora que hemos publicado el paquete, podemos eliminarlo del proyecto y luego añadirlo de nuevo  directamente con Meteorite:
+Ahora que hemos publicado el paquete, podemos eliminarlo del proyecto y luego añadirlo de nuevo directamente:
 
 ~~~bash
 $ rm -r packages/errors
-$ mrt add errors
+$ meteor add tmeasday:errors
 ~~~
 <%= caption "Terminal (ejecutar desde el directorio raíz de la aplicación)" %>
 
 <%= scommit "9-5-4", "Paquete eliminado del árbol de desarrollo." %>
 
-Ahora debemos ver a Meteorite descargar nuestro paquete por primera vez. ¡Bien hecho!
+Ahora debemos ver a Meteor descargar nuestro paquete por primera vez. ¡Bien hecho!
