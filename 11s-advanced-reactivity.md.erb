@@ -4,7 +4,7 @@ slug: advanced-reactivity
 date: 0011/01/02
 number: 11.5
 sidebar: true
-contents: Aprenderemos a crear fuentes de datos reactivas.|Crearemos un sencillo ejemplo de una fuente de datos reactiva.|Compararemos  Deps con AngularJS.
+contents: Aprenderemos a crear fuentes de datos reactivas.|Crearemos un sencillo ejemplo de una fuente de datos reactiva.|Compararemos Tracker con AngularJS.
 paragraphs: 29
 ---
 
@@ -54,7 +54,7 @@ Para transformar nuestra variable `currentLikeCount` en una fuente de datos reac
 
 ~~~js
 var _currentLikeCount = 0;
-var _currentLikeCountListeners = new Deps.Dependency();
+var _currentLikeCountListeners = new Tracker.Dependency();
 
 currentLikeCount = function() {
   _currentLikeCountListeners.depend();
@@ -80,7 +80,7 @@ Lo que hemos hecho es configurar una dependencia `_currentLikeCountListeners`, q
 
 Estas computaciones pueden entonces seguir adelante y evaluar los cambios caso por caso.
 
-### Comparando Deps con Angular
+### Comparando Tracker con Angular
 
 [Angular](http://angularjs.org/) es una librería de renderizado reactivo del lado del cliente, desarrollada por la buena gente de Google. Sólo se puede comparar el seguimiento de dependencias de Meteor con el de Angular de un modo ilustrativo, ya que sus enfoques son bastante diferentes.
 

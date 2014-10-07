@@ -24,7 +24,7 @@ La sesión es un almacén global de datos reactivo. Es global en el sentido de q
 
 ### Modificando la Sesión
 
-La sesión está disponible en todas partes como `Session`. Para establecer un valor en la sesión, puedes llamar a:
+La sesión está disponible en todas partes en el cliente como el objeto `Session`. Para establecer un valor en la sesión, puedes llamar a:
 
 ~~~js
 ❯ Session.set('pageTitle', 'A different title');
@@ -84,12 +84,12 @@ helloWorld = function() {
 
 A pesar de que llamamos a una variable de sesión, el *contexto* en el que se hace no es reactivo, lo que significa que no vamos a ver `alerts` cada vez que cambia su valor.
 
-Aquí es dónde entra en juego [Autorun](http://docs.meteor.com/#deps_autorun). Como su nombre indica, el código dentro de un bloque `autorun` se ejecutará automáticamente cada vez que cambien las fuentes de datos reactivas utilizadas dentro.
+Aquí es dónde entra en juego [Autorun](http://docs.meteor.com/#Tracker_autorun). Como su nombre indica, el código dentro de un bloque `autorun` se ejecutará automáticamente cada vez que cambien las fuentes de datos reactivas utilizadas dentro.
 
 Prueba a escribir esto en la consola del navegador:
 
 ~~~js
-❯ Deps.autorun(function() {
+❯ Tracker.autorun(function() {
   console.log('Value is: ' + Session.get('pageTitle'));
 });
 Value is: A brand new title
@@ -109,7 +109,7 @@ Magia! Al cambiar el valor, `autorun` sabe que tiene que ejecutar su contenido d
 Volviendo a nuestro ejemplo anterior, si queremos activar una nueva alerta cada vez que cambien variables de sesión, lo único que tenemos que hacer es envolver nuestro código en un bloque `autorun`:
 
 ~~~js
-Deps.autorun(function() {
+Tracker.autorun(function() {
   alert(Session.get('message'));
 }
 ~~~
@@ -154,5 +154,7 @@ Hemos perdido la sesión. En un HCR, Meteor guarda la sesión en el almacenamien
 
 Las lecciones más importantes en todo esto son:
 
-1. Guarda siempre el estado en la sesión o en la URL para no molestar mucho  a los usuarios cuando ocurre una recarga en caliente.
-2. Almacenar cualquier estado que deba estar compartido entre usuarios *dentro de la propia URL*.
+1. Guarda siempre el estado en la sesión o en la URL para no molestar mucho a los usuarios cuando ocurre una recarga en caliente.
+2. Almacena cualquier estado que deba estar compartido entre usuarios *dentro de la propia URL*.
+
+Por cierto, recuerda que los capítulos extra como éste no son parte del recorrido principal del libro. Así que antes de pasar al siguiente capítulo, asegúrate de deshacer los cambios de este capítulo.

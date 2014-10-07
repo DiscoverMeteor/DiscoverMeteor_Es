@@ -192,7 +192,7 @@ Y añadir el ayudante `commentsCount` a nuestro gestor:
 ~~~js
 Template.postItem.helpers({
   ownPost: function() {
-    return this.userId == Meteor.userId();
+    return this.userId === Meteor.userId();
   },
   domain: function() {
     var a = document.createElement('a');
@@ -451,6 +451,3 @@ Finalmente, tenemos que eliminar el ayudante `commentsCount` de `client/views/po
 <%= commit "10-5", "Denormalizando el número de comentarios." %>
 
 Ahora que los usuarios pueden hablar entre sí, sería una lástima que se perdieran los nuevos comentarios de otros usuarios. En el siguiente capítulo veremos cómo implementar ¡notificaciones!.
-
-
-

@@ -33,7 +33,7 @@ Empezaremos creando el archivo `main.html` dentro del directorio `client`, relle
 ~~~
 <%= caption "client/main.html" %>
 
-Esta será la plantilla principal de la aplicación. Como se puede ver, todo es HTML excepto `{{> postsList}}`, que es un punto de inserción de la plantilla `postsList`, como veremos más adelante. Por ahora, vamos a crear un par de plantillas más.
+Esta será la plantilla principal de la aplicación. Como se puede ver, todo es HTML excepto el tag `{{> postsList}}`, que es un punto de inserción de la plantilla `postsList`, como veremos más adelante. Por ahora, vamos a crear un par de plantillas más.
 
 ### Las plantillas en Meteor
 
@@ -79,9 +79,9 @@ Y `post_item.html`:
 
 Fíjate en el atributo `name="postsList"` porque éste será el nombre que Meteor usará para sincronizar los datos que contiene la plantilla.
 
-Es el momento de introducir Spacebars el sistema de plantillas de Meteor. Spacebars es simple HTML mas tres cosas: plantillas parciales (*partials*), expresiones (*expressions*) y bloques de ayuda (*block helpers*).
+Es el momento de introducir Spacebars el sistema de plantillas de Meteor. Spacebars es simple HTML mas tres cosas: inclusiones (tambien llamadas *partials* o *plantillas parciales*), expresiones (*expressions*) y bloques de ayuda (*block helpers*).
 
-Las *plantillas parciales* usan la sintaxis `{{> templateName}}` y simplemente le dicen a Meteor que reemplace la plantilla parcial por la plantilla del mismo nombre (en nuestro caso `postItem`).
+Las *inclusiones* usan la sintaxis `{{> templateName}}` y simplemente le dicen a Meteor que reemplace la inclusión por la plantilla del mismo nombre (en nuestro caso `postItem`).
 
 Las *expresiones* como `{{title}}` pueden, o bien llamar a una propiedad del objeto actual o bien, al valor de retorno de un ayudante (*helper*) como el que definiremos para nuestro gestor de plantilla más adelante.
 

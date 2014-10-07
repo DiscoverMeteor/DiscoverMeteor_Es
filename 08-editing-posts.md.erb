@@ -162,7 +162,7 @@ Por supuesto, no queremos que se muestre un enlace a editar en un post que no ha
 ~~~js
 Template.postItem.helpers({
   ownPost: function() {
-    return this.userId == Meteor.userId();
+    return this.userId === Meteor.userId();
   },
   domain: function() {
     var a = document.createElement('a');
@@ -264,5 +264,7 @@ Las llamadas a métodos son más apropiadas en algunos otros casos:
 - Cuando necesitamos conocer o devolver valores a través de un callback en lugar de esperar a que Meteor propague la sincronización.
 - Para consultas pesadas a la base de datos.
 - Para resumir o agregar datos (por ejemplo, contadores, promedios, sumas).
+
+Para conocer más a fondo este tema [echa un vistazo a nuestro blog](https://www.discovermeteor.com/blog/meteor-methods-client-side-operations/).
 
 <% end %>

@@ -90,11 +90,11 @@ $ meteor add bootstrap
 
 Al hablar acerca de los paquetes en el contexto de Meteor, vale la pena ser específico. Meteor puede usar cinco tipos de paquetes distintos:
 
-- Los **core packages** son los paquetes que componen Meteor y probablemente nunca tengas que preocuparte por ellos.
-- Los **smart packages** de Meteor son [un grupo de 37 paquetes](http://docs.meteor.com/#packages) incluidos en Meteor `meteor list` e instalables con `meteor add`.
-- Los **local packages** son nuestros propios paquetes ubicados en `/packages`.
-- Los **atmosphere smart packages** son paquetes de terceros listados en [Atmosphere](http://atmosphere.meteor.com/).
-- Los **NPM packages** (Node.js Packaged Modules) son paquetes de node que pueden necesitar los anteriores.
+- El mismo núcleo de Meteor está dividido en diferentes paquetes. Esto son los que llamamos **Meteor platform packages**. Están incluidos en cada app y probablemente nunca tengas que preocuparte por ellos.
+- Los paquetes ordinarios se conocen como "**isopacks**", o paquetes isomórficos (paquetes que funcionan en los dos lados, cliente y servidor). Los paquetes **First-party**, como `accounts-ui` o `appcache`, están mantenidos por los desarrolladores de Meteor y [vienen incluidos en Meteor](http://docs.meteor.com/#packages).
+- Los **Third-party packages** o paquetes de terceros, son isopacks que otros usuarios han subido al al servidor de paquetes de Meteor. Puedes echarles un vistazo en [Atmosphere](http://atmosphere.meteor.com) o con el comando `meteor search`.
+- Los **Local packages** o paquetes locales, son nuestros propios paquetes ubicados en el directorio `/packages`.
+- Los **NPM packages** (Node.js Packaged Modules) son paquetes de Node.js. A pesar de que no funcionan por defecto con Meteor, *pueden* ser utilizados por los anteriores tipos de paquetes.
 
 <% end %>
 
@@ -102,7 +102,7 @@ Al hablar acerca de los paquetes en el contexto de Meteor, vale la pena ser espe
 
 Antes de empezar a escribir código debemos estructurar de forma adecuada nuestro proyecto. Para asegurarte de que dispones de un entorno limplio y claro, abre el directorio `microscope` y borra los archivos `microscope.html`, `microscope.js`, y `microscope.css`.
 
-A continuación, crea cinco directorios dentro de `microscope`: `/client`, `/server`, `/public`, `/lib`, y `/collections`. Dentro de `/client` crearemos también los archivos vacíos `main.html` y `main.js`. Por ahora, no te preocupes si esto rompe completamente la app, empezaremos a rellenar los nuevos ficheros en el siguiente capítulo.
+A continuación, crea cinco directorios dentro de `microscope`: `/client`, `/server`, `/public`, `/lib`, y `/collections`. Dentro de `/client` crearemos también los archivos vacíos `main.html` y `main.js`. Por ahora, no te preocupes si esto rompe completamente la app, empezaremos a rellenar los nuevos ficheros en el siguiente capítulo. A pesar de que no funcionan fuera de la caja con el Meteor, que * puede * ser utilizados por los anteriores tipos de paquetes.
 
 Debemos mencionar que algunos de los directorios que hemos creado son especiales y Meteor tiene reglas para ellos:
 
