@@ -3,6 +3,9 @@ title: Animaciones
 slug: animations
 date: 0014/01/01
 number: 14
+points: 10
+photoUrl: http://www.flickr.com/photos/ikewinski/8377615133/
+photoAuthor: Mike Lewinski
 contents: "Veremos lo que pasa entre bastidores cuando Meteor cambia un elemento del DOM.|Aprenderemos a animar la reordenación de posts.|Aprenderemos a animar la inserción de nuevos posts."
 paragraphs: 58
 ---
@@ -57,7 +60,6 @@ De nuevo, en los pasos 3 y 4 no estamos *animando* A y B' hasta sus posiciones s
 Afortunadamente, Meteor se ocupa de los pasos 1 y 2, así que sólo tendremos que preocuparnos de los pasos 3 al 6.
 
 Por otra parte, en los pasos 5 y 6 todo lo que estamos haciendo es moviendo los elementos a su lugar correcto. Así que la única parte que realmente necesita de nuestra atención son los pasos 3 y 4, es decir, el envío de los elementos al punto de inicio de la animación.
-
 
 ### Control del tiempo
 
@@ -126,19 +128,14 @@ Así que, en vez de eso, insertaremos `rank` en el último paso posible, el gest
 ~~~js
 Template.postsList.helpers({
   postsWithRank: function() {
-    this.posts.rewind();
     return this.posts.map(function(post, index, cursor) {
       post._rank = index;
       return post;
     });
-  },
-  hasMorePosts: function(){
-    this.posts.rewind();
-    return Router.current().limit() == this.posts.fetch().length;
   }
 });
 ~~~
-<%= caption "/client/views/posts/posts_list.js" %>
+<%= caption "/client/templates/posts/posts_list.js" %>
 <%= highlight "2~8" %>
 
 En vez de devolver el cursor `Posts.find({}, {sort: {submitted: -1}, limit: postsHandle.limit()})` como en los otros ayudantes, `postsWithRank` coge el cursor y le añade la propiedad `_rank` a cada uno de sus documentos.
@@ -152,27 +149,15 @@ No olvidemos actualizar también la plantilla `postsList`:
       {{> postItem}}
     {{/each}}
 
-    {{#if hasMorePosts}}
+    {{#if nextPath}}
       <a class="load-more" href="{{nextPath}}">Load more</a>
     {{/if}}
   </div>
 </template>
 ~~~
-<%= caption "/client/views/posts/posts_list.html" %>
+<%= caption "/client/templates/posts/posts_list.html" %>
 
 <%= highlight "3" %>
-
-<% note do %>
-
-### Está bien, rebobinemos
-
-Meteor es uno de los frameworks más vanguardistas y con más visión de futuro. Pero una de sus características te hace sentir como si volvieras a la época de las cintas de vídeo: la función `rewind()`.
-
-Siempre que utilices un cursor con `forEach()`, `map()` o `fetch()`, tendrás que rebobinar el cursor antes de que esté listo para usarse de nuevo.
-
-Así que en algunos casos, es más seguro hacerlo de forma preventiva en lugar de arriesgarse a introducir un bug.
-
-<% end %>
 
 ### Uniéndolo todo
 
@@ -186,7 +171,7 @@ Dado que nuestra animación tendrá efecto en las clases y atributos CSS del DOM
 
 </template>
 ```
-<%= caption "/client/views/posts/post_item.html" %>
+<%= caption "/client/templates/posts/post_item.html" %>
 <%= highlight "2" %>
 
 Usando el ayudante `{{attributes}}` de esta manera, habilitamos además una característica escondida de Spacebars: cualquier propiedad devuelta por los atributos del objeto se mapea en los atributos HTML del elemento del DOM (como `class`, `style`, etc.)
@@ -224,7 +209,7 @@ Template.postItem.helpers({
 
 //..
 ~~~
-<%= caption "/client/views/posts/post_item.js" %>
+<%= caption "/client/templates/posts/post_item.js" %>
 <%= highlight "1~2, 8~26" %>
 
 Primero establecemos la altura de cada elemento del DOM, en otras palabras, nuestros divs `.post`. Esto presenta el inconveniente obvio de que cualquier cambio en esta altura (por ejemplo, un título de una entrada que ocupe dos líneas) romperá toda nuestra lógica de animación. Pero por el bien de mantener las cosas simples, por ahora, vamos a suponer que todos los posts tendrán exactamente 80 píxeles de alto.
@@ -282,7 +267,6 @@ Y esto es lo que sucede cuando se detecta un upvote:
 
 Ahora abre el sitio y empieza a votar. ¡Deberías ver mensajes moviendose suavemente hacia arriba y hacia abajo elegantamente como en un ballet!
 
-
 <%= commit "14-1", "Añadida la animación de los posts al reordenarse." %>
 
 ### Animando los nuevos posts
@@ -315,13 +299,12 @@ attributes: function() {
 
 //..
 ~~~
-<%= caption "/client/views/posts/post_item.js" %>
+<%= caption "/client/templates/posts/post_item.js" %>
 <%= highlight "8~10" %>
 
 Lo que estamos haciendo aquí es aislar el caso **(A)** y añadir la clase CSS `invisible` para el elemento. Cuando se vuelvan a ejecutar los ayudantes de forma reactiva y el elemento obtenga la clase `animate` en su lugar, se animará la diferencia en la opacidad y hará aparecer suavemente el elemento.
 
 <%= commit "14-2", "Hacer aparecer los posts cuando se introducen." %>
-
 
 <% note do %>
 

@@ -3,9 +3,13 @@ title: Paginación
 slug: pagination
 date: 0012/01/01
 number: 12
+points: 10
+photoUrl: http://www.flickr.com/photos/ikewinski/8625379401/
+photoAuthor: Mike Lewinski
 contents: "Aprenderemos más sobre las suscripciones y cómo usarlas para controlar los datos.|Implementaremos la paginación de estilo infinito|Usaremos el paquete iron-router-progress para implementar una bonita barra de progreso al estilo iOS.|Crearemos una suscripción especial para tratar con los enlaces a las páginas de posts."
 paragraphs: 67
 ---
+
 
 Nuestra aplicación va tomando forma y podemos esperar una gran éxito cuando salga al mercado.
 
@@ -30,7 +34,7 @@ if (Posts.find().count() === 0) {
     userId: tom._id,
     author: tom.profile.name,
     url: 'http://themeteorbook.com',
-    submitted: now - 12 * 3600 * 1000,
+    submitted: new Date(now - 12 * 3600 * 1000),
     commentsCount: 0
   });
 
@@ -40,7 +44,7 @@ if (Posts.find().count() === 0) {
       author: sacha.profile.name,
       userId: sacha._id,
       url: 'http://google.com/?q=test-' + i,
-      submitted: now - i * 3600 * 1000,
+      submitted: new Date(now - i * 3600 * 1000),
       commentsCount: 0
     });
   }
@@ -49,7 +53,7 @@ if (Posts.find().count() === 0) {
 <%= caption "server/fixtures.js" %>
 <%= highlight "15~24" %>
 
-Después de ejecutar `meteor reset` deberíamos ver algo como esto:
+Después de ejecutar `meteor reset` e iniciar la aplicación de nuevo, deberíamos ver algo como esto:
 
 <%= screenshot "12-1", "Mostrando un montón de datos." %>
 
@@ -73,6 +77,7 @@ En primer lugar, vamos a dejar de suscribirnos a la publicación `posts` en el b
 Router.configure({
   layoutTemplate: 'layout',
   loadingTemplate: 'loading',
+  notFoundTemplate: 'notFound',
   waitOn: function() {
     return [Meteor.subscribe('notifications')]
   }
@@ -84,24 +89,31 @@ Router.configure({
 A continuación, añadiremos el parámetro `postsLimit` al path de la ruta. Si añadimos un `?` después del parámetro, lo hacemos opcional. De forma que  nuestra ruta no sólo coincidirá con `http://localhost:3000/50`, sino también con `http://localhost:3000`.
 
 ~~~js
+//...
+
 Router.map(function() {
   //...
 
   this.route('postsList', {
     path: '/:postsLimit?'
   });
+
 });
+
+//...
 ~~~
 <%= caption "lib/router.js" %>
-<%= highlight "5" %>
+<%= highlight "7" %>
 
 Es importante señalar que un path de la forma `/:parameter?` coincide con todos los path posibles. Dado que cada ruta se analiza en orden secuencial para comprobar si coincide con la ruta actual, tenemos que asegurarnos que organizamos bien nuestras rutas con el fin de disminuir la especificidad.
 
-En otras palabras, las rutas más específicas como `/posts/:_id` deben ir primero en el código, y nuestra ruta `postsList` debería ir en la parte inferior del archivo, ya que más o menos coincide con todo.
+En otras palabras, las rutas más específicas como `/posts/:_id` deben ir primero en el código, y nuestra ruta `postsList` debería ir **en la parte inferior** del bloque `Router.map()` para que todo conincida correctamente.
 
 Es el momento de abordar el difícil problema de suscribirse y encontrar los datos correctos. Tenemos que lidiar con el caso en el que el parámetro `postsLimit` no está presente, por lo que vamos a asignarle un valor predeterminado. Usaremos "5", que nos dará suficiente espacio para jugar con la paginación.
 
 ~~~js
+//...
+
 Router.map(function() {
   //..
 
@@ -113,18 +125,25 @@ Router.map(function() {
     }
   });
 });
+
+//...
 ~~~
 <%= caption "lib/router.js" %>
 <%= highlight "6~9" %>
 
-Ya te habrás dado cuenta que estamos pasando un objeto JavaScript `({limit: postsLimit})` junto con el nombre de nuestra publicación `posts`. Este objeto servirá como parámetro `options` en la llamada a `Posts.find()` en el lado del servidor. Vamos a cambiar nuestro código en el servidor para implementarlo:
+Ya te habrás dado cuenta que estamos pasando un objeto JavaScript ({sort: {submitted: -1}, limit: postsLimit}) junto con el nombre de nuestra publicación `posts`. Este objeto servirá como parámetro `options` en la llamada a `Posts.find()` en el lado del servidor. Vamos a cambiar nuestro código en el servidor para implementarlo:
 
 ~~~js
 Meteor.publish('posts', function(options) {
+  check(options, {
+    sort: Object,
+    limit: Number
+  });
   return Posts.find({}, options);
 });
 
 Meteor.publish('comments', function(postId) {
+  check(postId, String);
   return Comments.find({postId: postId});
 });
 
@@ -133,7 +152,7 @@ Meteor.publish('notifications', function() {
 });
 ~~~
 <%= caption "server/publications.js" %>
-<%= highlight "1~3" %>
+<%= highlight "1~7" %>
 
 <% note do %>
 
@@ -141,11 +160,11 @@ Meteor.publish('notifications', function() {
 
 Nuestro código de publicaciones está diciendo al servidor que puede confiar en cualquier objeto JavaScript enviado por el cliente (en nuestro caso, `{limit: postsLimit})` para servir como opciones para `find()`. Esto hace posible que los usuarios envíen cualquier opción a través de la consola del navegador.
 
-En nuestro caso, esto es relativamente inofensivo, ya que todo lo que un usuario podría hacer es reordenar los mensajes de manera diferente, o cambiar el límite (que es lo que queremos hacer).
+En nuestro caso, esto es relativamente inofensivo, ya que todo lo que un usuario podría hacer es reordenar los mensajes de manera diferente, o cambiar el límite (que es lo que queremos hacer). ¡De todas formas una aplicación del mundo real debería probablemente limitar el límite!
 
-Pero no debes utilizar este modelo para almacenar datos privados en campos no publicados, ya que el usuario puede manipular los campos para acceder a ellos. Además también deberías evitar usarlo para el argumento de selección del `find()` por las mismas razones de seguridad.
+Afortunadamente, usando `check()` sabemos que los usuarios no podrán inyectar opciones adicionales (como la opción `fields`, que en algunos casos podría exponer datos privados en los documentos).
 
-Un patrón más seguro para asegurarnos el control de nuestros datos podría ser pasar los parámetros de forma individual en lugar de todo el objeto:
+De todas formas, un patrón más seguro para asegurarnos el control de nuestros datos podría ser pasar los parámetros de forma individual en lugar de todo el objeto:
 
 ~~~js
 Meteor.publish('posts', function(sort, limit) {
@@ -160,8 +179,10 @@ Ahora que nos suscribimos a nivel de ruta, tiene sentido establecer el contexto 
 Lo que significa es que en lugar de disponer implícitamente de los datos en `this` dentro de la plantilla, estará disponible también como `posts`. Aparte de este pequeño elemento, el código debe sernos familiar:
 
 ~~~js
+//...
+
 Router.map(function() {
-  //..
+  //...
 
   this.route('postsList', {
     path: '/:postsLimit?',
@@ -177,9 +198,11 @@ Router.map(function() {
     }
   });
 });
+
+//...
 ~~~
 <%= caption "lib/router.js" %>
-<%= highlight "10~15" %>
+<%= highlight "12~17" %>
 
 Ahora que hemos establecido el contexto de datos a nivel de router podemos deshacernos del ayudante de plantilla `posts` del archivo `posts_list.js`. Y como hemos llamado `posts` al contexto de datos (igual que en el ayudante), ¡ni siquiera necesitamos tocar la plantilla `postsList`!
 
@@ -189,6 +212,7 @@ Recapitulemos. Así es como ha quedado nuestro `router.js`:
 Router.configure({
   layoutTemplate: 'layout',
   loadingTemplate: 'loading',
+  notFoundTemplate: 'notFound',
   waitOn: function() {
     return [Meteor.subscribe('notifications')]
   }
@@ -211,6 +235,8 @@ Router.map(function() {
     }
   });
 });
+
+//...
 ~~~
 <%= caption "lib/router.js" %>
 <%= highlight "5, 11~21" %>
@@ -252,14 +278,16 @@ Te habrás dado cuenta que repetimos dos veces la línea `var limit = parseInt(t
 Introduciremos un nuevo aspecto de Iron Router, los _controladores de ruta_. Un controlador de ruta es simplemente una forma de agrupar en un paquete reutilizable, características de enrutamiento que puede heredar cualquier ruta. Ahora sólo lo utilizaremos para una sola ruta, pero en el próximo capítulo veremos que esta característica es muy útil.
 
 ~~~js
+//...
+
 PostsListController = RouteController.extend({
   template: 'postsList',
   increment: 5,
-  limit: function() {
+  postsLimit: function() {
     return parseInt(this.params.postsLimit) || this.increment;
   },
   findOptions: function() {
-    return {sort: {submitted: -1}, limit: this.limit()};
+    return {sort: {submitted: -1}, limit: this.postsLimit()};
   },
   waitOn: function() {
     return Meteor.subscribe('posts', this.findOptions());
@@ -279,6 +307,7 @@ Router.map(function() {
 });
 ~~~
 <%= caption "lib/router.js" %>
+<%= highlight "3~18, 25" %>
 
 Vamos a verlo paso a paso. En primer lugar, creamos nuestro controlador extendiendo `RouteController`. A continuación, establecemos la propiedad `template` tal y como hicimos antes, y luego una nueva propiedad  `increment`.
 
@@ -286,7 +315,7 @@ A continuación, definimos una nueva función `limit` que devolverá el límite 
 
 A continuación, definimos nuestras funciones `waitOn` y de `data` igual que antes, excepto que ahora usan la nueva función `findOptions`.
 
-Lo último es decirle a la ruta `postsList` que use el nuevo controlador con la propiedad `controller`.
+Lo último es decirle a la ruta `postsList` que use el nuevo controlador con la propiedad `controller` (eliminando las opciones `data` y `waitOn` en el proceso).
 
 <%= commit "12-3", "postLists refactorizado en un controlador de rutas" %>
 
@@ -299,14 +328,16 @@ Lo que queremos hacer es bastante simple. Vamos a añadir un botón "Load more" 
 Al igual que antes, vamos a añadir nuestra lógica de paginación en la ruta. ¿Recuerdas que nombramos explícitamente el contexto de datos en lugar de usar un cursor anónimo? Bueno, pues no hay ninguna regla que diga que la función `data` sólo puede pasar cursores, de modo que usaremos la misma técnica para generar la URL del botón "Load more".
 
 ~~~js
+//...
+
 PostsListController = RouteController.extend({
   template: 'postsList',
   increment: 5,
-  limit: function() {
+  postsLimit: function() {
     return parseInt(this.params.postsLimit) || this.increment;
   },
   findOptions: function() {
-    return {sort: {submitted: -1}, limit: this.limit()};
+    return {sort: {submitted: -1}, limit: this.postsLimit()};
   },
   waitOn: function() {
     return Meteor.subscribe('posts', this.findOptions());
@@ -315,17 +346,19 @@ PostsListController = RouteController.extend({
     return Posts.find({}, this.findOptions());
   },
   data: function() {
-    var hasMore = this.posts().count() === this.limit();
-    var nextPath = this.route.path({postsLimit: this.limit() + this.increment});
+    var hasMore = this.posts().count() === this.postsLimit();
+    var nextPath = this.route.path({postsLimit: this.postsLimit() + this.increment});
     return {
       posts: this.posts(),
       nextPath: hasMore ? nextPath : null
     };
   }
 });
+
+//...
 ~~~
 <%= caption "lib/router.js" %>
-<%= highlight "13~15,17~22" %>
+<%= highlight "15~25" %>
 
 Echemos un vistazo en profundidad a este pequeño truco de magia que hemos puesto en el router. Recuerda que la ruta `postsList` (que se hereda del controlador `PostsListController` con el que estamos trabajando) toma un parámetro `postsLimit`.
 
@@ -360,7 +393,7 @@ Todo lo que queda por hacer es añadir el botón "Load more" en la parte inferio
   </div>
 </template>
 ~~~
-<%= caption "client/views/posts/posts_list.html" %>
+<%= caption "client/templates/posts/posts_list.html" %>
 <%= highlight "7~10" %>
 
 Así es como se debería ver la lista ahora:
@@ -369,27 +402,26 @@ Así es como se debería ver la lista ahora:
 
 <%= commit "12-4", "Añadido nextPath() al controlador para desplazarnos por la lista de posts" %>
 
-### Mejorando la barra de progreso
+### Mejorando la experiencia de usuario
 
 La paginación funciona correctamente, pero tiene una peculiaridad algo molesta: cada vez que se hace clic en "Load more" y el router pide más posts, nos envía a plantilla de la carga mientras esperamos los nuevos datos. El resultado es que cada vez, nos envía a la parte superior de la página y tenemos que desplazarnos hasta el final para reanudar la navegación.
 
-Sería mucho mejor si pudiéramos quedarnos en la misma página durante toda la operación, y ofrecer algún tipo de indicación de que se están cargando nuevos datos. Afortunadamente, eso es precisamente lo que hace el paquete `iron-router-progress`.
+Así que primero, tenemos que decirle a Iron Router que no espere (`waitOn`) las subscripción. En su lugar, nos subscribiremos en el hook `onBeforeAction`.
 
-Al igual que en el Safari de iOS o sitios como Medium y YouTube, el paquete `iron-router-progress` agrega una barra de carga delgada en la parte superior de la pantalla. La implementación es tan fácil como añadir el paquete a la aplicación:
-
-~~~bash
-meteor add iron-router-progress
-~~~
-<%= caption "Terminal" %>
-
-Gracias a la magia de los paquetes inteligentes, ¡el nuevo indicador de progreso funcionará nada más instalarlo! La barra de progreso se activará para cada ruta, y se completará automáticamente una vez que los datos requeridos de la ruta se hayan cargado.
-
-Dado que deseamos mostrar la lista de posts, aún cuando naveguemos entre páginas, no queremos que el hook se ejecute para las páginas `PostListController` -- podemos hacer esto eliminando espera a la  suscripción:
+También estamos pasando una variable `ready` que hace referencia a `this.postsSub.ready` como parte de nuestro contexto de datos. Esto le dirá a la plantilla cuando la subscripción de los posts ha terminado de cargar.
 
 ~~~js
+//...
+
 PostsListController = RouteController.extend({
-  // ...
-  
+  template: 'postsList',
+  increment: 5,
+  postsLimit: function() {
+    return parseInt(this.params.postsLimit) || this.increment;
+  },
+  findOptions: function() {
+    return {sort: {submitted: -1}, limit: this.postsLimit()};
+  },
   onBeforeAction: function() {
     this.postsSub = Meteor.subscribe('posts', this.findOptions());
   },
@@ -397,29 +429,30 @@ PostsListController = RouteController.extend({
     return Posts.find({}, this.findOptions());
   },
   data: function() {
-    var hasMore = this.posts().count() === this.limit();
+    var hasMore = this.posts().count() === this.postsLimit();
+    var nextPath = this.route.path({postsLimit: this.postsLimit() + this.increment});
     return {
       posts: this.posts(),
       ready: this.postsSub.ready,
-      nextPath: hasMore ? this.nextPath() : null
+      nextPath: hasMore ? nextPath : null
     };
   }
 });
+
+//...
 ~~~
 <%= caption "lib/router.js" %>
-<%= highlight "3~5,13" %>
+<%= highlight "12~14, 23" %>
 
-En lugar de suscribirnos en un `waitOn`, nos suscribiremos en un hook `onBeforeAction`, manteniendo en `this.postsSub`, una referencia al manejador de la suscripción que podremos usar en la plantilla.
-
-A continuación en la plantilla, cuando estamos cargando un nuevo conjunto de posts, podemos mostrar una rueda de espera (spinner) en la parte inferior de la lista comprobando el estado de la suscripción (ready):
+Comprobaremos esta variable `ready` en la plantilla para mostrar un spinner al final de la lista de posts mientras estemos cargando el nuevo conjunto de posts:
 
 ~~~html
 <template name="postsList">
   <div class="posts">
-    {{#each postsWithRank}}
+    {{#each posts}}
       {{> postItem}}
     {{/each}}
-    
+
     {{#if nextPath}}
       <a class="load-more" href="{{nextPath}}">Load more</a>
     {{else}}
@@ -430,36 +463,10 @@ A continuación en la plantilla, cuando estamos cargando un nuevo conjunto de po
   </div>
 </template>
 ~~~
-<%= caption "client/views/posts/posts_list.html" %>
+<%= caption "client/templates/posts/posts_list.html" %>
 <%= highlight "10~12" %>
 
-
-Sólo utilizaremos un pequeño truco. Vamos a desactivar `iron-router-progress` para la ruta `postSubmit` ya que esta ruta no tiene que esperar datos (después de todo, es sólo un formulario vacío):
-
-~~~js
-Router.map(function() {
-
-  //...
-
-  this.route('postSubmit', {
-    path: '/submit',
-    disableProgress: true
-  });
-});
-~~~
-<%= caption "lib/router.js" %>
-<%= highlight "7" %>
-
-<%= commit "12-5", "Usando el paquete `iron-router-progress` para mejorar la paginacion." %>
-
-*Nota del traductor:*
-
-*Podríamos deshabilitar también la barra de progreso para la ruta `postEdit`.*
-
-    this.route('postEdit', {
-      path: '/posts/:_id/edit',
-      disableProgress: true
-    });
+<%= commit "12-5", "Añadir un spinner para hacer la pagición mas atractiva." %>
 
 ### Accediendo a cualquier post
 
@@ -467,11 +474,11 @@ Por defecto, cargamos los cinco últimos posts, pero ¿qué pasa si vamos a la p
 
 <%= screenshot "12-4", "Una plantilla vacía." %>
 
-Si lo pruebas, verás que sólo hay una plantilla vacía. En realidad, tiene sentido: le hemos dicho al router que se suscriba a la publicación `posts` cuando carga la ruta `postsList`, pero no le hemos dicho qué debe hacer con la ruta `postpage`.
+Si lo pruebas, se mostrará un error "no encontrado". En realidad, tiene sentido: le hemos dicho al router que se suscriba a la publicación `posts` cuando carga la ruta `postsList`, pero no le hemos dicho qué debe hacer con la ruta `postpage`.
 
 Pero hasta el momento, lo único que sabemos es suscribirnos a una lista de los `n` últimos posts. ¿Cómo pedimos al servidor un solo post? Te contaré un pequeño secreto: ¡podemos usar más de una publicación para cada colección!
 
-Así que para volver a ver los posts perdidos, haremos una nueva publicación `singlePost` que sólo publica un post, identificado por `_id`.
+Así que para volver a ver los posts perdidos, crearemos una nueva y separada publicación `singlePost` que sólo publica un post, identificado por `_id`.
 
 ~~~js
 Meteor.publish('posts', function(options) {
@@ -479,8 +486,11 @@ Meteor.publish('posts', function(options) {
 });
 
 Meteor.publish('singlePost', function(id) {
-  return id && Posts.find(id);
+  check(id, String)
+  return Posts.find(id);
 });
+
+//...
 ~~~
 <%= caption "server/publications.js" %>
 <%= highlight "5~7" %>
@@ -488,6 +498,8 @@ Meteor.publish('singlePost', function(id) {
 Ahora, vamos a suscribirnos a los posts correctos en el lado del cliente. Ya estamos suscritos a la publicación `comments` en la función `waitOn` de la ruta `postPage`, por lo que simplemente podemos añadir ahí la suscripción a `singlePost`. Sin olvidarnos de añadir la suscripción a la ruta `postEdit`, que también necesita los mismos datos:
 
 ~~~js
+//...
+
 Router.map(function() {
 
   //...
@@ -511,13 +523,15 @@ Router.map(function() {
     data: function() { return Posts.findOne(this.params._id); }
   });
 
-  /...
+  //...
 
 });
+
+//...
 ~~~
 <%= caption "lib/router.js" %>
-<%= highlight "7~12,18~20" %>
+<%= highlight "9~14,20~22" %>
 
 <%= commit "12-6"," Usando una sola suscripción a los posts para asegurarnos de que siempre se puede ver y editar el post correcto." %>
 
-Terminada la paginación, nuestra aplicación ya no sufre de problemas de escalado, y los usuarios pueden contribuir con muchos más posts. ¿No estaría bien tener una forma de clasificarlos? Este es precisamente el tema del siguiente capítulo, los *votos*.
+Terminada la paginación, nuestra aplicación ya no sufre de problemas de escalado, y los usuarios pueden contribuir con muchos más enlaces que antes. ¿No estaría bien tener una forma de clasificarlos? Si no lo sabías, ¡este es precisamente el tema del siguiente capítulo!.
