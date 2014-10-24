@@ -3,6 +3,9 @@ title: Notificaciones
 slug: notifications
 date: 0011/01/01
 number: 11
+points: 10
+photoUrl: http://www.flickr.com/photos/ikewinski/8719868039/
+photoAuthor: Mike Lewinski
 contents: "Añadiremos una colección para notificar acciones de otros usuarios.|Aprenderemos cómo compartir sólo notificaciones relevantes con un usuario.|Aprenderemos cómo cargar sólo los comentarios del post actual."
 paragraphs: 25
 ---
@@ -17,13 +20,22 @@ En este tipo de funcionalidad es en la que Meteor brilla. Como por defecto, Mete
 
 Crearemos una notificación cuando alguien comente uno de nuestros posts. En el futuro, las notificaciones podrían extenderse para cubrir muchos otros escenarios, pero por ahora será suficiente con esto para mantener a los usuarios informados sobre lo que está pasando.
 
-Vamos a crear la colección `Notifications` y la función `createCommentNotification` que insertará una notificación para cada comentario que se haga en uno de nuestros posts:
+Vamos a crear la colección `Notifications` y la función `createCommentNotification` que insertará una notificación para cada comentario que se haga en uno de nuestros posts.
+
+Puesto que estamos actualizando las notificaciones desde el lado del cliente, necesitamos asegurarnos que nuestra llamada `allow` es a prueba de balas. Por lo que deberemos comprobar que:
+
+- El usuario que hace la llamada `update` es el dueño de la notificación modificada.
+- El usuario solo está intentando modificar un solo campo.
+- El campo a modificar es la propiedad `read` de nuestra notificación.
 
 ~~~js
-Notifications = new Meteor.Collection('notifications');
+Notifications = new Mongo.Collection('notifications');
 
 Notifications.allow({
-  update: ownsDocument
+  update: function(userId, doc, fieldNames) {
+    return ownsDocument(userId, doc) &&
+      fieldNames.length === 1 && fieldNames[0] === 'read';
+  }
 });
 
 createCommentNotification = function(comment) {
@@ -39,7 +51,7 @@ createCommentNotification = function(comment) {
   }
 };
 ~~~
-<%= caption "collections/notifications.js" %>
+<%= caption "lib/collections/notifications.js" %>
 
 Al igual que con los posts o los comentarios, esta colección estará compartida por clientes y servidor. Como tendremos que actualizar las notificaciones cuando un usuario las haya visto, permitimos hacer `update` siempre que se trate de los datos del propio usuario.
 
@@ -53,7 +65,16 @@ Comments = new Meteor.Collection('comments');
 Meteor.methods({
   comment: function(commentAttributes) {
 
-    // [...]
+    //...
+
+    comment = _.extend(commentAttributes, {
+      userId: user._id,
+      author: user.username,
+      submitted: new Date()
+    });
+
+    // update the post with the number of comments
+    Posts.update(comment.postId, {$inc: {commentsCount: 1}});
 
     // create the comment, save the id
     comment._id = Comments.insert(comment);
@@ -65,31 +86,42 @@ Meteor.methods({
   }
 });
 ~~~
-<%= caption "collections/comments.js" %>
-<%= highlight "8~14" %>
+<%= caption "lib/collections/comments.js" %>
+<%= highlight "17~123" %>
 
-Tenemos que publicar las notificaciones en el servidor y susbribirnos en el cliente:
+Tenemos que publicar las notificaciones:
 
 ~~~js
-// [...]
+Meteor.publish('posts', function() {
+  return Posts.find();
+});
+
+Meteor.publish('comments', function(postId) {
+  check(postId, String);
+  return Comments.find({postId: postId});
+});
 
 Meteor.publish('notifications', function() {
   return Notifications.find();
 });
 ~~~
 <%= caption "server/publications.js" %>
+<%= highlight "10~12" %>
+
+Y suscribirnos en el cliente:
 
 ~~~js
 Router.configure({
   layoutTemplate: 'layout',
   loadingTemplate: 'loading',
+  notFoundTemplate: 'notFound',
   waitOn: function() {
     return [Meteor.subscribe('posts'), Meteor.subscribe('notifications')]
   }
 });
 ~~~
 <%= caption "lib/router.js" %>
-<%= highlight "5" %>
+<%= highlight "6" %>
 
 <%= commit "11-1", "Añadida la colección de comentarios." %>
 
@@ -99,16 +131,19 @@ Ahora podemos seguir y añadir una lista de notificaciones a nuestra cabecera:
 
 ~~~html
 <template name="header">
-  <header class="navbar">
-    <div class="navbar-inner">
-      <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </a>
-      <a class="brand" href="{{pathFor 'postsList'}}">Microscope</a>
-      <div class="nav-collapse collapse">
-        <ul class="nav">
+  <nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navigation">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="{{pathFor 'postsList'}}">Microscope</a>
+      </div>
+      <div class="collapse navbar-collapse" id="navigation">
+        <ul class="nav navbar-nav">
           {{#if currentUser}}
             <li>
               <a href="{{pathFor 'postSubmit'}}">Submit Post</a>
@@ -118,18 +153,18 @@ Ahora podemos seguir y añadir una lista de notificaciones a nuestra cabecera:
             </li>
           {{/if}}
         </ul>
-        <ul class="nav pull-right">
-          <li>{{> loginButtons}}</li>
+        <ul class="nav navbar-nav navbar-right">
+          {{> loginButtons}}
         </ul>
       </div>
     </div>
-  </header>
+  </nav>
 </template>
 ~~~
-<%= caption "client/views/includes/header.html" %>
-<%= highlight "12~19" %>
+<%= caption "client/templates/includes/header.html" %>
+<%= highlight "15~22" %>
 
-Y crear las plantillas `notifications` y `notification` (que pondremos en un sólo archivo):
+Y crear las plantillas `notifications` y `notificationItem` (que pondremos en el archivo `notifications.html`):
 
 ~~~html
 <template name="notifications">
@@ -143,7 +178,7 @@ Y crear las plantillas `notifications` y `notification` (que pondremos en un só
   <ul class="notification dropdown-menu">
     {{#if notificationCount}}
       {{#each notifications}}
-        {{> notification}}
+        {{> notificationItem}}
       {{/each}}
     {{else}}
       <li><span>No Notifications</span></li>
@@ -151,7 +186,7 @@ Y crear las plantillas `notifications` y `notification` (que pondremos en un só
   </ul>
 </template>
 
-<template name="notification">
+<template name="notificationItem">
   <li>
     <a href="{{notificationPostPath}}">
       <strong>{{commenterName}}</strong> commented on your post
@@ -159,11 +194,11 @@ Y crear las plantillas `notifications` y `notification` (que pondremos en un só
   </li>
 </template>
 ~~~
-<%= caption "client/views/notifications/notifications.html" %>
+<%= caption "client/templates/notifications/notifications.html" %>
 
 Podemos ver que para cada notificación tendremos un enlace al post que ha sido comentado junto con el usuario que lo ha hecho.
 
-A continuación, hay que asegurarse que se selecciona la lista de notificaciones correcta desde nuestro gestor, y actualizar las notificaciones como "leídas" cuando el usuario hace clic en el enlace al que apuntan.
+A continuación, hay que asegurarse que se selecciona la lista de notificaciones correcta desde nuestro ayudante, y actualizar las notificaciones como "leídas" cuando el usuario hace clic en el enlace al que apuntan.
 
 ~~~js
 Template.notifications.helpers({
@@ -171,7 +206,7 @@ Template.notifications.helpers({
     return Notifications.find({userId: Meteor.userId(), read: false});
   },
   notificationCount: function(){
-  	return Notifications.find({userId: Meteor.userId(), read: false}).count();
+    return Notifications.find({userId: Meteor.userId(), read: false}).count();
   }
 });
 
@@ -187,7 +222,7 @@ Template.notification.events({
   }
 });
 ~~~
-<%= caption "client/views/notifications/notifications.js" %>
+<%= caption "client/templates/notifications/notifications.js" %>
 
 <%= commit "11-2", "Mostrar las notificaciones en la cabecera." %>
 
@@ -221,7 +256,7 @@ Hacer esto es bastante sencillo puesto que la fucnión `publish` tiene el `_id` 
 
 ~~~js
 Meteor.publish('notifications', function() {
-  return Notifications.find({userId: this.userId});
+  return Notifications.find({userId: this.userId, read: false});
 });
 ~~~
 <%= caption "server/publications.js" %>

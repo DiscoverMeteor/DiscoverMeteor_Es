@@ -3,10 +3,14 @@ title: Publicaciones avanzadas
 slug: advanced-publications
 date: 0013/01/02
 number: 13.5
+points: 10
 sidebar: true
+photoUrl: http://www.flickr.com/photos/ikewinski/8390558986/
+photoAuthor: Mike Lewinski
 contents: Aprenderemos patrones más avanzados para manipular publicaciones.|Veremos lo flexibles que son publicaciones y suscripciones.
 paragraphs: 36
 ---
+
 
 A esta altura ya deberías tener una buena base de cómo interactúan las suscripciones y las publicaciones. Así que vamos a deshacernos de las ruedas de entrenamiento y examinar unos escenarios más avanzados.
 
@@ -34,7 +38,7 @@ Meteor.publish('postDetail', function(postId) {
 });
 ~~~
 
-Ahora cuando el cliente se suscriba a esas dos publicaciones (utilizando `autorun` para asegurarnos que el `postId` correcto está siendo enviado a la suscripción `postDetail`), su colección `'posts'` es rellenada de dos fuentes: una lista de títulos y nombre de los autores por la primera suscripción, y los detalles completos de un post de la segunda.
+Ahora cuando el cliente se suscriba a esas dos publicaciones, su colección `'posts'` es rellenada de dos fuentes: una lista de títulos y nombre de los autores por la primera suscripción, y los detalles completos de un post de la segunda.
 
 Tal vez te hayas dado cuenta que el post publicado por `postDetail` es también publicado por `allPosts` (aunque sólo con un subconjunto de sus propiedades). Sin embargo, Meteor se hace cargo de la superposición fusionando los campos y asegurando que no haya posts duplicados.
 
@@ -81,6 +85,8 @@ Meteor.subscribe('posts', {baseScore: -1, submitted: -1, limit: 10});
 Entonces, ¿qué está pasando exactamente? Cada navegador ábre _dos_ suscripciones diferentes, cada uno se conecta a la _misma_ publicación en el servidor.
 
 Cada suscripción ofrece diferentes argumentos para esa publicación, pero fundamentalmente, cada vez que un conjunto de documentos (diferente) está siendo sacado de la colección de `posts`, se envía por el canal a la colección del lado del cliente.
+
+Puedes incluso suscribirte dos veces a la misma publicación con *¡los mismos argumentos!* Es difícil pensar en escenarios donde esto sea de utilidad, ¡pero esta flexibilidad puede que sea útil algún dia!
 
 ### Múltiples Colecciones sobre una Única Suscripcíon
 
@@ -179,4 +185,6 @@ Y aunque tendríamos una sola colección `resources` en el servidor, podríamos 
 
 Le estamos diciendo a `_publishCursor` que publique nuestros videos (como hacer un return) como lo haría el cursor, pero en lugar de publicar la colección `resources` en el cliente, pubilcamos de `resources` a `videos`.
 
-¿Es una buena idea hacer esto? No estamos en posición de juzgarlo. De cualquier manera, es bueno saber qué es posible hacerlo en Meteor para sacarle el mayor provecho!.
+Otra idea similar es usar `publish` para una colección en el lado del cliente donde *¡no hay ninguna colección en el lado servidor!*. Por ejemplo, podrías obtener datos de un servicio de terceros, y publicarlos como si fuera una colección en el cliente.
+
+Gracias a la flexibilidad de la API de publicación, las posibilidades son ilimitadas.

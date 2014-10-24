@@ -3,7 +3,10 @@ title: Reactividad avanzada
 slug: advanced-reactivity
 date: 0011/01/02
 number: 11.5
+points: 10
 sidebar: true
+photoUrl: http://www.flickr.com/photos/ikewinski/8676146109/
+photoAuthor: Mike Lewinski
 contents: Aprenderemos a crear fuentes de datos reactivas.|Crearemos un sencillo ejemplo de una fuente de datos reactiva.|Compararemos Tracker con AngularJS.
 paragraphs: 29
 ---
@@ -21,7 +24,7 @@ currentLikeCount = 0;
 Meteor.setInterval(function() {
   var postId;
   if (Meteor.user() && postId = Session.get('currentPostId')) {
-    getFacebookLikeCount(Meteor.user(), Posts.find(postId),
+    getFacebookLikeCount(Meteor.user(), Posts.find(postId).url,
       function(err, count) {
         if (!err)
           currentLikeCount = count;
@@ -44,7 +47,7 @@ Sin embargo, nada le dice todavía a nuestra plantilla que se redibuje cuando ca
 
 La reactividad de Meteor es mediada por *dependencias*, estructuras de datos que rastrean una serie de computaciones.
 
-Como vimos anteriormente, una computación es una parte de código que usa datos reactivos. En nuestro caso, hay una computación que ha sido implícitamente creada por la plantilla `postItem`. Cada ayudante en el manejador de esa plantilla está funcionando dentro de esa computación.
+Como vimos anteriormente, una computación es una parte de código que usa datos reactivos. En nuestro caso, hay una computación que ha sido implícitamente creada por la plantilla `postItem`, y cada ayudante en el manejador de esa plantilla está funcionando dentro de esa computación.
 
 Puedes pensar de la computación como una parte del código que se "preocupa" por los datos reactivos. Cuando los datos cambien, está computación será informada (a través de `invalidate()`), y es la computación la que debe decidir si algo debe hacerse.
 
@@ -79,6 +82,34 @@ Meteor.setInterval(function() {
 Lo que hemos hecho es configurar una dependencia `_currentLikeCountListeners`, que rastreará todas las computaciones en las cuales se utilice `currentLikeCount()`. Cuando el valor de `_currentLikeCount` cambie, podemos llamar a la función `changed()` en esa dependencia, que invalida todas las computaciones realizadas.
 
 Estas computaciones pueden entonces seguir adelante y evaluar los cambios caso por caso.
+
+Parece un montón de código para una única fuente de datos reactiva, y tienes razón, por lo que Meteor proporciona algunas herramientas de serie para hacerlo un poco mas sencillo. (normalmente no se usan computaciones directamente, si no sencillamente auto ejecuciones). Hay un paquete llamado `reactive-var` que hace exactamente lo que hacemos con la función `currentLikeCount()`. Por lo que si lo añadimos:
+
+~~~bash
+meteor add reactive-var
+~~~
+
+Podremos simplificar nuestro código un poco::
+
+~~~js
+var currentLikeCount = new ReactiveVar();
+
+Meteor.setInterval(function() {
+  var postId;
+  if (Meteor.user() && postId = Session.get('currentPostId')) {
+    getFacebookLikeCount(Meteor.user(), Posts.find(postId),
+      function(err, count) {
+        if (!err) {
+          currentLikeCount.set(count);
+        }
+      });
+  }
+}, 5 * 1000);
+~~~
+<%= highlight "1,9" %>
+
+Ahora para usarlo, llamaremos a `currentLikeCount.get()` en nuestro ayudante y debería funcionar como antes. Hay trambién otro paquete `reactive-dict`, que proporciona un almacen de datos clave-valor reactivo (exactamente igual que la `Session`), que podría ser útil también.
+
 
 ### Comparando Tracker con Angular
 
