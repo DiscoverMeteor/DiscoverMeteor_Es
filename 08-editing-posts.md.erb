@@ -3,6 +3,9 @@ title: Editando posts
 slug: editing-posts
 date: 0008/01/01
 number: 8
+points: 5
+photoUrl: http://www.flickr.com/photos/ikewinski/9473337133/
+photoAuthor: Mike Lewinski
 contents: "Añadiremos un formulario para editar posts.|Configuraremos los permisos de edición.|Restringiremos las propiedades que se pueden editar."
 paragraphs: 29
 ---
@@ -15,6 +18,7 @@ Primero vamos a enlazar nuestro router. Añadiremos una ruta para acceder a la p
 Router.configure({
   layoutTemplate: 'layout',
   loadingTemplate: 'loading',
+  notFoundTemplate: 'notFound',
   waitOn: function() { return Meteor.subscribe('posts'); }
 });
 
@@ -47,10 +51,12 @@ var requireLogin = function(pause) {
   }
 }
 
+Router.onBeforeAction('loading');
+Router.onBeforeAction('dataNotFound');
 Router.onBeforeAction(requireLogin, {only: 'postSubmit'});
 ~~~
 <%= caption "lib/router.js" %>
-<%= highlight "14~17" %>
+<%= highlight "16~19" %>
 
 ### La plantilla de edición de posts
 
@@ -58,38 +64,28 @@ Ahora ya nos podemos centrar en la plantilla. Nuestra plantilla `postEdit` tendr
 
 ~~~html
 <template name="postEdit">
-  <form class="main">
-    <div class="control-group">
-        <label class="control-label" for="url">URL</label>
-        <div class="controls">
-            <input name="url" type="text" value="{{url}}" placeholder="Your URL"/>
-        </div>
+  <form class="main form">
+    <div class="form-group">
+      <label class="control-label" for="url">URL</label>
+      <div class="controls">
+          <input name="url" id="url" type="text" value="{{url}}" placeholder="Your URL" class="form-control"/>
+      </div>
     </div>
-
-    <div class="control-group">
-        <label class="control-label" for="title">Title</label>
-        <div class="controls">
-            <input name="title" type="text" value="{{title}}" placeholder="Name your post"/>
-        </div>
+    <div class="form-group">
+      <label class="control-label" for="title">Title</label>
+      <div class="controls">
+          <input name="title" id="title" type="text" value="{{title}}" placeholder="Name your post" class="form-control"/>
+      </div>
     </div>
-
-    <div class="control-group">
-        <div class="controls">
-            <input type="submit" value="Submit" class="btn btn-primary submit"/>
-        </div>
-    </div>
+    <input type="submit" value="Submit" class="btn btn-primary submit"/>
     <hr/>
-    <div class="control-group">
-        <div class="controls">
-            <a class="btn btn-danger delete" href="#">Delete post</a>
-        </div>
-    </div>
+    <a class="btn btn-danger delete" href="#">Delete post</a>
   </form>
 </template>
 ~~~
-<%= caption "client/views/posts/post_edit.html" %>
+<%= caption "client/templates/posts/post_edit.html" %>
 
-Y aquí está el gestor `post_edit.js` que va con ella:
+Y aquí está el fichero `post_edit.js` que va con ella:
 
 ~~~js
 Template.postEdit.events({
@@ -124,7 +120,7 @@ Template.postEdit.events({
   }
 });
 ~~~
-<%= caption "client/views/posts/post_edit.js" %>
+<%= caption "client/templates/posts/post_edit.js" %>
 
 Como podemos ver, la mayoría de cosas ya nos son familiares.
 
@@ -150,11 +146,11 @@ Deberíamos añadir enlaces a la página de edición de nuestros posts:
         {{#if ownPost}}<a href="{{pathFor 'postEdit'}}">Edit</a>{{/if}}
       </p>
     </div>
-    <a href="{{pathFor 'postPage'}}" class="discuss btn">Discuss</a>
+    <a href="{{pathFor 'postPage'}}" class="discuss btn btn-default">Discuss</a>
   </div>
 </template>
 ~~~
-<%= caption "client/views/posts/post_item.html" %>
+<%= caption "client/templates/posts/post_item.html" %>
 <%= highlight "5~8" %>
 
 Por supuesto, no queremos que se muestre un enlace a editar en un post que no haya sido creado por un usuario. Aquí es donde el entra el ayudante `ownPost`:
@@ -171,7 +167,7 @@ Template.postItem.helpers({
   }
 });
 ~~~
-<%= caption "client/views/posts/post_item.js" %>
+<%= caption "client/templates/posts/post_item.js" %>
 <%= highlight "2~4" %>
 
 <%= screenshot "8-1", "Formulario de edición." %>
@@ -184,7 +180,7 @@ Ya tenemos nuestro formulario de envío de edición, pero en realidad, todavía 
 
 Al haber eliminado el paquete `insecure`, se nos deniegan todas las peticiones de modificación desde el cliente.
 
-Para solucionarlo creamos el archivo `permissions.js` desde dónde se cargará la toda la lógica de permisos (y estará disponible en los dos entornos):
+Para solucionarlo, estableceremos algunas reglas de permisos. Primero, creamos un nuevo archivo `permissions.js` dentro de `lib`. Esto nos asegura que nuestra lógica de permisos se cargará lo primero (y estará disponible en los dos entornos):
 
 ~~~js
 // check that the userId specified owns the documents
@@ -202,13 +198,11 @@ Pero ahora que estamos editando y borrando posts desde el cliente, vamos a neces
 Posts = new Meteor.Collection('posts');
 
 Posts.allow({
-  update: ownsDocument,
-  remove: ownsDocument
+  update: function(userId, post) { return ownsDocument(userId, post); },
+  remove: function(userId, post) { return ownsDocument(userId, post); },
 });
 
-
-Meteor.methods({
-  ...
+//...
 ~~~
 <%= caption "collections/posts.js" %>
 <%= highlight "3~6" %>
@@ -219,7 +213,7 @@ Meteor.methods({
 
 Sólo porque podamos editar nuestros propios posts, no significa debamos ser capaces de editar todas las propiedades. Por ejemplo, no queremos que los usuarios puedan crear un post y luego asignárselo a otro usuario.
 
-Utilizaremos el callback `deny()` para asegurarnos de que los usuarios sólo puedan editar campos específicos.:
+Utilizaremos el callback `deny()` para asegurarnos de que los usuarios solo puedan editar los atributos especificados:
 
 ~~~js
 Posts = new Meteor.Collection('posts');
@@ -245,6 +239,8 @@ Estamos cogiendo el array `fieldNames` que contiene la lista de los campos que q
 
 Si todo va bien, el array debe estar vacío y su longitud debe ser 0. Pero si alguien está tratando de enrredar, la longitud del array será mayor que 0, y devolveremos `true` (denegando así la actualización).
 
+Te habrás dado cuenta que en ningún sitio en nuestro código de editar post comprobamos si hay enlaces duplicados. Esto significa que un usuario podría enviar un enlace y después editarlo y cambiarlo su URL para saltarse la comprobación. La solución a este problema podría ser utilizar un método Meteor para tratar este formulario de edición, pero dejaremos esto como un ejercicio para el lector.
+
 <% note do %>
 
 ### Métodos en el servidor vs métodos en el cliente
@@ -254,8 +250,6 @@ Para crear un `post`, estamos utilizando un método en el servidor, mientras que
 ¿Cuándo es más adecuado usar uno u otro?
 
 Cuando las cosas son relativamente sencillas se pueden expresar las reglas a través de `allow` y `deny`, por lo general es más fácil de hacer las cosas directamente desde el cliente.
-
-Manipular la base de datos desde el cliente directamente crea sensación de inmediatez, y puede resultar en una mejor experiencia de usuario, siempre y cuando nos acordemos de manejar adecuadamente los errores (por ejemplo, cuando después llegue el servidor y diga que el cambio no se ha podido hacer).
 
 Sin embargo, tan pronto como empecemos a hacer cosas que deberían estar fuera del control del usuario (por ejemplo, el timestamp de un nuevo post o asignarlo al usuario correcto), será mejor que usemos métodos.
 
