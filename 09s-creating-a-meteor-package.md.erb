@@ -3,35 +3,37 @@ title: Creando un paquete Meteor
 slug: creating-a-meteor-package
 date: 0009/01/02
 number: 9.5
+points: 10
 sidebar: true
+photoUrl: http://www.flickr.com/photos/rxb/7779426142/
+photoAuthor: Richard
 contents: Escribiremos un paquete de Meteor para nuestra aplicación de forma local.|Escribiremos tests para nuestro paquete.|Publicaremos el paquete en el repositorio Atmosphere.
 paragraphs: 22
 ---
 
 Durante nuestro trabajo en los errores, hemos construido un modelo reutilizable, ¿por qué no ponerlo dentro de un paquete y compartirlo con el resto de la comunidad Meteor?
 
-Para empezar, tenemos que asegurarnos de que tenemos una cuenta de desarrollador Meteor. Puedes hacerte una en meteor.com. Para continuar debes conocer tu nombre de usuario, ya que lo vamos a usar mucho en este capítulo.
+Para empezar, tenemos que asegurarnos de que tenemos una cuenta de desarrollador Meteor. Puedes hacerte una en [meteor.com](meteor.com), pero es muy probable que ya lo hayas hecho ¡cuando te registarte en el libro!. En cualquier caso, deberías saber cual es tu nombre de usuario, el cúal utilizaremos bastante durante este capítulo.
 
 En este capítulo usaremos `tmeasday` como usuario -- puedes cambiarlo por el tuyo.
 
-En primer lugar, tenemos que colocar el código del paquete dentro de una estructura. Vamos a hacerlo dentro de un directorio llamado `packages/errors/`. Lo que se pone dentro del directorio `packages` se utiliza de forma automática como paquetes. (Posiblemente, ya te habrás dado cuenta de que Meteorite instala paquetes usando enlaces simbólicos dentro del directorio `packages/`).
-
-En segundo lugar, dentro de nuestro nuevo directorio, crearemos `package.js`, el archivo que informa a Meteor de cómo debe utilizar el paquete, y los símbolos que exporta.
+En primer lugar, necesitamos crear una estructura de carpetas para nuestro paquete. Podemos usar el comando `meteor create --package tmeasday:errors`  para conseguirla. Fíjate que Meteor ha creado una carpeta llamada `packages/tmeasday:errors/`, con algunos ficheros dentro. Comenzaremos por editar `package.js`, el archivo que informa a Meteor de cómo debe utilizar el paquete, y los símbolos y funciones que exporta.
 
 ~~~js
 Package.describe({
+  name: "tmeasday:errors",
   summary: "A pattern to display application errors to the user",
   version: "1.0.0"
 });
 
 Package.onUse(function (api, where) {
-  api.versionsFrom('METEOR@0.9.0');
-  
+  api.versionsFrom('0.9.0');
+
   api.use(['minimongo', 'mongo-livedata', 'templating'], 'client');
 
-  api.add_files(['errors.js', 'errors_list.html', 'errors_list.js'], 'client');
-  
-  if (api.export) 
+  api.addFiles(['errors.js', 'errors_list.html', 'errors_list.js'], 'client');
+
+  if (api.export)
     api.export('Errors');
 });
 ~~~
@@ -48,24 +50,22 @@ Errors = {
 
   throw: function(message) {
     Errors.collection.insert({message: message, seen: false})
-  },
-  clearSeen: function() {
-    Errors.collection.remove({seen: true});
   }
 };
-
 ~~~
 <%= caption "packages/tmeasday:errors/errors.js" %>
 
 ~~~html
 <template name="meteorErrors">
-  {{#each errors}}
-    {{> meteorError}}
-  {{/each}}
+  <div class="errors">
+    {{#each errors}}
+      {{> meteorError}}
+    {{/each}}
+  </div>
 </template>
 
 <template name="meteorError">
-  <div class="alert alert-error">
+  <div class="alert alert-danger" role="alert">
     <button type="button" class="close" data-dismiss="alert">&times;</button>
     {{message}}
   </div>
@@ -82,9 +82,9 @@ Template.meteorErrors.helpers({
 
 Template.meteorError.rendered = function() {
   var error = this.data;
-  Meteor.defer(function() {
-    Errors.collection.update(error._id, {$set: {seen: true}});
-  });
+  Meteor.setTimeout(function () {
+    Errors.collection.remove(error._id);
+  }, 3000);
 };
 ~~~
 <%= caption "packages/tmeasday:errors/errors_list.js" %>
@@ -94,16 +94,16 @@ Template.meteorError.rendered = function() {
 Vamos a probar el paquete localmente con Microscope para asegurarnos de que nuestros cambios funcionan. Para enlazar el paquete en nuestro proyecto, ejecutaremos `meteor add errors`. A continuación, debemos eliminar los archivos a los que reemplaza el nuevo paquete:
 
 ~~~bash
-$ rm client/helpers/errors.js
-$ rm client/views/includes/errors.html
-$ rm client/views/includes/errors.js
+rm client/helpers/errors.js
+rm client/templates/includes/errors.html
+rm client/templates/includes/errors.js
 ~~~
 <%= caption "Eliminando los archivos antiguos" %>
 
 Otra cosa que debemos hacer es efectuar algunos pequeños cambios en el código de la aplicación para que use la API correcta:
 
 ~~~js
-Router.before(function() { Errors.clearSeen(); });
+Router.onBeforeAction(function() { Errors.clearSeen(); });
 ~~~
 <%= caption "lib/router.js" %>
 
@@ -111,7 +111,7 @@ Router.before(function() { Errors.clearSeen(); });
   {{> header}}
   {{> meteorErrors}}
 ~~~
-<%= caption "client/views/application/layout.html" %>
+<%= caption "client/templates/application/layout.html" %>
 
 ~~~js
 Meteor.call('post', post, function(error, id) {
@@ -120,7 +120,7 @@ Meteor.call('post', post, function(error, id) {
     Errors.throw(error.reason);
 
 ~~~
-<%= caption "client/views/posts/post_submit.js" %>
+<%= caption "client/templates/posts/post_submit.js" %>
 
 ~~~js
 Posts.update(currentPostId, {$set: postProperties}, function(error) {
@@ -128,7 +128,7 @@ Posts.update(currentPostId, {$set: postProperties}, function(error) {
     // display the error to the user
     Errors.throw(error.reason);
 ~~~
-<%= caption "client/views/posts/post_edit.js" %>
+<%= caption "client/templates/posts/post_edit.js" %>
 
 <%= scommit "9-5-1", "Creado y enlazado un paquete básico." %>
 
@@ -141,7 +141,7 @@ El primer paso en el desarrollo de un paquete es probarlo contra una aplicación
 Vamos a crear un archivo que usa Tinytest para ejecutar tests contra el código de los errores.
 
 ~~~js
-Tinytest.add("Errors collection works", function(test) {
+Tinytest.add("Errors - collection", function(test) {
   test.equal(Errors.collection.find({}).count(), 0);
 
   Errors.throw('A new error!');
@@ -150,22 +150,17 @@ Tinytest.add("Errors collection works", function(test) {
   Errors.collection.remove({});
 });
 
-Tinytest.addAsync("Errors template works", function(test, done) {
+Tinytest.addAsync("Errors - template", function(test, done) {
   Errors.throw('A new error!');
-  test.equal(Errors.collection.find({seen: false}).count(), 1);
+  test.equal(Errors.collection.find({}).count(), 1);
 
   // render the template
   UI.insert(UI.render(Template.meteorErrors), document.body);
 
-  // wait a few milliseconds
   Meteor.setTimeout(function() {
-    test.equal(Errors.collection.find({seen: false}).count(), 0);
-    test.equal(Errors.collection.find({}).count(), 1);
-    Errors.clearSeen();
-
-    test.equal(Errors.collection.find({seen: true}).count(), 0);
+    test.equal(Errors.collection.find({}).count(), 0);
     done();
-  }, 500);
+  }, 3500);
 });
 ~~~
 <%= caption "packages/tmeasday:errors/errors_tests.js" %>
@@ -179,9 +174,9 @@ Para decirle a Meteor que ejecute los tests, añadimos éste código a `package.
 ~~~js
 Package.onTest(function(api) {
   api.use('tmeasday:errors', 'client');
-  api.use(['tinytest', 'test-helpers'], 'client');  
-  
-  api.add_files('errors_tests.js', 'client');
+  api.use(['tinytest', 'test-helpers'], 'client');
+
+  api.addFiles('errors_tests.js', 'client');
 });
 ~~~
 <%= caption "packages/tmeasday:errors/package.js" %>
@@ -191,7 +186,7 @@ Package.onTest(function(api) {
 Ya podemos ejecutar los tests con:
 
 ~~~bash
-$ meteor test-packages tmeasday:errors
+meteor test-packages tmeasday:errors
 ~~~
 <%= caption "Terminal" %>
 
@@ -212,8 +207,8 @@ meteor publish --create
 Ahora que hemos publicado el paquete, podemos eliminarlo del proyecto y luego añadirlo de nuevo directamente:
 
 ~~~bash
-$ rm -r packages/errors
-$ meteor add tmeasday:errors
+rm -r packages/errors
+meteor add tmeasday:errors
 ~~~
 <%= caption "Terminal (ejecutar desde el directorio raíz de la aplicación)" %>
 
