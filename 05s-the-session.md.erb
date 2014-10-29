@@ -3,7 +3,10 @@ title: La sesión
 slug: the-session
 date: 0005/01/02
 number: 5.5
+points: 5
 sidebar: true
+photoUrl: http://www.flickr.com/photos/philmosby/11372421963/
+photoAuthor: Phil Mosby
 contents: "Aprenderemos más sobre la Sesión en Meteor.|Comprenderemos la función autorun.|Veremos la recarga automática de código o HCR."
 paragraphs: 33
 ---
@@ -18,7 +21,7 @@ En capítulos posteriores veremos más en profundidad cómo funciona todo esto, 
 
 Ahora mismo, en Microscope, el estado actual de la aplicación está contenida en su totalidad en la URL que se está mostrando (y en la base de datos).
 
-Pero en muchos casos, necesitarás almacenar valores de estado que sólo son relevante en la versión de la aplicación para usuario actual. Usar la Sesión es una forma conveniente de hacerlo.
+Pero en muchos casos, necesitarás almacenar valores de estado que sólo son relevante en la versión de la aplicación para usuario actual (por ejemplo, si algún elemento se muestra o está oculto). Usar la Sesión es una forma conveniente de hacerlo.
 
 La sesión es un almacén global de datos reactivo. Es global en el sentido de que es un objeto global: sólo hay una sesión, y ésta es accesible desde todas partes. Las variables globales se suelen ver como algo malo, pero en este caso la sesión se utiliza como un bus de comunicación central para diferentes partes de la aplicación.
 
@@ -36,20 +39,28 @@ Puedes leer los datos de nuevo con `Session.get('mySessionProperty');`. Hemos di
 Para probarlo, añade el siguiente código a la plantilla layout:
 
 ~~~html
-<header class="navbar">
-  <div class="navbar-inner">
-    <a class="brand" href="{{pathFor 'postsList'}}">{{pageTitle}}</a>
+<header class="navbar navbar-default" role="navigation">
+  <div class="navbar-header">
+    <a class="navbar-brand" href="{{pathFor 'postsList'}}">{{pageTitle}}</a>
   </div>
 </header>
 ~~~
-<%= caption "client/views/application/layout.html"%>
+<%= caption "client/templates/application/layout.html"%>
 
 ~~~js
 Template.layout.helpers({
   pageTitle: function() { return Session.get('pageTitle'); }
 });
 ~~~
-<%= caption "client/views/application/layout.js"%>
+<%= caption "client/templates/application/layout.js"%>
+
+<% note do %>
+
+### Una nota sobre el código de las barras laterales
+
+Ten en cuenta que el código mostrado en las barras laterales no forman parte del flujo principal del libro. Por lo que debería crear una nueva rama (si estas usando Git), o si no, asegurarte de deshacer los cambios al final del capítulo.
+
+<% end %>
 
 La recarga automática de Meteor ("recarga de código en caliente" o HCR, de Hot Code Reload) preserva las variables de sesión, por lo que ahora debes ver "A different title" en la barra de navegación. Si no es así, sólo tienes que escribir el comando `Session.set()` de nuevo.
 
@@ -61,6 +72,8 @@ Si lo cambiamos de nuevo (desde la consola del navegador), debemos ver que se vi
 <%= caption "Consola del navegador" %>
 
 La sesión está disponible a nivel global, por lo que los cambios se pueden hacer desde cualquier lugar de la aplicación. Esto nos da una gran cantidad de potencia y flexibilidad, pero también puede ser una trampa si se usa demasiado.
+
+De todas formas, es importante apuntar que el objeto de Session *no* es compartido entre distintos usuarios, ni siquiera entre distintas pestañas del navegador. Esto es por lo que si abres tu aplicación en una nueva pestaña, te encontrarás con una página en blanco.
 
 <% note do %>
 
@@ -89,9 +102,7 @@ Aquí es dónde entra en juego [Autorun](http://docs.meteor.com/#Tracker_autorun
 Prueba a escribir esto en la consola del navegador:
 
 ~~~js
-❯ Tracker.autorun(function() {
-  console.log('Value is: ' + Session.get('pageTitle'));
-});
+❯ Tracker.autorun( function() { console.log('Value is: ' + Session.get('pageTitle')); } );
 Value is: A brand new title
 ~~~
 <%= caption "Consola del navegador" %>
@@ -113,7 +124,8 @@ Tracker.autorun(function() {
   alert(Session.get('message'));
 }
 ~~~
-Como acabamos de ver, los autorun pueden ser muy útiles para rastrear fuentes de datos reactivas y reaccionar inmediatamente ante ellos.
+
+Como acabamos de ver, los `autorun` pueden ser muy útiles para rastrear fuentes de datos reactivas y reaccionar inmediatamente ante ellos.
 
 ### Recarga automática de código
 
@@ -157,4 +169,4 @@ Las lecciones más importantes en todo esto son:
 1. Guarda siempre el estado en la sesión o en la URL para no molestar mucho a los usuarios cuando ocurre una recarga en caliente.
 2. Almacena cualquier estado que deba estar compartido entre usuarios *dentro de la propia URL*.
 
-Por cierto, recuerda que los capítulos extra como éste no son parte del recorrido principal del libro. Así que antes de pasar al siguiente capítulo, asegúrate de deshacer los cambios de este capítulo.
+Con esto concluye nuestra exploración de la sesión, uno de las características más útiles de Meteor. No olvides deshacer cualquier cambio en el código antes de pasar al siguiente capítulo.

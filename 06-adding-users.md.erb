@@ -3,6 +3,9 @@ title: Añadiendo usuarios
 slug: adding-users
 date: 0006/01/01
 number: 6
+points: 5
+photoUrl: http://www.flickr.com/photos/kroqert/9687074783/
+photoAuthor: Bård Harald Krogen
 contents: "Conoceremos las cuentas de usuario en Meteor.|Añadiremos toda la autenticación necesaria para Microscope.|Usaremos el paquete accounts-ui para obtener una interfaz de usuario de forma instantánea."
 paragraphs: 27
 ---
@@ -22,14 +25,14 @@ Por suerte, Meteor nos ampara. Gracias a la forma en la que los paquetes Meteor 
 Podríamos usar el paquete para cuentas de usuario (`meteor add accounts-ui`), pero como hemos  construido toda nuestra aplicación con Bootstrap, vamos a utilizar `accounts-ui-bootstrap-dropdown` (la única diferencia es el estilo). En la línea de comandos, tecleamos:
 
 ~~~bash
-$ meteor add mrt:accounts-ui-bootstrap-dropdown
-$ meteor add accounts-password
+meteor add ian:accounts-ui-bootstrap-3
+meteor add accounts-password
 ~~~
 <%= caption "Terminal" %>
 
 Estos dos comandos hacen accesibles las plantillas para cuentas de forma que podemos incluirlas en nuestro sitio usando el ayudante `{{> loginButtons}}`. Un consejo muy útil: se puede controlar en qué lado aparece el desplegable de inicio de sesión con el atributo `align` (por ejemplo: `{{> loginButtons align="right"}})`.
 
-Vamos a añadir los botones a nuestra cabecera. Y puesto que la cabecera está empezando a crecer, vamos a darle más espacio en su propia plantilla (la pondremos en el `client/views/includes/`). Estamos utilizando algunas clases de Bootstrap para que todo se vea mejor:
+Vamos a añadir los botones a nuestra cabecera. Y puesto que la cabecera está empezando a crecer, vamos a darle más espacio en su propia plantilla (la pondremos en el `client/templates/includes/`). Estamos utilizando algunas clases de Bootstrap para que todo se vea mejor:
 
 ~~~html
 <template name="layout">
@@ -41,29 +44,32 @@ Vamos a añadir los botones a nuestra cabecera. Y puesto que la cabecera está e
   </div>
 </template>
 ~~~
-<%= caption "client/views/application/layout.html" %>
+<%= caption "client/templates/application/layout.html" %>
 <%= highlight "3~6" %>
 
 ~~~html
 <template name="header">
-  <header class="navbar">
-    <div class="navbar-inner">
-      <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </a>
-      <a class="brand" href="{{pathFor 'postsList'}}">Microscope</a>
-      <div class="nav-collapse collapse">
-        <ul class="nav pull-right">
-          <li>{{> loginButtons}}</li>
+  <nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navigation">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="{{pathFor 'postsList'}}">Microscope</a>
+      </div>
+      <div class="collapse navbar-collapse" id="navigation">
+        <ul class="nav navbar-nav navbar-right">
+          {{> loginButtons}}
         </ul>
       </div>
     </div>
-  </header>
+  </nav>
 </template>
 ~~~
-<%= caption "client/views/includes/header.html" %>
+<%= caption "client/templates/includes/header.html" %>
 
 Ahora ya podemos ver los botones de acceso en la esquina superior derecha.
 
