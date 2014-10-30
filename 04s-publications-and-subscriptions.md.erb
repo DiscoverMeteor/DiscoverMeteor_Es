@@ -3,7 +3,10 @@ title: Publicaciones y suscripciones
 slug: publications-and-subscriptions
 date: 0004/01/02
 number: 4.5
+points: 5
 sidebar: true
+photoUrl: http://www.flickr.com/photos/ikewinski/11264732804/
+photoAuthor: Mike Lewinski
 contents: "Entenderemos cómo funcionan las publicaciones y las suscripciones.|Aprenderemos qué hace el paquete autopublish.|Veremos algunos ejemplos de patrones de diseño de publicaciones."
 paragraphs: 52
 ---
@@ -36,7 +39,7 @@ Así que lo que ocurre es que el empleado de la tienda, no sólo encuentra el li
 
 Esta arquitectura permite a Meteor hacer cosas muy interesantes, la más importante es lo que Meteor llama [base de datos en todas partes](http://docs.meteor.com/#sevenprinciples). En pocas palabras, Meteor tomará un subconjunto de la base de datos y la *copiará en el cliente*.
 
-Esto tiene dos grandes implicaciones: la primera es que en lugar de enviar código HTML, una aplicación Meteor envía **datos actuales en bruto** al cliente y deja que el cliente se ocupe de ellos ([data on the wire](http://docs.meteor.com/#sevenprinciples)). Lo segundo es que serás capaz de acceder a esos datos **instantáneamente** sin tener que esperar al servidor ([latency compensation](http://docs.meteor.com/#sevenprinciples)).
+Esto tiene dos grandes implicaciones: la primera es que en lugar de enviar código HTML, una aplicación Meteor envía **datos actuales en bruto** al cliente y deja que el cliente se ocupe de ellos ([data on the wire](http://docs.meteor.com/#sevenprinciples)). Lo segundo es que serás capaz de **acceder, e incluso modificar esos datos instantáneamente** sin tener que esperar al servidor ([latency compensation](http://docs.meteor.com/#sevenprinciples)).
 
 ### Publicaciones
 
@@ -53,7 +56,6 @@ Aunque esta función no exista realmente en Microscope, imaginemos que algunos d
 Nuestra primera tarea será decirle a Meteor qué datos *queremos* enviar. Le diremos que sólo queremos **publicar** posts sin marcar:
 
 <%= diagram "collections-2", "Excluyendo posts marcados.", "pull-center" %>
-
 
 Este sería el código correspondiente, que estaría en el servidor:
 
