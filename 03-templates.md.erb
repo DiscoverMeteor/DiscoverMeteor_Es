@@ -3,7 +3,9 @@ title: Plantillas
 slug: templates
 date: 0003/01/01
 number: 3
-points: 10
+points: 1
+photoUrl: http://www.flickr.com/photos/73449134@N04/8194499092/
+photoAuthor: Mike Lewinski
 contents: "Aprenderemos a usar Spacebars, el sistema de plantillas de Meteor.|Crearemos nuestras primeras tres plantillas.|Aprenderemos cómo funcionan los gestores de plantilla.|Obtendremos un prototipo básico funcional con datos estáticos."
 paragraphs: 46
 ---
@@ -12,7 +14,7 @@ Para aprender a desarrollar con Meteor adoptaremos un enfoque de afuera hacia ad
 
 Esto implica que, en este capítulo, sólo utilizaremos el directorio `/client`.
 
-Empezaremos creando el archivo `main.html` dentro del directorio `client`, rellenándolo con el siguiente código:
+Si todavía no lo has hecho, crea un nuevo archivo `main.html` dentro del directorio `client`, rellenándolo con el siguiente código:
 
 ~~~html
 <head>
@@ -20,9 +22,9 @@ Empezaremos creando el archivo `main.html` dentro del directorio `client`, relle
 </head>
 <body>
   <div class="container">
-    <header class="navbar">
-      <div class="navbar-inner">
-        <a class="brand" href="/">Microscope</a>
+    <header class="navbar navbar-default" role="navigation">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="/">Microscope</a>
       </div>
     </header>
     <div id="main" class="row-fluid">
@@ -33,13 +35,13 @@ Empezaremos creando el archivo `main.html` dentro del directorio `client`, relle
 ~~~
 <%= caption "client/main.html" %>
 
-Esta será la plantilla principal de la aplicación. Como se puede ver, todo es HTML excepto el tag `{{> postsList}}`, que es un punto de inserción de la plantilla `postsList`, como veremos más adelante. Por ahora, vamos a crear un par de plantillas más.
+Esta será la plantilla principal de la aplicación. Como se puede ver, todo es HTML excepto la etiqueta `{{> postsList}}`, que es un punto de inserción de la plantilla `postsList`. Por ahora, vamos a crear un par de plantillas más.
 
 ### Las plantillas en Meteor
 
 La aplicación que estamos construyendo va a ser una red social de noticias que estará compuesta de mensajes (en adelante, posts) organizados en listas, y así es como organizaremos nuestras plantillas.
 
-Vamos a crear el directorio `views` dentro de `client`. Aquí pondremos todas nuestras plantillas, pero además, para mantener las cosas ordenadas creamos el directorio `posts` dentro de `views` para las plantillas relacionadas con los posts.
+Vamos a crear el directorio `/templates` dentro de `/client`. Aquí pondremos todas nuestras plantillas, pero además, para mantener las cosas ordenadas creamos el directorio `/posts` dentro de `/templates` para las plantillas relacionadas con los posts.
 
 <% note do %>
 
@@ -51,7 +53,7 @@ También significa que se podrían poner todos los archivos en el mismo director
 
 <% end %>
 
-Ya estamos listos para crear las otras dos plantillas en el fichero `posts_list.html` dentro de `client/views/posts`:
+Ya estamos listos para nuestras segunda plantilla. Dentro de `client/templates/posts`, crea el fichero `posts_list.html`:
 
 ~~~html
 <template name="postsList">
@@ -62,7 +64,7 @@ Ya estamos listos para crear las otras dos plantillas en el fichero `posts_list.
   </div>
 </template>
 ~~~
-<%= caption "client/views/posts/posts_list.html" %>
+<%= caption "client/templates/posts/posts_list.html" %>
 
 Y `post_item.html`:
 
@@ -75,11 +77,11 @@ Y `post_item.html`:
   </div>
 </template>
 ~~~
-<%= caption "client/views/posts/post_item.html" %>
+<%= caption "client/templates/posts/post_item.html" %>
 
-Fíjate en el atributo `name="postsList"` porque éste será el nombre que Meteor usará para sincronizar los datos que contiene la plantilla.
+Fíjate en el atributo `name="postsList"` del elemento template. Este será el nombre que Meteor usará para saber donde va cada plantilla (fíjate que el nombre del *fichero* no es importante).
 
-Es el momento de introducir Spacebars el sistema de plantillas de Meteor. Spacebars es simple HTML mas tres cosas: inclusiones (tambien llamadas *partials* o *plantillas parciales*), expresiones (*expressions*) y bloques de ayuda (*block helpers*).
+Es el momento de introducir **Spacebars** el sistema de plantillas de Meteor. Spacebars es simplemente HTML mas tres cosas: *inclusiones* (también llamadas “partials” o *plantillas parciales*), expresiones (*expressions*) y bloques de ayuda (*block helpers*).
 
 Las *inclusiones* usan la sintaxis `{{> templateName}}` y simplemente le dicen a Meteor que reemplace la inclusión por la plantilla del mismo nombre (en nuestro caso `postItem`).
 
@@ -95,51 +97,46 @@ Si quieres saber más sobre Spacebars puedes consultar la [documentación oficia
 
 <% end %>
 
-Ahora, ya podemos entender cómo van a funcionar nuestras plantillas:
+Armados con este conocimiento, ya podemos entender cómo van a funcionar nuestras plantillas:
 
 Primero, en la plantilla `postsList` iteramos sobre un objeto `posts`, y para cada iteración, incluimos la plantilla `postItem`.
 
-Pero, ¿de dónde viene el objeto `posts`?. En realidad, es un ayudante (código JavaScript) para nuestra plantilla y lo definiremos cuando veamos los gestores de plantilla.
+Pero, ¿de dónde viene el objeto `posts`?. Buena pregunta. Es un **ayudante de plantilla**, y puedes pensar en ellos como un cajón o hueco para nuestros valores dinámicos.
 
 La plantilla `postItem` es bastante sencilla. Sólo usa tres expresiones: `{{url}}` y `{{title}}` devuelven propiedades, y `{{domain}}` llama a un ayudante.
 
-Hemos mencionado a los "ayudantes de plantilla" sin explicar qué son y lo que hacen realmente. Para de solucionar este problema, primero tenemos que hablar de los gestores.
-
-### Gestores de plantillas
+### Ayudantes de plantillas
 
 Hasta ahora hemos estado tratando con Spacebars, que es poco más que HTML con algunas etiquetas extra. A diferencia de otros lenguajes como PHP (o páginas HTML con JavaScript), Meteor mantiene las plantillas y su lógica separadas, de forma que nuestras plantillas por sí mismas no hacen casi nada.
 
-Para que una plantilla tenga vida necesita un **gestor** (manager), que es el que, en realidad hace el trabajo pesado, asignando un valor a cada una de las variables de la plantilla.
+Para que una plantilla tenga vida necesita un **ayudantes**. Puedes pensar en estos ayudantes como los cocineros que toman los ingredientes (tus datos) y los preparan, antes de entregar el plato terminado (las plantillas) al camarero, que los entregan.
+
+En otras palabras, mientras el rol de las plantillas está limitada a mostrar o iterar sobre variables, los ayudantes son los que actualmente hacen el trabajo pesado asignando un valor a cada variable.
 
 <% note do %>
 
-### ¿Gestores, managers?
+### ¿Controladores?
 
-Cuando les preguntamos a otros desarrolladores cómo llaman a los gestores de plantilla, la mitad dijo "controladores", y la otra mitad dijo "esos archivos donde pongo mi código JavaScript".
+Podría ser tentador pensar en los ficheros que contienen todos estos ayudantes de plantillas como un tipo de controlador. Pero eso puede ser ambiguo, ya que los controladores (al menos en el sentido de controladores MVC) normalmente tienen un papel un poco diferente.
 
-Los gestores no son realmente controladores (al menos, no en el sentido de controladores MVC) y "EADPMC" no es realmente tan pegadiza, por lo que rechazamos ambas proposiciones.
-
-Dado que todavía necesitábamos una forma de indicar de lo que estábamos hablando, nos encontramos con el término "gestor" (manager) como un atajo práctico que no tiene ningún significado preexistente en lo que se refiere a frameworks web.
+Así que hemos decido apartarnos de esa terminología, y simplemente nos referimos a “ayudantes de plantillas“ o “lógica de plantilla” cuando hablamos del código JavaScript que acompaña a las plantillas.
 
 <% end %>
 
-Para mantener las cosas ordenadas, adoptaremos la convención de nombrar el gestor igual que la plantilla pero con extensión js. Así que vamos a crear `posts_list.js` dentro de `/client/views/posts` para construir nuestro primer gestor:
+Para mantener las cosas ordenadas, adoptaremos la convención de nombrar al fichero que contiene la plantilla con el mismo nombre, pero con la extensión **.js**. Así que vamos a crear un fichero `posts_list.js` dentro de `/client/templates/posts` para construir nuestro primer gestor:
 
 ~~~js
 var postsData = [
   {
     title: 'Introducing Telescope',
-    author: 'Sacha Greif',
     url: 'http://sachagreif.com/introducing-telescope/'
   },
   {
     title: 'Meteor',
-    author: 'Tom Coleman',
     url: 'http://meteor.com'
   },
   {
     title: 'The Meteor Book',
-    author: 'Tom Coleman',
     url: 'http://themeteorbook.com'
   }
 ];
@@ -147,19 +144,17 @@ Template.postsList.helpers({
   posts: postsData
 });
 ~~~
-<%= caption "client/views/posts/posts_list.js" %>
+<%= caption "client/templates/posts/posts_list.js" %>
 
 Si todo está bien, ya se pueden ver los datos en el navegador:
 
-<%= screenshot "3-1", "Our first templates with static data" %>
+<%= screenshot "3-1", "Nuestra primera plantilla con datos estáticos" %>
 
-<%= commit "3-1", "Plantilla de la lista de posts y datos estáticos." %>
+Estamos haciendo dos cosas. Primero, creamos algunos datos prototipo en `postsData`. Normalmente estos datos vienen de la base de datos, pero como no hemos visto cómo hacerlo todavía (espera al siguiente capítulo), hacemos trampa mediante el uso de datos estáticos.
 
-Estamos haciendo dos cosas. Primero, creamos algunos datos prototipo en `postsData`. Normalmente, estos datos vienen de la base de datos, pero como no sabemos cómo hacerlo (espera al siguiente capítulo), hacemos trampa mediante el uso de datos estáticos.
+Segundo, usamos la función `Template.postsList.helpers()` para definir un ayudante de plantilla llamado `posts` que sencillamente devuelve nuestros datos creados en `postsData`.
 
-Segundo, usamos la función `Template.myTemplate.helpers()` para definir un ayudante de plantilla llamado `posts` que sencillamente devuelve nuestros datos creados en `postsData`.
-
-Definir el ayudante `posts` implica que está disponible para nuestra plantilla:
+Y si recuerdas, estamos usando el ayudante `posts`en nuestra plantilla `postsList`:
 
 ~~~html
 <template name="postsList">
@@ -170,13 +165,15 @@ Definir el ayudante `posts` implica que está disponible para nuestra plantilla:
   </div>
 </template>
 ~~~
-<%= caption "client/views/posts/posts_list.html" %>
+<%= caption "client/templates/posts/posts_list.html" %>
 
-Así que nuestra plantilla podrá iterar sobre `postsData` y enviar todos los objetos contenidos en él a la plantilla `postItem`.
+Definiendo el ayudante `posts` lo que conseguimos es que ahora esté disponible para usarlo en nuestra plantilla, así que nuestra plantilla será capaz de recorrer el array `postData` y pasar cada objeto dentro a la plantilla `postItem`.
 
-### El Valor de "`this`"
+<%= commit "3-1", "Añadimos una plantilla básica para recorrer los posts y datos estáticos." %>
 
-Vamos a crear el gestor `post_item.js`:
+### El ayudante `domain`
+
+De forma similar, crearemos un fichero `post_item.js` para albergar la lógica de la plantilla `postItem`:
 
 ~~~js
 Template.postItem.helpers({
@@ -187,21 +184,21 @@ Template.postItem.helpers({
   }
 });
 ~~~
-<%= caption "client/views/posts/post_item.js" %>
-
-<%= commit "3-2", "Ayudante `domain` para la plantilla `postItem`." %>
+<%= caption "client/templates/posts/post_item.js" %>
 
 Esta vez el valor de nuestro ayudante `domain`, no son datos sino una función anónima. Este patrón es mucho más común (y más útil) en comparación con nuestros ejemplos de datos ficticios.
 
-<%= screenshot "3-2", "Displaying domains for each links." %>
+<%= screenshot "3-2", "Mostrando el dominio para cada enlace." %>
 
 El ayudante `domain` coge una URL y devuelve su dominio a través de un poco de magia JavaScript. Pero, ¿de dónde saca esa url la primera vez?.
 
-Para responder a esta pregunta tenemos que volver a nuestra plantilla `posts_list.html`. El bloque `{{#each}}` no sólo itera nuestros datos, sino que también establece el valor de `this` dentro del objeto repetido.
+Para responder a esta pregunta tenemos que volver a nuestra plantilla `posts_list.html`. El bloque `{{#each}}` no sólo itera nuestros datos, sino que también **establece el valor de `this` dentro del bloque al objeto siendo iterado**.
 
-Esto significa que `this` es asignado a cada `post` sucesivamente, y esto se hace extensivo al gestor `post_item.js`.
+Esto significa que entre los dos etiquetas `{{each}}`, el valor de `this` es asignado a cada `post` sucesivamente, y esto se hace extensivo al gestor de la plantilla (`post_item.js`).
 
 Ahora entendemos porqué `this.url` devuelve la URL del post actual. Y más aún, como utilizamos `{{title}}` y `{{url}}` dentro de nuestra plantilla `post_item.html`, Meteor sabe que lo que queremos es `this.title` y `this.url` y devuelve los valores correctos.
+
+<%= commit "3-2", "Establecemos un ayudante `domain` en `postItem`." %>
 
 <% note do %>
 
@@ -225,6 +222,6 @@ Probablemente ya habrás notado que no es necesario recargar la ventana del nave
 
 Esto se debe a que Meteor hace un seguimiento de todos los archivos en el directorio del proyecto, y los actualiza automáticamente en el navegador cada vez que detecta un cambio en alguno de ellos.
 
-La recarga automática es bastante inteligente, ya que además, ¡conserva el estado de la aplicación entre dos refrescos!
+La recarga automática es bastante inteligente, ya que incluso, ¡conserva el estado de la aplicación entre dos refrescos!
 
 <% end %>
