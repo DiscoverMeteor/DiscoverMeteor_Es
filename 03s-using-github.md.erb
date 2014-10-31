@@ -3,8 +3,11 @@ title: Usando Git y GitHub
 slug: github
 date: 0003/01/02
 number: 3.5
+points: 5
 sidebar: true
 published: true
+photoUrl: http://www.flickr.com/photos/ikewinski/7170807209/
+photoAuthor: Mike Lewinski
 contents: "Aprenderemos cómo usar GitHub para seguir el libro."
 paragraphs: 32
 ---
@@ -60,7 +63,7 @@ Acabamos de ver cómo explorar todo un repositorio desde la web de GitHub. Pero,
 Para verlo, empezaremos a usar la `utilidad de línea de comandos` de git. Para empezar, [asegúrate de que tienes instalado Git](http://git-scm.com/downloads) y entonces **clona** (o, descarga una copia local) el repositorio Microscope:
 
 ~~~bash
-$ git clone git@github.com:DiscoverMeteor/Microscope.git github_microscope
+git clone git@github.com:DiscoverMeteor/Microscope.git github_microscope
 ~~~
 
 `github_microscope` es el nombre del directorio local dónde se le "clonará" la aplicación. Si ya existe el directorio `microscope`, sólo tienes que elegir cualquier otro nombre (no tiene que tener el mismo nombre que el repositorio GitHub).
@@ -68,7 +71,7 @@ $ git clone git@github.com:DiscoverMeteor/Microscope.git github_microscope
 Ahora entramos con `cd` en el repositorio recién descargado y estamos listos para usar la `utilidad de línea de comando` de git:
 
 ~~~bash
-$ cd github_microscope
+cd github_microscope
 ~~~
 
 Cuando clonamos el repositorio de GitHub, descargamos *todo* el código, lo que significa que lo que vemos es el último commit ('HEAD') de la aplicación.
@@ -76,11 +79,11 @@ Cuando clonamos el repositorio de GitHub, descargamos *todo* el código, lo que 
 Afortunadamente, hay una forma de volver atrás en el tiempo y revisar ("check out") un commit específico sin afectar a los demás. Vamos a probarlo:
 
 ~~~bash
-$ git checkout chapter3-1
+git checkout chapter3-1
 Nota: revisando el commit 'chapter3-1'.
 
-Ahora, nuestro repositorio se ha "aislado" del commit HEAD. Podemos revisarlo, 
-hacer cambios, experimentar con ellos y hacer commits y descartarlos sin que 
+Ahora, nuestro repositorio se ha "aislado" del commit HEAD. Podemos revisarlo,
+hacer cambios, experimentar con ellos y hacer commits y descartarlos sin que
 esto afecte a otras ramas cuando hagamos otros checkous.
 
 Si quieres mantener los cambios que has hecho, puedes crear una nueva rama
@@ -104,7 +107,7 @@ Una vez más, GitHub nos lo pone fácil. Podemos encontrar el hash de cada commi
 Así que vamos a intentarlo con el hash en vez de con la etiqueta:
 
 ~~~bash
-$ git checkout c7af59e425cd4e17c20cf99e51c8cd78f82c9932
+git checkout c7af59e425cd4e17c20cf99e51c8cd78f82c9932
 Previous HEAD position was a004b56... Added basic posts list template and static data.
 HEAD is now at c7af59e... Augmented the postsList route to take a limit
 ~~~
@@ -112,14 +115,14 @@ HEAD is now at c7af59e... Augmented the postsList route to take a limit
 Y por último, ¿qué pasa si queremos dejar de mirar la bola mágica y volver al presente? Pues le decimos a Git que queremos volver la rama **master**:
 
 ~~~bash
-$ git checkout master
+git checkout master
 ~~~
 
 Recuerda que, en cualquier momento del proceso, puedes ejecutar la aplicación usando el comando `meteor`, aunque el repositorio no esté en HEAD. Puede ser necesario ejecutar un `meteor update` primero si Meteor se queja de que faltan paquetes, ya que el código de los paquetes no está incluido en el repositorio .
 
 ### Una perspectiva histórica
 
-Este es otro escenario muy común: estás mirando un archivo y ves cambios que no habías visto antes y no recuerdas *cuándo* se han hecho. Podríamos revisar comit a commit hasta encontrar el que nos interesa pero, hay una forma más fácil gracias a la caractrística **History** de GitHub.
+Este es otro escenario muy común: estás mirando un archivo y ves cambios que no habías visto antes y no recuerdas *cuándo* se han hecho. Podríamos revisar comit a commit hasta encontrar el que nos interesa pero, hay una forma más fácil gracias a la característica **History** de GitHub.
 
 En primer lugar, accede a uno de los archivos del repositorio en GitHub, y a continuación, busca el botón "History":
 
