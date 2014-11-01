@@ -120,7 +120,7 @@ La sintaxis de Mongo es familiar, ya que utiliza una interfaz JavaScript. No vam
 
 ### Colecciones en el lado del cliente
 
-Las colecciones son más interesantes en el lado del cliente. Cuando se declara `Posts = new Meteor.Collection('posts');` en el cliente, lo que se está creando es una *caché local dentro del navegador* de la colección real de Mongo. Cuando decimos que las colecciones del lado del cliente son una "caché", queremos decir que contiene un *subconjunto* de los datos, y ofrece un acceso muy *rápido*.
+Las colecciones son más interesantes en el lado del cliente. Cuando se declara `Posts = new Mongo.Collection('posts');` en el cliente, lo que se está creando es una *caché local dentro del navegador* de la colección real de Mongo. Cuando decimos que las colecciones del lado del cliente son una "caché", queremos decir que contiene un *subconjunto* de los datos, y ofrece un acceso muy *rápido*.
 
 Es importante entender este punto, ya que es fundamental para comprender la forma en la que funciona Meteor. En general, una colección del lado del cliente consiste en un subconjunto de todos los documentos almacenados en la colección de Mongo (por lo general, nunca querremos enviar *toda nuestra base de datos* al cliente).
 
@@ -177,7 +177,7 @@ Como era de esperar, el post aparece en la colección local. Ahora vamos a compr
 ~~~
 <%= caption "Consola de Mongo" %>
 
-Como puedes ver, el post ha viajado hasta la base de datos sin escribir una sola línea de código para enlazar nuestro cliente hasta el servidor (bueno, en sentido estricto, hemos escrito una sola línea de código: `new Meteor.Collection("posts")`). ¡Pero eso no es todo!
+Como puedes ver, el post ha viajado hasta la base de datos sin escribir una sola línea de código para enlazar nuestro cliente hasta el servidor (bueno, en sentido estricto, hemos escrito una _sola_ línea de código: `new Mongo.Collection("posts")`). ¡Pero eso no es todo!
 
 Escribamos esto en la consola del segundo navegador:
 

@@ -91,19 +91,14 @@ A continuación, añadiremos el parámetro `postsLimit` al path de la ruta. Si a
 ~~~js
 //...
 
-Router.map(function() {
-  //...
-
-  this.route('postsList', {
-    path: '/:postsLimit?'
-  });
-
+Router.route('/:postsLimit?', {
+  name: 'postsList',
 });
 
 //...
 ~~~
 <%= caption "lib/router.js" %>
-<%= highlight "7" %>
+<%= highlight "3" %>
 
 Es importante señalar que un path de la forma `/:parameter?` coincide con todos los path posibles. Dado que cada ruta se analiza en orden secuencial para comprobar si coincide con la ruta actual, tenemos que asegurarnos que organizamos bien nuestras rutas con el fin de disminuir la especificidad.
 
@@ -114,22 +109,18 @@ Es el momento de abordar el difícil problema de suscribirse y encontrar los dat
 ~~~js
 //...
 
-Router.map(function() {
-  //..
-
-  this.route('postsList', {
-    path: '/:postsLimit?',
-    waitOn: function() {
-      var postsLimit = parseInt(this.params.postsLimit) || 5;
-      return Meteor.subscribe('posts', {sort: {submitted: -1}, limit: postsLimit});
-    }
-  });
+Router.route('/:postsLimit?', {
+  name: 'postsList',
+  waitOn: function() {
+    var limit = parseInt(this.params.postsLimit) || 5;
+    return Meteor.subscribe('posts', {sort: {submitted: -1}, limit: limit});
+  }
 });
 
 //...
 ~~~
 <%= caption "lib/router.js" %>
-<%= highlight "6~9" %>
+<%= highlight "7~9" %>
 
 Ya te habrás dado cuenta que estamos pasando un objeto JavaScript ({sort: {submitted: -1}, limit: postsLimit}) junto con el nombre de nuestra publicación `posts`. Este objeto servirá como parámetro `options` en la llamada a `Posts.find()` en el lado del servidor. Vamos a cambiar nuestro código en el servidor para implementarlo:
 
@@ -181,28 +172,24 @@ Lo que significa es que en lugar de disponer implícitamente de los datos en `th
 ~~~js
 //...
 
-Router.map(function() {
-  //...
-
-  this.route('postsList', {
-    path: '/:postsLimit?',
-    waitOn: function() {
-      var limit = parseInt(this.params.postsLimit) || 5;
-      return Meteor.subscribe('posts', {sort: {submitted: -1}, limit: limit});
-    },
-    data: function() {
-      var limit = parseInt(this.params.postsLimit) || 5;
-      return {
-        posts: Posts.find({}, {sort: {submitted: -1}, limit: limit})
-      };
-    }
-  });
+Router.route('/:postsLimit?', {
+  name: 'postsList',
+  waitOn: function() {
+    var limit = parseInt(this.params.postsLimit) || 5;
+    return Meteor.subscribe('posts', {sort: {submitted: -1}, limit: limit});
+  },
+  data: function() {
+    var limit = parseInt(this.params.postsLimit) || 5;
+    return {
+      posts: Posts.find({}, {sort: {submitted: -1}, limit: limit})
+    };
+  }
 });
 
 //...
 ~~~
 <%= caption "lib/router.js" %>
-<%= highlight "12~17" %>
+<%= highlight "9~14" %>
 
 Ahora que hemos establecido el contexto de datos a nivel de router podemos deshacernos del ayudante de plantilla `posts` del archivo `posts_list.js`. Y como hemos llamado `posts` al contexto de datos (igual que en el ayudante), ¡ni siquiera necesitamos tocar la plantilla `postsList`!
 
@@ -218,28 +205,52 @@ Router.configure({
   }
 });
 
-Router.map(function() {
-  //...
-
-  this.route('postsList', {
-    path: '/:postsLimit?',
-    waitOn: function() {
-      var limit = parseInt(this.params.postsLimit) || 5;
-      return Meteor.subscribe('posts', {sort: {submitted: -1}, limit: limit});
-    },
-    data: function() {
-      var limit = parseInt(this.params.postsLimit) || 5;
-      return {
-        posts: Posts.find({}, {sort: {submitted: -1}, limit: limit})
-      };
-    }
-  });
+Router.route('/posts/:_id', {
+  name: 'postPage',
+  waitOn: function() {
+    return Meteor.subscribe('comments', this.params._id);
+  },
+  data: function() { return Posts.findOne(this.params._id); }
 });
 
-//...
+Router.route('/posts/:_id/edit', {
+  name: 'postEdit',
+  data: function() { return Posts.findOne(this.params._id); }
+});
+
+Router.route('/submit', {name: 'postSubmit'});
+
+Router.route('/:postsLimit?', {
+  name: 'postsList',
+  waitOn: function() {
+    var limit = parseInt(this.params.postsLimit) || 5;
+    return Meteor.subscribe('posts', {sort: {submitted: -1}, limit: limit});
+  },
+  data: function() {
+    var limit = parseInt(this.params.postsLimit) || 5;
+    return {
+      posts: Posts.find({}, {sort: {submitted: -1}, limit: limit})
+    };
+  }
+});
+
+var requireLogin = function() {
+  if (! Meteor.user()) {
+    if (Meteor.loggingIn()) {
+      this.render(this.loadingTemplate);
+    } else {
+      this.render('accessDenied');
+    }
+  } else {
+    this.next();
+  }
+}
+
+Router.onBeforeAction('dataNotFound', {only: 'postPage'});
+Router.onBeforeAction(requireLogin, {only: 'postSubmit'});
 ~~~
 <%= caption "lib/router.js" %>
-<%= highlight "5, 11~21" %>
+<%= highlight "6,25~37" %>
 
 <%= commit "12-2", "Aumentada la ruta `postsList` para que tenga un límite." %>
 
@@ -297,14 +308,13 @@ PostsListController = RouteController.extend({
   }
 });
 
-Router.map(function() {
-  //...
+//...
 
-  this.route('postsList', {
-    path: '/:postsLimit?',
-    controller: PostsListController
-  });
+Router.route('/:postsLimit?', {
+  name: 'postsList'
 });
+
+//...
 ~~~
 <%= caption "lib/router.js" %>
 <%= highlight "3~18, 25" %>
@@ -315,7 +325,7 @@ A continuación, definimos una nueva función `limit` que devolverá el límite 
 
 A continuación, definimos nuestras funciones `waitOn` y de `data` igual que antes, excepto que ahora usan la nueva función `findOptions`.
 
-Lo último es decirle a la ruta `postsList` que use el nuevo controlador con la propiedad `controller` (eliminando las opciones `data` y `waitOn` en el proceso).
+Como nuestro controlador se llama `PostsListController` y nuestra ruta se llama `postsList`, Iron Router usará el controlador automáticamente. Así que sólo necesitamos eliminar `waitOn` y `data` de la definicíon de la ruta (ya que es el controldor quien los gestiona ahora). Si necesitáramos utilizar un controlador con un nombre diferente, lo podemos hacer usando la opción `controller` (veremos un ejemplo de esto en el siguiente capítulo).
 
 <%= commit "12-3", "postLists refactorizado en un controlador de rutas" %>
 
@@ -406,7 +416,7 @@ Así es como se debería ver la lista ahora:
 
 La paginación funciona correctamente, pero tiene una peculiaridad algo molesta: cada vez que se hace clic en "Load more" y el router pide más posts, nos envía a plantilla de la carga mientras esperamos los nuevos datos. El resultado es que cada vez, nos envía a la parte superior de la página y tenemos que desplazarnos hasta el final para reanudar la navegación.
 
-Así que primero, tenemos que decirle a Iron Router que no espere (`waitOn`) las subscripción. En su lugar, nos subscribiremos en el hook `onBeforeAction`.
+Así que primero, tenemos que decirle a Iron Router que no espere (`waitOn`) la subscripción. En su lugar, definiremos nuestras subscripciones en el hook `subscriptions`.
 
 También estamos pasando una variable `ready` que hace referencia a `this.postsSub.ready` como parte de nuestro contexto de datos. Esto le dirá a la plantilla cuando la subscripción de los posts ha terminado de cargar.
 
@@ -422,7 +432,7 @@ PostsListController = RouteController.extend({
   findOptions: function() {
     return {sort: {submitted: -1}, limit: this.postsLimit()};
   },
-  onBeforeAction: function() {
+  subscriptions: function() {
     this.postsSub = Meteor.subscribe('posts', this.findOptions());
   },
   posts: function() {
@@ -500,37 +510,29 @@ Ahora, vamos a suscribirnos a los posts correctos en el lado del cliente. Ya est
 ~~~js
 //...
 
-Router.map(function() {
+Router.route('/posts/:_id', {
+  name: 'postPage',
+  waitOn: function() {
+    return [
+      Meteor.subscribe('singlePost', this.params._id),
+      Meteor.subscribe('comments', this.params._id)
+    ];
+  },
+  data: function() { return Posts.findOne(this.params._id); }
+});
 
-  //...
-
-  this.route('postPage', {
-    path: '/posts/:_id',
-    waitOn: function() {
-      return [
-        Meteor.subscribe('singlePost', this.params._id),
-        Meteor.subscribe('comments', this.params._id)
-      ];
-    },
-    data: function() { return Posts.findOne(this.params._id); }
-  });
-
-  this.route('postEdit', {
-    path: '/posts/:_id/edit',
-    waitOn: function() {
-      return Meteor.subscribe('singlePost', this.params._id);
-    },
-    data: function() { return Posts.findOne(this.params._id); }
-  });
-
-  //...
-
+Router.route('/posts/:_id/edit', {
+  name: 'postEdit',
+  waitOn: function() {
+    return Meteor.subscribe('singlePost', this.params._id);
+  },
+  data: function() { return Posts.findOne(this.params._id); }
 });
 
 //...
 ~~~
 <%= caption "lib/router.js" %>
-<%= highlight "9~14,20~22" %>
+<%= highlight "6~9,16~18" %>
 
 <%= commit "12-6"," Usando una sola suscripción a los posts para asegurarnos de que siempre se puede ver y editar el post correcto." %>
 

@@ -411,7 +411,7 @@ PostsListController = RouteController.extend({
   findOptions: function() {
     return {sort: this.sort, limit: this.postsLimit()};
   },
-  onBeforeAction: function() {
+  subscriptions: function() {
     this.postsSub = Meteor.subscribe('posts', this.findOptions());
   },
   posts: function() {
@@ -427,51 +427,41 @@ PostsListController = RouteController.extend({
   }
 });
 
-NewPostsListController = PostsListController.extend({
+NewPostsController = PostsListController.extend({
   sort: {submitted: -1, _id: -1},
   nextPath: function() {
     return Router.routes.newPosts.path({postsLimit: this.postsLimit() + this.increment})
   }
 });
 
-BestPostsListController = PostsListController.extend({
+BestPostsController = PostsListController.extend({
   sort: {votes: -1, submitted: -1, _id: -1},
   nextPath: function() {
     return Router.routes.bestPosts.path({postsLimit: this.postsLimit() + this.increment})
   }
 });
 
-Router.map(function() {
-  this.route('home', {
-    path: '/',
-    controller: NewPostsListController
-  });
-
-  this.route('newPosts', {
-    path: '/new/:postsLimit?',
-    controller: NewPostsListController
-  });
-
-  this.route('bestPosts', {
-    path: '/best/:postsLimit?',
-    controller: BestPostsListController
-  });
-  // ..
+Router.route('/', {
+  name: 'home',
+  controller: NewPostsController
 });
+
+Router.route('/new/:postsLimit?', {name: 'newPosts'});
+
+Router.route('/best/:postsLimit?', {name: 'bestPosts'});
 ~~~
 <%= caption "lib/router.js" %>
 <%= highlight "10,22,27~39,42~55" %>
 
-Ten en cuenta que ahora que tenemos más de una ruta, sacamos la lógica para `NextPath` de `PostsListController` y la ponemos en `NewPostsListController` y `BestPostsListController`, ya que el path será diferente en uno y otro caso.
+Ten en cuenta que ahora que tenemos más de una ruta, sacamos la lógica para `nextPath` de `PostsListController` y la ponemos en `NewPostsController` y `BestPostsController`, ya que el path será diferente en uno y otro caso.
 
 Además, cuando ordenemos por votos, establecemos un segundo orden por fecha y por `_id` para garantizar que el orden está completamente especificado.
 
 Una vez listos los nuevos controladores podemos deshacernos de la ruta anterior a `postsList`. Simplemente eliminamos el siguiente código:
 
 ```
- this.route('postsList', {
-  path: '/:postsLimit?',
-  controller: PostsListController
+ Router.route('/:postsLimit?', {
+  name: 'postsList'
  })
 ```
 <%= caption "lib/router.js" %>
@@ -595,7 +585,7 @@ Template.header.helpers({
     args.pop();
 
     var active = _.any(args, function(name) {
-      return Router.current() && Router.current().route.name === name
+      return Router.current() && Router.current().route.getName() === name
     });
 
     return active && 'active';

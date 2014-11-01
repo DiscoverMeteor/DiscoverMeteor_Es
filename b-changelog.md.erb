@@ -5,10 +5,161 @@ date: 0099/01/02
 number: 99
 points: 1
 appendix: true
-version: 1.5
-updated: 08/27/2014
+version: 1.7
+updated: "October 28, 2014"
 note: feel free to adapt the contents of this document to your own translation, but please keep the same version numbers
 ---
+
+### October 28, 2014 <span class="marker version-marker">1.7</span>
+
+Updating the book for Iron Router 1.0.
+
+- Defining routes with new path-first syntax.
+- Use `subscriptions` instead of `onBeforeAction` in posts controller.
+- Use `this.next()` in `onBeforeAction` hook.
+- Rename `XyzPostsListController` to `XyzPostsController`.
+
+### October 24, 2014 <span class="marker version-marker">1.6.1</span>
+
+- Fixing a few typos.
+- Finishing switching `Meteor.Collection` to `Mongo.Collection`.
+- Updated introduction.
+- Added “Get A Load Of This” section in Routing chapter.
+
+### October 15, 2014 <span class="marker version-marker">1.6</span>
+
+Updating the book for Meteor 1.0.
+
+#### General Changes
+
+- `collections` directory is now in `lib`.
+- `views` directory is now named `templates`.
+- Removed `$` from bash prompts.
+- Now using Bootstrap 3.
+- Being more consistent about using `//...` to denote skipped lines in code.
+
+#### Getting Started
+
+- Explained the advantages of Meteor packages over manually adding files.
+- Explicitly adding `underscore` package.
+- Updated “5 Types of Packages” section.
+- Not creating `collections` directory anymore.
+- Updated CSS code.
+
+#### Templates
+
+- Changed “partials” to “inclusions”.
+- Not talking about “managers” anymore. 
+
+#### Collections
+
+- Cut down Collections chapter intro. 
+- Changed `Meteor.Collection()` to `Mongo.Collection()`.
+- Added “Storing Data” section.
+- General edits and tweaks.
+
+#### Routing
+
+- Added “Post Not Found” section.
+- General edits and improvements.
+
+#### The Session
+
+- Added reminder to revert code changes at the end of the chapter. 
+
+#### Adding Users
+
+- Now using `ian:accounts-ui-bootstrap-3` package.
+
+#### Reactivity
+
+- Using `Trackers` instead of `Deps`. 
+
+#### Creating Posts
+
+- Removed `message` field from posts.
+- Added “Security Check” section.
+- Added “Preventing Duplicates” section.
+- Changed `post` to `postInsert`, updated `postInsert` method description.
+
+#### Latency Compensation
+
+- Updated code examples.
+- Added more explanations.
+
+#### Allow & Deny
+
+- Remove “Using Deny as a Callback” section.
+
+#### Errors
+
+- Completely rewrote error handling code.
+- Added “Seeking Validation” section.
+
+#### Creating a Meteor Package
+
+- Various edits and updates.
+
+#### Comments
+
+- Rename `comment` template to `commentItem`. 
+- Various edits. 
+
+#### Notifications
+
+- Added “No Trespassers Allowed” note.
+
+#### Advanced Reactivity
+
+- Added section about `reactive-var` package.
+
+#### Pagination
+
+- Got rid of `iron-router-progress`.
+
+#### Voting
+
+- Various edits. 
+
+#### Advanced Publications
+
+- Various edits. 
+
+#### Animations
+
+**This chapter is out of date. Update coming sometimes after 1.0.**
+
+---
+
+*Note: the following extra chapters are only included in the Full and Premium editions:*
+
+#### RSS Feeds & APIs
+
+- Updated package syntax.
+- Minor tweaks.
+
+#### Using External APIs
+
+- Minor edits.
+
+#### Implementing Intercom
+
+- Added `favorite_color` custom attribute.
+- Various minor edits. 
+
+#### Migrations
+
+- Minor edits.
+
+### October 3, 2014 <span class="marker version-marker">1.5.1</span>
+
+- Fix quotes in comments chapter.
+- Clarified Session chapter.
+- Added link to the blog in chapter 8. 
+- Adding a note about reversing changes at the end of Session sidebar. 
+- Reworking section about the five types of packages.
+- Changing "partial" to "inclusion" in Templates chapter. 
+- Added note about Animations chapter being out of date. 
 
 ### August 27, 2014 <span class="marker version-marker">1.5</span>
 

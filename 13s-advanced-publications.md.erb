@@ -124,7 +124,7 @@ Meteor.publish('topPosts', function(limit) {
   function publishPostComments(postId) {
     var commentsCursor = Comments.find({postId: postId}, {limit: 2});
     commentHandles[post._id] =
-      Meteor.Collection._publishCursor(commentsCursor, sub, 'comments');
+      Mongo.Collection._publishCursor(commentsCursor, sub, 'comments');
   }
 
   postHandle = Posts.find({}, {limit: limit}).observeChanges({
@@ -176,7 +176,7 @@ Y aunque tendríamos una sola colección `resources` en el servidor, podríamos 
     var sub = this;
 
     var videosCursor = Resources.find({type: 'video'});
-    Meteor.Collection._publishCursor(videosCursor, sub, 'videos');
+    Mongo.Collection._publishCursor(videosCursor, sub, 'videos');
 
     // _publishCursor doesn't call this for us in case we do this more than once.
     sub.ready();
