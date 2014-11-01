@@ -3,6 +3,9 @@ title: Empezando
 slug: getting-started
 date: 0002/01/01
 number: 2
+points: 1
+photoUrl: http://www.flickr.com/photos/ikewinski/9511230392/
+photoAuthor: Mike Lewinski
 contents: "Instalaremos Meteor y Meteorite.|Conoceremos los 5 tipos de paquetes que maneja Meteor.|Estableceremos la estructura de ficheros de nuestra aplicación."
 paragraphs: 49
 ---
@@ -77,28 +80,28 @@ Así que si encuentras referencias a `mrt` de de Meteorite a lo largo de este li
 
 ### Añadir un paquete
 
-Ahora vamos a usar el manejador de paquetes de Meteor para añadir un el framework [Bootstrap](http://twitter.github.com/bootstrap/) en nuestro proyecto:
+Ahora vamos a usar el sistema paquetes de Meteor para incluir el framework [Bootstrap](http://twitter.github.com/bootstrap/) en nuestro proyecto:
 
-Esto es lo mismo que añadir Bootstrap manualmente incluyendo sus archivos CSS y JavaScript, excepto que de esta manera confiamos en el miembro de la comunidad de Meteor [Andrew Mao](https://github.com/mizzao) (el "mizzao" en `mizzao:bootstrap-3` es el nombre de usuario del autor del paquete) para que lo mantenga actualizado por nosotros.
+Esto no es distinto de añadir Bootstrap de los forma habitual incluyendo manualmente los ficheros CSS y JavaScript, excepto por que confiamos en el miembro de la comunidad [Andrew Mao](https://github.com/mizzao) (“mizzao” en el identificador `mizzao:bootstrap-3` is el nombre de usuario de autor del paquete) para que mantenga el paquete actualizado por nosotros.
 
-Ya que estamos, también agregaremos el paquete [Underscore](http://underscorejs.org/). Underscore es una librería utilitaria de Javascript, y es muy útil para manipular estructuras de datos en este lenguaje.
+Ya que estamos, añadiremos también el paquete [Underscore](http://underscorejs.org/). Undersocre es una librería de utilidades JavaScript, y es muy útil cuando necesitemos manipular estructuras de datos.
 
-Al tiempo de esta traducción, el paquete `underscore` es todavía parte de los paquetes "oficiales" de Meteor, por lo cual no tiene un autor:
+En el momento de escribir esto, el paquete `underscore` forma parte todavía de los paquetes "oficiales" de Meteor, lo que quiere decir que no tenemos que incluir el nombre del autor:
 
 ~~~bash
 meteor add mizzao:bootstrap-3
 meteor add underscore
 ~~~
 
-Nótese que estamos añadiendo Bootstrap **3**. Algunas de las capturas de pantalla de este libro fueron tomadas con una versión de Microscope con Bootstrap **2**, por lo cual podrían lucir un poco diferentes.
+Fíjate que estamos añadiendo Bootstrap **3**. Algunas de las capturas de este libro están tomadas con un antigua versión de Microscope con Bootstrap **2**, por lo que podrían parecer ligeramente diferente.
 
-<%= commit "2-2", "Añadidos los paquetes de Bootstrap y Underscore." %>
+<%= commit "2-2", "Añadido el paquete bootstrap." %>
 
-Tan pronto como agregan el paquete de Bootstrap, deberían notar un cambio en la app:
+Tan pronto como agregues el paquete Bootstrap, deberías notar un cambio en el aspecto de nuestra aplicación:
 
-<%= screenshot "2-1b", "Con Bootstrap." %>
+<%= screenshot "2-1b", "Con Boostrap." %>
 
-A diferencia del modo "tradicional" de incluir recursos externos, no tuvimos que enlazar ningún archivo CSS o Javascript, porque Meteor se encarga de todo eso por nosotros! Esa es sólo una de las muchas ventajas de utilizar paquetes de Meteor.
+Al contrario que la forma “tradicional” en la que incluimos recursos externos, no tenemos que agregar enlaces a ningún fichero CSS o JavaScript, ¡porque Meteor se preocupar por eso por nosotros! Esta es sólo una de las muchas ventajas de los paquetes Meteor.
 
 <% note do %>
 
@@ -106,34 +109,34 @@ A diferencia del modo "tradicional" de incluir recursos externos, no tuvimos que
 
 Al hablar acerca de los paquetes en el contexto de Meteor, vale la pena ser específico. Meteor puede usar cinco tipos de paquetes distintos:
 
-- El mismo núcleo de Meteor está dividido en diferentes paquetes. Esto son los que llamamos **Meteor platform packages**. Están incluidos en cada app y probablemente nunca tengas que preocuparte por ellos.
+- El mismo núcleo de Meteor está dividido en diferentes **paquetes de la plataforma Meteor**. Están incluidos en cada app y probablemente nunca tengas que preocuparte por ellos.
 - Los paquetes ordinarios se conocen como "**isopacks**", o paquetes isomórficos (paquetes que funcionan en los dos lados, cliente y servidor). Los paquetes **First-party**, como `accounts-ui` o `appcache`, están mantenidos por los desarrolladores de Meteor y [vienen incluidos en Meteor](http://docs.meteor.com/#packages).
-- Los **Third-party packages** o paquetes de terceros, son isopacks que otros usuarios han subido al al servidor de paquetes de Meteor. Puedes echarles un vistazo en [Atmosphere](http://atmosphere.meteor.com) o con el comando `meteor search`.
-- Los **Local packages** o paquetes locales, son nuestros propios paquetes ubicados en el directorio `/packages`.
-- Los **NPM packages** (Node.js Packaged Modules) son paquetes de Node.js. A pesar de que no funcionan por defecto con Meteor, *pueden* ser utilizados por los anteriores tipos de paquetes.
+- Los **paquetes de terceros** son paquetes isopacks que otros usuarios han subido al servidor de paquetes de Meteor. Puedes echarles un vistazo en [Atmosphere](http://atmosphere.meteor.com) o con el comando `meteor search`.
+- Los **paquetes locales** son paquetes personalizados que puedes crear tu mismo y colocarlos en el directorio `/packages`.
+- Los **paquetes NPM** (Node.js Packaged Modules) son paquetes de Node.js. A pesar de que no funcionan por defecto con Meteor, *pueden* ser utilizados por los anteriores tipos de paquetes.
 
 <% end %>
 
 ### La estructura de una aplicación Meteor
 
-Antes de empezar a escribir código debemos estructurar de forma adecuada nuestro proyecto. Para asegurarte de que dispones de un entorno limplio y claro, abre el directorio `microscope` y borra los archivos `microscope.html`, `microscope.js`, y `microscope.css`.
+Antes de empezar a escribir código debemos estructurar de forma adecuada nuestro proyecto. Para asegurarte de que dispones de un entorno limpio y claro, abre el directorio `microscope` y borra los archivos `microscope.html`, `microscope.js`, y `microscope.css`.
 
-A continuación, crea cuatro directorios dentro de `microscope`: `/client`, `/server`, `/public`, y `/lib`. Dentro de `/client` crearemos también los archivos vacíos `main.html` y `main.js`. Por ahora, no te preocupes si esto rompe completamente la app, empezaremos a rellenar los nuevos ficheros en el siguiente capítulo. A pesar de que no funcionan fuera de la caja con el Meteor, que * puede * ser utilizados por los anteriores tipos de paquetes.
+A continuación, crea cuatro directorios dentro de `/microscope`: `/client`, `/server`, `/public` y `/lib`.
 
-A continuación, también debemos crear los archivos `main.html` y `main.js` dentro de `/client`. No te preocupes si esto rompe la aplicación por ahora, comenzaremos a colocar contenido en estos archivos en el próximo capítulo.
+Ahora, crearemos dos archivos vacíos `main.html` y `main.js` dentro de `/client`. Por ahora, no te preocupes si esto rompe completamente la app, empezaremos a rellenar los nuevos ficheros en el siguiente capítulo.
 
 Debemos mencionar que algunos de los directorios que hemos creado son especiales y Meteor tiene reglas para ellos:
 
-- El código de `/server` corre en el servidor.
-- El código de `/client` corre en el cliente.
-- Todo lo demás corre en las dos partes, cliente y servidor.
+- El código de `/server` se ejecuta en el servidor.
+- El código de `/client` se ejecuta en el cliente.
+- Todo lo demás se ejecuta en las dos partes, cliente y servidor.
 - Las cosas estáticas (fuentes, imágenes, etc.) van en el directorio `/public`.
 
-También es útil saber cómo Meteor decide en qué orden cargar tus archivos:
+Y tambien es útil saber como Meteor decide en que orden cargan los ficheros:
 
-- Los archivos en `/lib` se cargan *antes* que el resto.
-- Cualquier archivo `main.*` se carga *después* que el resto.
-- El resto de los archivos se cargan alfabéticamente de acuerdo a su nombre de archivo. 
+- Los archivos de `/lib` se cargan antes que nada.
+- Los archivos con nombre `main.*` se cargan *después* que todos los demás.
+- Todo se carga por orden alfabético según el nombre del fichero.
 
 Ten en cuenta que aunque Meteor tiene todas estas reglas, en realidad no nos obliga a utilizar una estructura de archivos predefinida. Así que la estructura que sugerimos es sólo nuestra forma de hacer las cosas, no son reglas inamovibles.
 
@@ -175,99 +178,122 @@ Meteor carga el CSS minimizado y de forma automática, por lo que, a diferencia 
 
 ~~~css
 .grid-block, .main, .post, .comments li, .comment-form {
-    background: #fff;
-    border-radius: 3px;
-    padding: 10px;
-    margin-bottom: 10px;
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
-}
+  background: #fff;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  -ms-border-radius: 3px;
+  -o-border-radius: 3px;
+  border-radius: 3px;
+  padding: 10px;
+  margin-bottom: 10px;
+  -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
+  -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15); }
+
 body {
-    background: #eee;
-    color: #666666;
-}
-.navbar { margin-bottom: 10px }
-.navbar .navbar-inner {
-    border-radius: 0px 0px 3px 3px;
-}
-#spinner { height: 300px }
+  background: #eee;
+  color: #666666; }
+
+.navbar {
+  margin-bottom: 10px; }
+  /* line 32, ../sass/style.scss */
+  .navbar .navbar-inner {
+    -webkit-border-radius: 0px 0px 3px 3px;
+    -moz-border-radius: 0px 0px 3px 3px;
+    -ms-border-radius: 0px 0px 3px 3px;
+    -o-border-radius: 0px 0px 3px 3px;
+    border-radius: 0px 0px 3px 3px; }
+
+#spinner {
+  height: 300px; }
+
 .post {
-    *zoom: 1;
+  /* For modern browsers */
+  /* For IE 6/7 (trigger hasLayout) */
+  *zoom: 1;
+  position: relative;
+  opacity: 1; }
+  .post:before, .post:after {
+    content: "";
+    display: table; }
+  .post:after {
+    clear: both; }
+  .post.invisible {
+    opacity: 0; }
+  .post.instant {
+    -webkit-transition: none;
+    -moz-transition: none;
+    -o-transition: none;
+    transition: none; }
+  .post.animate{
     -webkit-transition: all 300ms 0ms;
     -webkit-transition-delay: ease-in;
     -moz-transition: all 300ms 0ms ease-in;
     -o-transition: all 300ms 0ms ease-in;
-    transition: all 300ms 0ms ease-in;
-    position: relative;
-    opacity: 1;
-}
-.post:before, .post:after {
-    content: "";
-    display: table;
-}
-.post:after { clear: both }
-.post.invisible { opacity: 0 }
-.post .upvote {
+    transition: all 300ms 0ms ease-in; }
+  .post .upvote {
     display: block;
     margin: 7px 12px 0 0;
-    float: left;
-}
-.post .post-content { float: left }
-.post .post-content h3 {
-    margin: 0;
-    line-height: 1.4;
-    font-size: 18px;
-}
-.post .post-content h3 a {
-    display: inline-block;
-    margin-right: 5px;
-}
-.post .post-content h3 span {
-    font-weight: normal;
-    font-size: 14px;
-    display: inline-block;
-    color: #aaaaaa;
-}
-.post .post-content p { margin: 0 }
-.post .discuss {
+    float: left; }
+  .post .post-content {
+    float: left; }
+    .post .post-content h3 {
+      margin: 0;
+      line-height: 1.4;
+      font-size: 18px; }
+      .post .post-content h3 a {
+        display: inline-block;
+        margin-right: 5px; }
+      .post .post-content h3 span {
+        font-weight: normal;
+        font-size: 14px;
+        display: inline-block;
+        color: #aaaaaa; }
+    .post .post-content p {
+      margin: 0; }
+  .post .discuss {
     display: block;
     float: right;
-    margin-top: 7px;
-}
+    margin-top: 7px; }
+
 .comments {
-    list-style-type: none;
-    margin: 0;
-}
-.comments li h4 {
+  list-style-type: none;
+  margin: 0; }
+  .comments li h4 {
     font-size: 16px;
-    margin: 0;
-}
-.comments li h4 .date {
-    font-size: 12px;
-    font-weight: normal;
-}
-.comments li h4 a { font-size: 12px }
-.comments li p:last-child { margin-bottom: 0 }
+    margin: 0; }
+    .comments li h4 .date {
+      font-size: 12px;
+      font-weight: normal; }
+    .comments li h4 a {
+      font-size: 12px; }
+  .comments li p:last-child {
+    margin-bottom: 0; }
+
 .dropdown-menu span {
-    display: block;
-    padding: 3px 20px;
-    clear: both;
-    line-height: 20px;
-    color: #bbb;
-    white-space: nowrap;
-}
+  display: block;
+  padding: 3px 20px;
+  clear: both;
+  line-height: 20px;
+  color: #bbb;
+  white-space: nowrap; }
+
 .load-more {
-    display: block;
-    border-radius: 3px;
-    background: rgba(0, 0, 0, 0.05);
-    text-align: center;
-    height: 60px;
-    line-height: 60px;
-    margin-bottom: 10px;
-}
-.load-more:hover {
+  display: block;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  -ms-border-radius: 3px;
+  -o-border-radius: 3px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.05);
+  text-align: center;
+  height: 60px;
+  line-height: 60px;
+  margin-bottom: 10px; }
+  .load-more:hover {
     text-decoration: none;
-    background: rgba(0, 0, 0, 0.1);
-}
+    background: rgba(0, 0, 0, 0.1); }
+
 .posts .spinner-container{
   position: relative;
   height: 100px;
@@ -318,7 +344,7 @@ body {
 ~~~
 <%= caption "client/stylesheets/style.css" %>
 
-<%= commit "2-3","Estructura de ficheros establecida." %>
+<%= commit "2-3","Estructura de ficheros reorganizada." %>
 
 <% note do %>
 
