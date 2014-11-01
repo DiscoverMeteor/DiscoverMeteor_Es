@@ -100,9 +100,7 @@ Router.configure({
   layoutTemplate: 'layout'
 });
 
-Router.map(function() {
-  this.route('postsList', {path: '/'});
-});
+Router.route('/', {name: 'postsList'});
 ~~~
 <%= caption "lib/router.js"%>
 
@@ -124,7 +122,7 @@ Sólo una pequeña advertencia: ten en cuenta que, dado que la carpeta `/lib` no
 
 Vamos a aclarar un poco las cosas. Hemos llamado a nuestra ruta `postsList`, pero también tenemos una plantilla llamada `postsList`. Entonces, ¿qué está pasando?
 
-De forma predeterminada, Iron Router buscará una plantilla con el mismo nombre que la ruta. De hecho, incluso intentará buscar un camino basado en el nombre de la ruta, lo que significa que si no hubiéramos definido una ruta personalizada (cosa que hicimos al proporcionar una opción `path` en la definición de la ruta), nuestra plantilla hubiera sido accesible en la URL `/postsList`.
+De forma predeterminada, Iron Router buscará una plantilla con el mismo nombre que la ruta. De hecho, incluso intentará buscar un camino basado en el nombre de la *url* que proporciones. Aunque no funcionará en este caso particular (ya que nuestra ruta es `/`), Iron Router podría encontrar la plantilla correcta si usamos `http://localhost:3000/postsList` como nuestra url.
 
 Te estarás preguntando por qué necesitamos nombrar nuestras rutas. Hacerlo nos permite utilizar algunas características del Iron Router que hacen que sea más fácil construir enlaces dentro de nuestra aplicación. La más útil es el ayudante de Spacebars `{{pathFor}}`, que devuelve los componentes del `path` de cualquier ruta.
 
@@ -150,7 +148,28 @@ Si despliegas la versión actual de la aplicación (o lanzas la instancia median
 
 Tendríamos una mejor experiencia de usuario si proporcionáramos alguna información visual de que algo está pasando, y que el usuario debe esperar un poco.
 
-Por suerte, Iron Router proporciona una forma fácil de hacerlo -- esperaremos (`waitOn`) a la suscripción:
+Por suerte, Iron Router proporciona una forma fácil de hacerlo: podemos decirle que espere (`waitOn`) a la suscripción.
+
+Empezaremos moviendo nuestra suscripción `posts` desde `main.js` hasta el router:
+
+~~~js
+Router.configure({
+  layoutTemplate: 'layout',
+  waitOn: function() { return Meteor.subscribe('posts'); }
+});
+
+Router.route('/', {name: 'postsList'});
+~~~
+<%= caption "lib/router.js" %>
+<%= highlight "3" %>
+
+Lo que estamos diciendo aquí es que para  *cualquier* ruta del sitio (ahora mismo sólo tenemos una, ¡pero pronto vendrán más!), queremos suscribirnos a la subscripción `posts`.
+
+La diferencia clave entre esto y lo que teníamos antes (cuando la suscripción estaba en `main.js`, que ahora deería estar vacio y lo podemos eliminar), es que ahora Iron Router sabe cuando la ruta está "preparada" ("ready") -- esto es, cuando la ruta tiene los datos que necesita para renderizarse.
+
+### Cargando cosas
+
+Saber cuando la ruta `postsList` está lista no nos sirve de mucho si de todas formas vamos a estar mostrando una plantilla vacia. Afortunádamente, Iron Router proporciona una forma de retrasar el renderizado de una plantilla hasta que la ruta esté preparada, y mostrar una plantilla de cargando en su lugar (`loading`):
 
 ~~~js
 Router.configure({
@@ -159,26 +178,12 @@ Router.configure({
   waitOn: function() { return Meteor.subscribe('posts'); }
 });
 
-Router.map(function() {
-  this.route('postsList', {path: '/'});
-});
-
-Router.onBeforeAction('loading');
+Router.route('/', {name: 'postsList'});
 ~~~
 <%= caption "lib/router.js" %>
-<%= highlight "3,4, 11" %>
+<%= highlight "3,4" %>
 
-Vamos a analizar las cosas. En primer lugar, hemos modificado el bloque `Router.configure()` para proporcionar al router el nombre de la plantilla de carga (que crearemos en breve) a la que redirigir mientras esperamos los datos.
-
-En segundo lugar, hemos añadido una función `waitOn` que devuelve nuestra suscripción a la colección `posts`.
-
-Y por último, hemos habilitado el *hook* `loading`. Con todo esto, el router se asegurará de que la suscripción `posts` se completa antes de enviar al usuario a la ruta que había solicitado.
-
-Ten en cuenta que, dado que estamos definiendo nuestra función `waitOn` a nivel global al nivel del router, esta secuencia sólo ocurrirá cuando un usuario accede por primera vez a su aplicación. Después de eso, los datos que ya se cargarán en la memoria del navegador y el router no tendrá que esperar a que carguen otra vez.
-
-Puesto que ahora dejamos que el router maneje nuestra suscripción, puedes eliminarla de forma segura del `main.js` (que ahora debe estar vacío).
-
-Por lo general es una buena idea esperar a las suscripciones, no sólo por la experiencia de usuario, sino también porque significa que podemos asumir con seguridad que los datos estarán siempre disponibles dentro de una plantilla. Esto elimina la necesidad de enredarse con plantillas que se muestran antes de que los datos que usan estén disponibles, cosa que a menudo requiere soluciones difíciles.
+Fíjate que como hemos definido nuestra función `waitOn` de forma global a nivel del router, esto solo ocurrirá una sola vez cuando el usuario acceda por primera vez a la aplicación. Después de esto, los datos ya estarán cargados en la memoria del navegador y el router no necesitará volver a esperar de nuevo.
 
 La pieza final del rompecabezas es la plantilla de carga. Vamos a utilizar el paquete `spin` para crear un buen efecto de carga animada. Lo añadimos con `meteor add sacha:spin`, y luego creamos la plantilla `loading` de carga en el directorio `client/templates/includes`:
 
@@ -190,6 +195,8 @@ La pieza final del rompecabezas es la plantilla de carga. Vamos a utilizar el pa
 <%= caption "client/templates/includes/loading.html" %>
 
 Ten en cuenta que `{{>spinner}}` está contenido en el paquete `spin`. A pesar de que proviene de "fuera" de nuestra aplicación, podemos incluirlo como cualquier otra plantilla.
+
+Por lo general es una buena idea esperar a las suscripciones, no sólo por la experiencia de usuario, sino también porque significa que podemos asumir con seguridad que los datos estarán siempre disponibles dentro de una plantilla. Esto elimina la necesidad de enredarse con plantillas que se muestran antes de que los datos que usan estén disponibles, cosa que a menudo requiere soluciones difíciles.
 
 <%= commit "5-2", "Esperando a la suscripción." %>
 
@@ -224,21 +231,20 @@ Más adelante añadiremos más elementos a esta plantilla  (como los comentarios
 
 Ahora vamos a crear otra ruta con nombre, esta vez, mapeando URLs de la forma `/posts/<ID>` hacia la plantilla `postPage`:
 
-~~~~js
-//...
-
-Router.map(function() {
-  this.route('postsList', {path: '/'});
-
-  this.route('postPage', {
-    path: '/posts/:_id'
-  });
+~~~js
+Router.configure({
+  layoutTemplate: 'layout',
+  loadingTemplate: 'loading',
+  waitOn: function() { return Meteor.subscribe('posts'); }
 });
 
-//...
+Router.route('/', {name: 'postsList'});
+Router.route('/posts/:_id', {
+  name: 'postPage'
+});
 ~~~
 <%= caption "lib/router.js" %>
-<%= highlight "6~8" %>
+<%= highlight "8~10" %>
 
 La sintaxis especial `:_id` le dice dos cosas al router: primero, que encuentre cualquier ruta de la forma `/posts/xyz/`, donde "xyz" puede ser cualquier cadena. En segundo lugar, poner lo que encuentra dentro de una propiedad `_id` en el vector de parámetros del router.
 
@@ -253,21 +259,20 @@ Afortunadamente, el router integra una solución inteligente: permite especifica
 En nuestro caso, podemos obtener el contexto de datos correcto mediante la búsqueda de nuestro post basado en el `_id` que recibimos de la URL:
 
 ~~~js
-//...
-
-Router.map(function() {
-  this.route('postsList', {path: '/'});
-
-  this.route('postPage', {
-    path: '/posts/:_id',
-    data: function() { return Posts.findOne(this.params._id); }
-  });
+Router.configure({
+  layoutTemplate: 'layout',
+  loadingTemplate: 'loading',
+  waitOn: function() { return Meteor.subscribe('posts'); }
 });
 
-//...
+Router.route('/', {name: 'postsList'});
+Router.route('/posts/:_id', {
+  name: 'postPage',
+  data: function() { return Posts.findOne(this.params._id); }
+});
 ~~~
 <%= caption "lib/router.js" %>
-<%= highlight "8" %>
+<%= highlight "10" %>
 
 De esta forma, cada vez que un usuario accede a esta ruta, encontraremos el post adecuado y lo pasaremos a la plantilla. Recuerda que `findOne` devuelve un solo post, el que coincide con la consulta, y que proporcionar sólo un `id` como argumento es una abreviatura de `{_id: id}`.
 
@@ -391,7 +396,6 @@ Afortunadamente, Iron Router es lo suficientemente inteligente para saber esto s
 ~~~js
 //...
 
-Router.onBeforeAction('loading');
 Router.onBeforeAction('dataNotFound', {only: 'postPage'});
 ~~~
 <%= caption "lib/router.js"%>

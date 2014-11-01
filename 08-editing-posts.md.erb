@@ -22,41 +22,37 @@ Router.configure({
   waitOn: function() { return Meteor.subscribe('posts'); }
 });
 
-Router.map(function() {
-  this.route('postsList', {path: '/'});
+Router.route('/', {name: 'postsList'});
 
-  this.route('postPage', {
-    path: '/posts/:_id',
-    data: function() { return Posts.findOne(this.params._id); }
-  });
-
-  this.route('postEdit', {
-    path: '/posts/:_id/edit',
-    data: function() { return Posts.findOne(this.params._id); }
-  });
-
-  this.route('postSubmit', {
-    path: '/submit'
-  });
+Router.route('/posts/:_id', {
+  name: 'postPage',
+  data: function() { return Posts.findOne(this.params._id); }
 });
 
-var requireLogin = function(pause) {
-  if (! Meteor.user()) {
-    if (Meteor.loggingIn())
-      this.render('loading')
-    else
-      this.render('accessDenied');
+Router.route('/posts/:_id/edit', {
+  name: 'postEdit',
+  data: function() { return Posts.findOne(this.params._id); }
+});
 
-    pause();
+Router.route('/submit', {name: 'postSubmit'});
+
+var requireLogin = function() {
+  if (! Meteor.user()) {
+    if (Meteor.loggingIn()) {
+      this.render(this.loadingTemplate);
+    } else {
+      this.render('accessDenied');
+    }
+  } else {
+    this.next();
   }
 }
 
-Router.onBeforeAction('loading');
-Router.onBeforeAction('dataNotFound');
+Router.onBeforeAction('dataNotFound', {only: 'postPage'});
 Router.onBeforeAction(requireLogin, {only: 'postSubmit'});
 ~~~
 <%= caption "lib/router.js" %>
-<%= highlight "16~19" %>
+<%= highlight "15~18" %>
 
 ### La plantilla de edición de posts
 
@@ -130,7 +126,7 @@ El callback `delete` es muy simple: elimina el evento defecto y después pide co
 
 El callback de actualización es un poco más largo, pero no mucho más complicado. Después de suprimir el evento predeterminado y conseguir el post actual, obtenemos los nuevos valores del formulario y los almacena en el objeto `postProperties`.
 
-A continuación, pasamos este objeto a `Collection.update()`, y usamos un callback para mostrar un error si falla la actualización o enviar al usuario a la página del post si la actualización se realiza correctamente.
+A continuación, pasamos este objeto al método Meteor `Collection.update()` usando el operador [`$set`](http://docs.mongodb.org/manual/reference/operator/update/set/) (que reemplaza un conjunto de atributos dejando los demas intactos), y usamos un callback para mostrar un error si falla la actualización o enviar al usuario a la página del post si la actualización se realiza correctamente.
 
 ### Añadiendo enlaces
 
@@ -195,7 +191,7 @@ En el capítulo [Creando posts](/chapter/creating-posts) nos libramos de tener q
 Pero ahora que estamos editando y borrando posts desde el cliente, vamos a necesitar volver a `collections/posts.js` y a añadir un bloque `allow()`:
 
 ~~~js
-Posts = new Meteor.Collection('posts');
+Posts = new Mongo.Collection('posts');
 
 Posts.allow({
   update: function(userId, post) { return ownsDocument(userId, post); },
@@ -205,7 +201,7 @@ Posts.allow({
 //...
 ~~~
 <%= caption "collections/posts.js" %>
-<%= highlight "3~6" %>
+<%= highlight "3~6" %
 
 <%= commit "8-2", "Añadidos permisos básicos para comprobar el dueño del post." %>
 
@@ -216,7 +212,7 @@ Sólo porque podamos editar nuestros propios posts, no significa debamos ser cap
 Utilizaremos el callback `deny()` para asegurarnos de que los usuarios solo puedan editar los atributos especificados:
 
 ~~~js
-Posts = new Meteor.Collection('posts');
+Posts = new Mongo.Collection('posts');
 
 Posts.allow({
   update: ownsDocument,
@@ -245,7 +241,7 @@ Te habrás dado cuenta que en ningún sitio en nuestro código de editar post co
 
 ### Métodos en el servidor vs métodos en el cliente
 
-Para crear un `post`, estamos utilizando un método en el servidor, mientras que para editarlos y eliminarlos, llamamos a `update` y `remove` directamente desde el cliente, limitando el acceso a través de `allow` y `deny`.
+Para crear un `post`, estamos utilizando un método `postInsert` en el servidor, mientras que para editarlos y eliminarlos, llamamos a `update` y `remove` directamente desde el cliente, limitando el acceso a través de `allow` y `deny`.
 
 ¿Cuándo es más adecuado usar uno u otro?
 

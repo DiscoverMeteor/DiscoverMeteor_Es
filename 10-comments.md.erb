@@ -16,7 +16,7 @@ El objetivo de un sitio de noticias es crear una comunidad de usuarios, y será 
 Empezaremos creando una nueva colección para almacenar los comentarios.
 
 ~~~js
-Comments = new Meteor.Collection('comments');
+Comments = new Mongo.Collection('comments');
 ~~~
 <%= caption "lib/collections/comments.js" %>
 
@@ -280,19 +280,19 @@ Template.commentSubmit.helpers({
 Template.commentSubmit.events({
   'submit form': function(e, template) {
     e.preventDefault();
-    
+
     var $body = $(e.target).find('[name=body]');
     var comment = {
       body: $body.val(),
       postId: template.data._id
     };
-    
+
     var errors = {};
     if (! comment.body) {
       errors.body = "Please write some content";
       return Session.set('commentSubmitErrors', errors);
     }
-    
+
     Meteor.call('commentInsert', comment, function(error, commentId) {
       if (error){
         throwError(error.reason);
@@ -308,7 +308,7 @@ Template.commentSubmit.events({
 Al igual que anteriormente establecimos un método `post` en el servidor, vamos a hacer lo mismo para crear comentarios, comprobar que todo está bien, y finalmente insertar el nuevo comentario dentro de su colección.
 
 ~~~js
-Comments = new Meteor.Collection('comments');
+Comments = new Mongo.Collection('comments');
 
 Meteor.methods({
   commentInsert: function(commentAttributes) {
@@ -317,19 +317,19 @@ Meteor.methods({
       postId: String,
       body: String
     });
-    
+
     var user = Meteor.user();
     var post = Posts.findOne(commentAttributes.postId);
 
     if (!post)
       throw new Meteor.Error('invalid-comment', 'You must comment on a post');
-    
+
     comment = _.extend(commentAttributes, {
       userId: user._id,
       author: user.username,
       submitted: new Date()
     });
-    
+
     return Comments.insert(comment);
   }
 });
@@ -420,10 +420,10 @@ La mejor manera de resolver esto es _denormalizar_ el número de comentarios den
 Lo conseguiremos añadiendo una propiedad `commentsCount` a la estructura de datos del post (y restableceremos Meteor con `meteor reset` - no olvides volver a crear una cuenta de usuario):
 
 ~~~js
-// Fixture data 
+// Fixture data
 if (Posts.find().count() === 0) {
   var now = new Date().getTime();
-  
+
   // create two users
   var tomId = Meteor.users.insert({
     profile: { name: 'Tom Coleman' }
@@ -433,7 +433,7 @@ if (Posts.find().count() === 0) {
     profile: { name: 'Sacha Greif' }
   });
   var sacha = Meteor.users.findOne(sachaId);
-  
+
   var telescopeId = Posts.insert({
     title: 'Introducing Telescope',
     userId: sacha._id,
@@ -442,7 +442,7 @@ if (Posts.find().count() === 0) {
     submitted: new Date(now - 7 * 3600 * 1000),
     commentsCount: 2
   });
-  
+
   Comments.insert({
     postId: telescopeId,
     userId: tom._id,
@@ -450,7 +450,7 @@ if (Posts.find().count() === 0) {
     submitted: new Date(now - 5 * 3600 * 1000),
     body: 'Interesting project Sacha, can I get involved?'
   });
-  
+
   Comments.insert({
     postId: telescopeId,
     userId: sacha._id,
@@ -458,7 +458,7 @@ if (Posts.find().count() === 0) {
     submitted: new Date(now - 3 * 3600 * 1000),
     body: 'You sure can Tom!'
   });
-  
+
   Posts.insert({
     title: 'Meteor',
     userId: tom._id,
@@ -467,7 +467,7 @@ if (Posts.find().count() === 0) {
     submitted: new Date(now - 10 * 3600 * 1000),
     commentsCount: 0
   });
-  
+
   Posts.insert({
     title: 'The Meteor Book',
     userId: tom._id,
@@ -481,7 +481,7 @@ if (Posts.find().count() === 0) {
 <%= caption "server/fixtures.js" %>
 <%= highlight "20,21,45,46,54,55" %>
 
-Como de costumbre cuando actualizamos el fichero de fixtures, deberás ejecutar `meteor reset` para inicializar la base de datos y asegurarnos que se ejecutan de nuevo los fixtures. 
+Como de costumbre cuando actualizamos el fichero de fixtures, deberás ejecutar `meteor reset` para inicializar la base de datos y asegurarnos que se ejecutan de nuevo los fixtures.
 
 Luego, nos aseguramos de que todos los nuevos posts empiezan con 0 comentarios:
 

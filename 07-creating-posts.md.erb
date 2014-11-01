@@ -26,24 +26,19 @@ Router.configure({
   waitOn: function() { return Meteor.subscribe('posts'); }
 });
 
-Router.map(function() {
-  this.route('postsList', {path: '/'});
+Router.route('/', {name: 'postsList'});
 
-  this.route('postPage', {
-    path: '/posts/:_id',
-    data: function() { return Posts.findOne(this.params._id); }
-  });
-
-  this.route('postSubmit', {
-    path: '/submit'
-  });
+Router.route('/posts/:_id', {
+  name: 'postPage',
+  data: function() { return Posts.findOne(this.params._id); }
 });
 
-Router.onBeforeAction('loading');
+Router.route('/submit', {name: 'postSubmit'});
+
 Router.onBeforeAction('dataNotFound', {only: 'postPage'});
 ~~~
 <%= caption "lib/router.js" %>
-<%= highlight "16~18" %>
+<%= highlight "15" %>
 
 ### Añadiendo un enlace en la cabecera
 
@@ -51,28 +46,31 @@ Con la ruta definida, ahora podemos añadir un enlace a la cabecera de nuestra p
 
 ~~~html
 <template name="header">
-  <header class="navbar">
-    <div class="navbar-inner">
-      <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </a>
-      <a class="brand" href="{{pathFor 'postsList'}}">Microscope</a>
-      <div class="nav-collapse collapse">
+  <nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navigation">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="{{pathFor 'postsList'}}">Microscope</a>
+      </div>
+      <div class="collapse navbar-collapse" id="navigation">
         <ul class="nav navbar-nav">
           <li><a href="{{pathFor 'postSubmit'}}">Submit Post</a></li>
         </ul>
-        <ul class="nav pull-right">
-          <li>{{> loginButtons}}</li>
+        <ul class="nav navbar-nav navbar-right">
+          {{> loginButtons}}
         </ul>
       </div>
     </div>
-  </header>
+  </nav>
 </template>
 ~~~
 <%= caption "client/templates/includes/header.html" %>
-<%= highlight "11~13" %>
+<%= highlight "14~16" %>
 
 Configurar una ruta implica que si un usuario navega a `/submit`, Meteor mostrará la plantilla `postSubmit`. Así que vamos a escribir esa plantilla:
 
@@ -154,7 +152,7 @@ Necesitamos escribir reglas explícitas para decirle a Meteor qué usuarios pued
 Para empezar, vamos a mostrar cómo permitir posts del lado del cliente con el fin de que nuestro formulario funcione de nuevo. Como veremos, al final usaremos una técnica diferente, pero por ahora, lo pondremos todo a funcionar de una forma sencilla en `collections/posts.js`:
 
 ~~~js
-Posts = new Meteor.Collection('posts');
+Posts = new Mongo.Collection('posts');
 
 Posts.allow({
   insert: function(userId, doc) {
@@ -200,32 +198,28 @@ Router.configure({
   waitOn: function() { return Meteor.subscribe('posts'); }
 });
 
-Router.map(function() {
-  this.route('postsList', {path: '/'});
+Router.route('/', {name: 'postsList'});
 
-  this.route('postPage', {
-    path: '/posts/:_id',
-    data: function() { return Posts.findOne(this.params._id); }
-  });
-
-  this.route('postSubmit', {
-    path: '/submit'
-  });
+Router.route('/posts/:_id', {
+  name: 'postPage',
+  data: function() { return Posts.findOne(this.params._id); }
 });
 
-var requireLogin = function(pause) {
+Router.route('/submit', {name: 'postSubmit'});
+
+var requireLogin = function() {
   if (! Meteor.user()) {
     this.render('accessDenied');
-    pause();
+  } else {
+    this.next();
   }
 }
 
-Router.onBeforeAction('loading');
 Router.onBeforeAction('dataNotFound', {only: 'postPage'});
 Router.onBeforeAction(requireLogin, {only: 'postSubmit'});
 ~~~
 <%= caption "lib/router.js" %>
-<%= highlight "21~26,30" %>
+<%= highlight "17~23,26" %>
 
 Además tenemos que crear una plantilla para la página de error:
 
@@ -258,19 +252,19 @@ Así que vamos a modificar nuestra acción para añadir la plantilla de espera m
 ~~~js
 //...
 
-var requireLogin = function(pause) {
+var requireLogin = function() {
   if (! Meteor.user()) {
-    if (Meteor.loggingIn()){
+    if (Meteor.loggingIn()) {
       this.render(this.loadingTemplate);
     } else {
       this.render('accessDenied');
     }
-    pause();
+  } else {
+    this.next();
   }
 }
 
-Router.onBeforeAction('loading');
-Router.onBeforeAction('dataNotFound');
+Router.onBeforeAction('dataNotFound', {only: 'postPage'});
 Router.onBeforeAction(requireLogin, {only: 'postSubmit'});
 ~~~
 <%= caption "lib/router.js" %>
@@ -283,11 +277,16 @@ Router.onBeforeAction(requireLogin, {only: 'postSubmit'});
 La forma fácil de evitar que los usuarios lleguen al formulario es esconder el enlace. Podemos hacerlo fácilmente desde `header.html`:
 
 ~~~html
+//...
+
 <ul class="nav navbar-nav">
   {{#if currentUser}}<li><a href="{{pathFor 'postSubmit'}}">Submit Post</a></li>{{/if}}
 </ul>
+
+//...
 ~~~
 <%= caption "client/templates/includes/header.html" %>
+<%= highlight "3~5" %>
 
 <%= commit "7-5", "No mostrar el enlace a la página de envío si el usuario no se ha identificado." %>
 
@@ -351,7 +350,7 @@ Vamos a definir el método `postInsert` en nuestro fichero `collections/posts.js
 Extenderemos (`extend`) el objeto `postAttributes` con tres propiedades más: el identificador del usuario `_id` y el `username`, además de la fecha ´submitted`, antes de insertarlos en nuestra base de datos y devolver el `_id` al cliente (en otras palabras, a la función original que llamó este método) como un objeto JavaScript.
 
 ~~~js
-Posts = new Meteor.Collection('posts');
+Posts = new Mongo.Collection('posts');
 
 Meteor.methods({
   postInsert: function(postAttributes) {

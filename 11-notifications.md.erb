@@ -60,7 +60,7 @@ También creamos una función que mira qué post está comentando el usuario, av
 Ya tenemos un método en el servidor para crear comentarios, por lo que podemos ampliarlo para que llame a nuestra nueva función. Para guardar el `_id` del nuevo comentario en una variable, cambiamos `return Comments.insert(comment);`, por `comment._id = Comments.insert(comment)` y llamamos a la función `createCommentNotification`:
 
 ~~~js
-Comments = new Meteor.Collection('comments');
+Comments = new Mongo.Collection('comments');
 
 Meteor.methods({
   comment: function(commentAttributes) {
@@ -210,13 +210,13 @@ Template.notifications.helpers({
   }
 });
 
-Template.notification.helpers({
+Template.notificationItem.helpers({
   notificationPostPath: function() {
     return Router.routes.postPage.path({_id: this.postId});
   }
 });
 
-Template.notification.events({
+Template.notificationItem.events({
   'click a': function() {
     Notifications.update(this._id, {$set: {read: true}});
   }
