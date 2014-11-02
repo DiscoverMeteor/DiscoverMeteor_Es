@@ -161,7 +161,7 @@ Con todo lo que hemos aprendido acerca de ayudantes y Spacebars, sabemos que mos
 Vamos a crear rápidamente un ayudante de plantilla para dar a nuestra fecha de envío `submitted` un formato mas amigable:
 
 ~~~js
-Template.comment.helpers({
+Template.commentItem.helpers({
   submittedText: function() {
     return this.submitted.toString();
   }
@@ -398,12 +398,12 @@ Meteor.publish('posts', function() {
 });
 
 Meteor.publish('comments', function(postId) {
+  check(postId, String);
   return Comments.find({postId: postId});
 });
 ~~~
 <%= caption "server/publications.js" %>
 <%= highlight "5~7" %>
-
 
 <%= commit "10-4", "Creado un mecanismo simple de publicación/suscripción para los comentarios." %>
 
