@@ -123,13 +123,13 @@ Meteor.publish('topPosts', function(limit) {
   // send over the top two comments attached to a single post
   function publishPostComments(postId) {
     var commentsCursor = Comments.find({postId: postId}, {limit: 2});
-    commentHandles[post._id] =
+    commentHandles[postId] =
       Mongo.Collection._publishCursor(commentsCursor, sub, 'comments');
   }
 
   postHandle = Posts.find({}, {limit: limit}).observeChanges({
     added: function(id, post) {
-      publishPostComments(post._id);
+      publishPostComments(id);
       sub.added('posts', id, post);
     },
     changed: function(id, fields) {
@@ -147,7 +147,7 @@ Meteor.publish('topPosts', function(limit) {
 
   // make sure we clean everything up (note `_publishCursor`
   //   does this for us with the comment observers)
-  sub.onStop(function() { postsHandle.stop(); });
+  sub.onStop(function() { postHandle.stop(); });
 });
 ~~~
 
