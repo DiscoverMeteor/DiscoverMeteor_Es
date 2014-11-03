@@ -102,7 +102,7 @@ Router.route('/:postsLimit?', {
 
 Es importante señalar que un path de la forma `/:parameter?` coincide con todos los path posibles. Dado que cada ruta se analiza en orden secuencial para comprobar si coincide con la ruta actual, tenemos que asegurarnos que organizamos bien nuestras rutas con el fin de disminuir la especificidad.
 
-En otras palabras, las rutas más específicas como `/posts/:_id` deben ir primero en el código, y nuestra ruta `postsList` debería ir **en la parte inferior** del bloque `Router.map()` para que todo conincida correctamente.
+En otras palabras, las rutas más específicas como `/posts/:_id` deben ir primero en el código, y nuestra ruta `postsList` debería ir **en la parte inferior** del conjunto de rutas para que todo conincida correctamente.
 
 Es el momento de abordar el difícil problema de suscribirse y encontrar los datos correctos. Tenemos que lidiar con el caso en el que el parámetro `postsLimit` no está presente, por lo que vamos a asignarle un valor predeterminado. Usaremos "5", que nos dará suficiente espacio para jugar con la paginación.
 

@@ -102,11 +102,6 @@ rm client/templates/includes/errors.js
 
 Otra cosa que debemos hacer es efectuar algunos pequeños cambios en el código de la aplicación para que use la API correcta:
 
-~~~js
-Router.onBeforeAction(function() { Errors.clearSeen(); });
-~~~
-<%= caption "lib/router.js" %>
-
 ~~~html
   {{> header}}
   {{> meteorErrors}}
@@ -114,7 +109,7 @@ Router.onBeforeAction(function() { Errors.clearSeen(); });
 <%= caption "client/templates/application/layout.html" %>
 
 ~~~js
-Meteor.call('post', post, function(error, id) {
+Meteor.call('postInsert', post, function(error, id) {
   if (error) {
     // display the error to the user
     Errors.throw(error.reason);

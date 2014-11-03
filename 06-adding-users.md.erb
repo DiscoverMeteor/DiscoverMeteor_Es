@@ -123,13 +123,15 @@ Definitivamente hay 2 pero, ¿porqué sólo se ve uno en el navegador?
 
 ### ¡Una publicación misteriosa!
 
-Si recuerdas, en el capítulo 4 deshabilitamos la auto-publicación `autopublish` y creamos un canal de publicación/suscripción para intercambiar datos.
+Si pensamos de nuevo en el capítulo 4, recordarás que  deshabilitamos la auto-publicación `autopublish`, dejamos de enviar todos los datos procedentes del servidor a las colecciones locales de cada cliente conectado. Tuvimos que crear parejas de publicaciones y suscripciones para intercambiar datos.
 
-Sin embargo, no hemos creado ninguna publicación para usuarios. Así que ¿cómo es que podemos ver esos datos?
+Sin embargo, no hemos creado ninguna clase de publicación para usuarios. Así que ¿cómo es que podemos ver esos datos?
 
-La respuesta es que el paquete accounts, autopublica los datos básicos de la cuenta de usuario y sólo para el usuario actual, de forma que un usuario no puede ver la cuenta de otro.
+La respuesta es que el paquete `accounts`, autopublica los datos básicos de la cuenta de usuario y sólo para el usuario actual, de forma que un usuario no puede ver la cuenta de otro.
 
-Así que sólo se publica un objeto de usuario por usuario conectado (y ninguno cuando no lo está).
+Aunque el paquete `accounts` sólo publica el *actual* usuario. Esto explica porqué un usuario no puede ver los detalles de la cuenta de los otros usuarios.
+
+Así que sólo se publica un objeto de usuario por usuario conectado (y ninguno cuando no estas autenticado).
 
 Es más, los documentos en el navegador no parecen contener los mismos campos que en el servidor. En Mongo, un usuario tiene un montón de datos. Para verlo, vuelve a la terminal de Mongo y escribe:
 
@@ -171,3 +173,4 @@ Object {_id: "kYdBd9hr3fWPGPcii", username: "tmeasday"}
 Este ejemplo nos muestra como una colección local puede ser un subconjunto seguro de la base de datos real. El usuario conectado sólo ve lo necesario para poder hacer el trabajo (en este caso, el nombre de usuario). Este es un patrón que debemos aprender porque nos será muy útil más adelante.
 
 Eso no significa que no podamos hacer públicos más datos de usuario. Si lo necesitamos, podemos consultar la [documentación de Meteor](http://docs.meteor.com/#meteor_users) para ver cómo se hace.
+
