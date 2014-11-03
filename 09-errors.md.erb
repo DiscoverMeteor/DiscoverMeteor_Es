@@ -32,7 +32,7 @@ Ahora que hemos creado la colección, podemos agregar una función `throwError`,
 
 ~~~js
 throwError = function(message) {
-  Errors.insert({message: message})
+  Errors.insert({message: message});
 }
 ~~~
 <%= caption "client/helpers/errors.js" %>
@@ -534,7 +534,7 @@ Esto significa que tenemos que añadir una nueva regla `deny`:
 //...
 
 Posts.deny({
-  update: function(userId, post, fieldNames) {
+  update: function(userId, post, fieldNames, modifier) {
     var errors = validatePost(modifier.$set);
     return errors.title || errors.url;
   }
