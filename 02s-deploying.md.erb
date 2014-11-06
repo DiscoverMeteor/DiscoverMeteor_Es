@@ -73,7 +73,7 @@ Ahora crearemos un proyecto Modulus (esto también lo puedes hacer desde el pane
 modulus project create
 ~~~
 
-El siguiente paso es crear de una base de datos MongoDB para nuestra aplicación. Podemos crear una base de datos MongoDB con [Modulus](https://modulus.io/codex/database/getting_started), [MongoHQ](https://www.mongohq.com/) o con cualquier otro proveedor de MongoDB en la nube.
+El siguiente paso es crear de una base de datos MongoDB para nuestra aplicación. Podemos crear una base de datos MongoDB con [Modulus](http://help.modulus.io/customer/portal/articles/1647770-using-meteor-with-modulus), [Compose](https://www.compose.io/) o con cualquier otro proveedor de MongoDB en la nube.
 
 Si ya hemos creado la base de datos, podemos coger la `MONGO_URL` de nuestra base de datos (en el caso de Modulus, desde la interfaz web: Dashboard > Databases > Select your database > Administration), y, a continuación, utilizarlo para configurar nuestra aplicación de la siguiente forma:
 
@@ -170,9 +170,9 @@ Te habrás dado cuenta de que con Meteor Up puedes usar SSH con usuario y contra
 
 **Configuración de MongoDB**
 
-El siguiente paso es configurar una base de datos MongoDB. Recomendamos usar [MongoHQ](https://www.mongohq.com/home) o cualquier otro proveedor en la nube porque ofrecen un apoyo profesional y mejores herramientas de gestión.
+El siguiente paso es configurar una base de datos MongoDB. Recomendamos usar [Compose](https://www.compose.io) o cualquier otro proveedor en la nube porque ofrecen un apoyo profesional y mejores herramientas de gestión.
 
-Si has decidido usar MongoHQ, configura `setupMongo` como `false` y añade la variable de entorno `MONGO_URL` en un bloque `env` en `mup.json`. Si por el contrario decides usar MongoDB en el propio servidor, configura `setupMongo` como `true` y Meteor Up se hará cargo de todo.
+Si has decidido usar Compose, configura `setupMongo` como `false` y añade la variable de entorno `MONGO_URL` en un bloque `env` en `mup.json`. Si por el contrario decides usar MongoDB en el propio servidor, configura `setupMongo` como `true` y Meteor Up se hará cargo de todo.
 
 **El path de la aplicación Meteor**
 
