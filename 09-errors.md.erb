@@ -14,11 +14,11 @@ Usar simplemente un `alert()` del navegador para advertir al usuario cuando hay 
 
 En vez de eso, vamos a construir un mecanismo de presentación de errores más versátil, que va a hacer mejor el trabajo de decirle al usuario qué está pasando sin tener que romper su flujo de trabajo.
 
-Vamos a implementar un simple sistema que muestre los nueves errores en la parte de arriba a la derecha de la ventana, de forma similar a la popular aplicación [Growl](http://growl.info/) de MacOS.
+Vamos a implementar un simple sistema que muestre los nuevos errores en la parte de arriba a la derecha de la ventana, de forma similar a la popular aplicación [Growl](http://growl.info/) de MacOS.
 
 ### Introduciendo las colecciones locales
 
-Para empezar, crearemos una colección para almacenar nuestros errores. Puesto que los errores sólo son relevantes en la sesión actual y no necesitan ser persistentes, aremos algo nuevo, vamos a crear una *colección loca*. Es decir, la colección `Errors` sólo existirá *en el navegador*, y no se sincronizará con el servidor.
+Para empezar, crearemos una colección para almacenar nuestros errores. Puesto que los errores sólo son relevantes en la sesión actual y no necesitan ser persistentes, haremos algo nuevo, vamos a crear una *colección local*. Es decir, la colección `Errors` sólo existirá *en el navegador*, y no se sincronizará con el servidor.
 
 Para conseguirlo, creamos la colección de errores dentro del directorio `client` (para hacer la colección solo disponible en la parte cliente), con el nombre de la colección establecido a `null` (ya que esta los datos nunca se almacenarán en la base de datos del servidor):
 
@@ -290,7 +290,7 @@ Fíjate que estamos pasando parámetros (`url` y `title` respectivamente) a cada
 
 Ahora la parte divertida: hacer que estos ayudante hagan algo realmente.
 
-Usaremos la **Session** para almacenar un objeto `postSubmitErrors` que contendrá el potencia mensaje de error. Con forme el usuario interactúa con el formulario, este objeto irá cambiando, por lo que irá cambiando reactivamente el estilo y contenido del formulario.
+Usaremos la **Session** para almacenar un objeto `postSubmitErrors` que contendrá el potencial mensaje de error. Conforme el usuario interactúa con el formulario, este objeto irá cambiando, por lo que irá cambiando reactivamente el estilo y contenido del formulario.
 
 Primero, inicializaremos el objeto en donde la plantilla `postSubmit` sea creada. Esto nos asegura que el usuario no ve un mensaje de error antiguo que se haya quedado de una visita anterior a esta página.
 
