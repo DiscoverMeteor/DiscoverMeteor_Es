@@ -122,7 +122,7 @@ Como podemos ver, la mayoría de cosas ya nos son familiares.
 
 Después tenemos dos callbacks de eventos: uno para enviar el formulario `submit`, y `click .delete` para el evento click del enlace delete.
 
-El callback `delete` es muy simple: elimina el evento defecto y después pide confirmación. Si confirmamos, obtenemos el ID del post actual desde el contexto de datos de la plantilla, lo borramos y redirigimos al usuario a la página de inicio.
+El callback `delete` es muy simple: elimina el evento click por defecto y después pide confirmación. Si confirmamos, obtenemos el ID del post actual desde el contexto de datos de la plantilla, lo borramos y redirigimos al usuario a la página de inicio.
 
 El callback de actualización es un poco más largo, pero no mucho más complicado. Después de suprimir el evento predeterminado y conseguir el post actual, obtenemos los nuevos valores del formulario y los almacena en el objeto `postProperties`.
 
