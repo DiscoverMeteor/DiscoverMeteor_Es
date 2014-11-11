@@ -34,7 +34,7 @@ Para evitar este problema, Meteor introduce un concepto llamado **Compensación 
 Cuando se hace una llamada a un método, el cliente no solo envía la llamada al servidor, sino que también *simula* la acción en su propia colección. De esta forma, el flujo de trabajo sería:
 
 - *+0ms:* El usuario hace clic en un botón de envío y el navegador lanza una llamada al método.
-- *+0ms:* El cliente simula la acción en su propia colección y cambia la la interfaz de usuario para reflejar los cambios.
+- *+0ms:* El cliente simula la acción en su propia colección y cambia la interfaz de usuario para reflejar los cambios.
 - *+200ms:* El servidor realiza cambios en la base de datos Mongo..
 - *+500ms:* El cliente recibe esos cambios deshaciendo los que ha simulado y reemplazándolos con los del servidor (que, generalmente son los mismos) y la interfaz de usuario cambia reflejarlos.
 
@@ -42,7 +42,7 @@ Esto se traduce en que el usuario ve los cambios instantáneamente. Cuando llega
 
 ### Observando la compensación de la latencia
 
-Haciendo un pequeño cambio en el método `post` veremos todo esto en acción. Para ello, usaremos la útil función `Meteor._sleepForMs()` para retrasar la llamada de la función cinco segundos, pero (importante) *sólo en el servidor*.
+Haciendo un pequeño cambio en el método `post` veremos todo esto en acción. Para ello, usaremos la útil función `Meteor._sleepForMs()` para retrasar la llamada de la función cinco segundos, pero (importante) *solo en el servidor*.
 
 Usaremos `isServer` para preguntar a Meteor si el método se está invocando como en el cliente (como un stub de “stub” o esqueleto) o en el servidor. Un [stub](http://docs.meteor.com/#methods_header) es la simulación del método que ejecuta Meteor en el cliente, mientras el método "real" se está ejecutando en el servidor.
 
@@ -93,7 +93,7 @@ Meteor.methods({
 <%= caption "collections/posts.js" %>
 <%= highlight "9~15" %>
 
-Si nos detuviéramos aquí, la demostración no sería muy concluyente. En este punto, sólo parece que el envío del formulario está siendo pausado por cinco segundos antes de redirigirte a la lista principal de publicaciones, y nada más está pasando.
+Si nos detuviéramos aquí, la demostración no sería muy concluyente. En este punto, solo parece que el envío del formulario está siendo pausado por cinco segundos antes de redirigirte a la lista principal de publicaciones, y nada más está pasando.
 
 Para entender porqué, volvamos al ayudante de eventos del envío de publicaciones:
 
@@ -125,7 +125,7 @@ Template.postSubmit.events({
 
 Hemos colocado nuestra llamada de enrutamiento `Router.go()` dentro de la función de retorno de la llamada. Lo que significa que el formulario está esperando a que la llamada al método concluya antes de redirigir.
 
-Normalmente esto es el cauce normal de la acción. Después de todo, no podemos redirigir al usuario antes de saber si su publicación ha sido válidad o no, ya que sería extremadamente confuso ser redirigido una vez, y después ser redirigido de vuelta hacia el formulario de envío original para corregir los datos todo en cuestión de segundos.
+Normalmente, esto es el cauce normal de la acción. Después de todo, no podemos redirigir al usuario antes de saber si su publicación ha sido válida o no, ya que sería extremadamente confuso ser redirigido una vez, y después ser redirigido de vuelta hacia el formulario de envío original para corregir los datos todo en cuestión de segundos.
 
 Pero para el propósito de este ejemplo, queremos ver el resultado de nuestras acciones inmediatamente. Por lo que cambiaremos la llamada de enrutamento para redirigir a la ruta `postsList` (no podemos redirigir al post porque no sabemos su identificador fuera del método), lo sacaremos fuera de la llamada de retorno, y veremos que pasa:
 
@@ -157,7 +157,7 @@ Template.postSubmit.events({
 <%= caption "client/templates/posts/post_submit.js" %>
 <%= highlight "20" %>
 
--<%= scommit "7-5-1", "Demostrar el orden en el que aparecen los posts usando un sleep." %>
+<%= scommit "7-5-1", "Demostrar el orden en el que aparecen los posts usando un sleep." %>
 
 Si ahora creamos un nuevo post, vemos claramente la compensación de la latencia. En primer lugar, se inserta el post con el título `(cliente)` (El primer post de la lista, apuntando hacia GitHub):
 
@@ -169,7 +169,7 @@ Cinco segundos más tarde, se reemplaza con el documento real insertado por el s
 
 ### Métodos en el lado del cliente
 
-Después de todo esto quizá pienses que los métodos son complicados, pero en realidad pueden ser bastante simples. De hecho, ya hemos visto tres métodos muy sencillos: los métodos `insert`, `update` y `remove` de una colección.
+Después de todo esto, quizás pienses que los métodos son complicados, pero en realidad pueden ser bastante simples. De hecho, ya hemos visto tres métodos muy sencillos: los métodos `insert`, `update` y `remove` de una colección.
 
 Cuando se define una colección `'posts'`, se están definiendo implícitamente tres métodos:`posts/insert`, `posts/update` y `posts/delete`. En otras palabras, cuando se llama `Posts.insert()` desde el cliente, se llama a un método compensado en latencia que hace dos cosas:
 

@@ -126,7 +126,7 @@ El callback `delete` es muy simple: elimina el evento click por defecto y despu�
 
 El callback de actualización es un poco más largo, pero no mucho más complicado. Después de suprimir el evento predeterminado y conseguir el post actual, obtenemos los nuevos valores del formulario y los almacena en el objeto `postProperties`.
 
-A continuación, pasamos este objeto al método Meteor `Collection.update()` usando el operador [`$set`](http://docs.mongodb.org/manual/reference/operator/update/set/) (que reemplaza un conjunto de atributos dejando los demas intactos), y usamos un callback para mostrar un error si falla la actualización o enviar al usuario a la página del post si la actualización se realiza correctamente.
+A continuación, pasamos este objeto al método Meteor `Collection.update()` usando el operador [`$set`](http://docs.mongodb.org/manual/reference/operator/update/set/) (que reemplaza un conjunto de atributos dejando los demás intactos), y usamos un callback para mostrar un error si falla la actualización o enviar al usuario a la página del post si la actualización se realiza correctamente.
 
 ### Añadiendo enlaces
 
@@ -149,7 +149,7 @@ Deberíamos añadir enlaces a la página de edición de nuestros posts:
 <%= caption "client/templates/posts/post_item.html" %>
 <%= highlight "5~8" %>
 
-Por supuesto, no queremos que se muestre un enlace a editar en un post que no haya sido creado por un usuario. Aquí es donde el entra el ayudante `ownPost`:
+Por supuesto, no queremos que se muestre el enlace para editar un post que no haya sido creado por el usuario. Aquí es donde entra el ayudante `ownPost`:
 
 ~~~js
 Template.postItem.helpers({
@@ -186,7 +186,7 @@ ownsDocument = function(userId, doc) {
 ~~~
 <%= caption "lib/permissions.js" %>
 
-En el capítulo [Creando posts](/chapter/creating-posts) nos libramos de tener que usar el método `allow()` porque  estábamos insertando nuevos posts a través de un método de servidor.
+En el capítulo [Creando posts](/chapter/creating-posts) nos libramos de tener que usar el método `allow()` porque estábamos insertando nuevos posts a través de un método de servidor.
 
 Pero ahora que estamos editando y borrando posts desde el cliente, vamos a necesitar volver a `collections/posts.js` y a añadir un bloque `allow()`:
 
@@ -207,7 +207,7 @@ Posts.allow({
 
 ### Limitando las ediciones
 
-Sólo porque podamos editar nuestros propios posts, no significa debamos ser capaces de editar todas las propiedades. Por ejemplo, no queremos que los usuarios puedan crear un post y luego asignárselo a otro usuario.
+Solo porque podamos editar nuestros propios posts, no significa debamos ser capaces de editar todas las propiedades. Por ejemplo, no queremos que los usuarios puedan crear un post y luego asignárselo a otro usuario.
 
 Utilizaremos el callback `deny()` para asegurarnos de que los usuarios solo puedan editar los atributos especificados:
 
@@ -233,13 +233,13 @@ Posts.deny({
 
 Estamos cogiendo el array `fieldNames` que contiene la lista de los campos que quieren modificar, y usamos el método `without()` de [Underscore](http://underscorejs.org/) para devolver un sub-array que contiene los campos que no son `url` o `title`.
 
-Si todo va bien, el array debe estar vacío y su longitud debe ser 0. Pero si alguien está tratando de enrredar, la longitud del array será mayor que 0, y devolveremos `true` (denegando así la actualización).
+Si todo va bien, el array debe estar vacío y su longitud debe ser 0. Pero si alguien está tratando de enredar, la longitud del array será mayor que 0, y devolveremos `true` (denegando así la actualización).
 
-Te habrás dado cuenta que en ningún sitio en nuestro código de editar post comprobamos si hay enlaces duplicados. Esto significa que un usuario podría enviar un enlace y después editarlo y cambiarlo su URL para saltarse la comprobación. La solución a este problema podría ser utilizar un método Meteor para tratar este formulario de edición, pero dejaremos esto como un ejercicio para el lector.
+Te habrás dado cuenta de que en ningún sitio en nuestro código de editar post comprobamos si hay enlaces duplicados. Esto significa que un usuario podría enviar un enlace y después editarlo y cambiarlo su URL para saltarse la comprobación. La solución a este problema podría ser utilizar un método Meteor para tratar este formulario de edición, pero dejaremos esto como un ejercicio para el lector.
 
 <% note do %>
 
-### Métodos en el servidor vs métodos en el cliente
+### Métodos en el servidor vs. métodos en el cliente
 
 Para crear un `post`, estamos utilizando un método `postInsert` en el servidor, mientras que para editarlos y eliminarlos, llamamos a `update` y `remove` directamente desde el cliente, limitando el acceso a través de `allow` y `deny`.
 

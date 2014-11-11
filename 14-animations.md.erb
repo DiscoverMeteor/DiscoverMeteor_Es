@@ -12,7 +12,7 @@ paragraphs: 58
 
 <% note do %>
 
-### Obsoleto?
+### ¿Obsoleto?
 
 Con las últimas mejoras introducidas en Meteor, tenemos que confesar este capítulo se ha quedado un poco obsoleto.
 
@@ -55,9 +55,9 @@ El siguiente diagrama explica estos pasos con más detalle:
 
 <%= diagram "animation_diagram", "Intercambiendo dos posts", "pull-center" %>
 
-De nuevo, en los pasos 3 y 4 no estamos *animando* A y B' hasta sus posiciones sino que las "teletransportamos" allí al instante. Dado que el cambio es instantáneo, parecerá que B no se ha borrado pero ya tenemos posicionados correctamente los elementos para que puedan ser animados hasta su nueva posición.
+De nuevo, en los pasos 3 y 4 no estamos *animando* A y B' hasta sus posiciones sino que las "teletransportamos" allí al instante. Dado que el cambio es instantáneo, parecerá que B no se ha borrado, pero ya tenemos posicionados correctamente los elementos para que puedan ser animados hasta su nueva posición.
 
-Afortunadamente, Meteor se ocupa de los pasos 1 y 2, así que sólo tendremos que preocuparnos de los pasos 3 al 6.
+Afortunadamente, Meteor se ocupa de los pasos 1 y 2, así que solo tendremos que preocuparnos de los pasos 3 al 6.
 
 Por otra parte, en los pasos 5 y 6 todo lo que estamos haciendo es moviendo los elementos a su lugar correcto. Así que la única parte que realmente necesita de nuestra atención son los pasos 3 y 4, es decir, el envío de los elementos al punto de inicio de la animación.
 
@@ -67,7 +67,7 @@ Hasta ahora hemos hablado de cómo animar nuestros posts, pero no de cuándo hay
 
 Para los pasos 3 y 4, la respuesta será: cuándo cambie la propiedad `_rank` del post (de la que depende la ordenación).
 
-Los pasos 5 y 6 son un poco más complicados. Míralo así: si le dices a un robot muy inteligente que se mueva al norte durante 5 minutos, y luego al sur otros 5, probablemente sabrá deducir que va a terminar en el mismo sitio, y que puede ahorrar energía y hacer bien el  trabajo sin moverse.
+Los pasos 5 y 6 son un poco más complicados. Míralo así: si le dices a un robot muy inteligente que se mueva al norte durante 5 minutos, y luego al sur otros 5, probablemente sabrá deducir que va a terminar en el mismo sitio, y que puede ahorrar energía y hacer bien el trabajo sin moverse.
 
 Así que si quieres que el robot ande durante 10 minutos, tienes que esperar hasta que recorra los 5 primeros y, a continuación, decirle que vuelva.
 
@@ -103,7 +103,7 @@ Esto significa que nuestro único problema es averiguar desde dónde animar los 
 
 ### Position:absolute
 
-Podríamos usar `position:absolute` para posicionar los elementos en relación a un elemento padre. Sin embargo, nos encontraremos con una gran desventaja puesto que los elementos con posición absoluta se eliminarán completamente de la página, causando el colapso de su contenedor padre como si éste estuviera vacío.
+Podríamos usar `position:absolute` para posicionar los elementos en relación a un elemento padre. Sin embargo, nos encontraremos con una gran desventaja puesto que los elementos con posición absoluta se eliminarán completamente de la página, causando el colapso de su contenedor padre como si este estuviera vacío.
 
 Esto a su vez significa que necesitaríamos establecer la altura del contenedor desde JavaScript, en vez de dejar que el navegador mueva los elementos de forma natural. En consecuencia, siempre que sea posible es mejor usar posicionamiento relativo.
 
@@ -117,7 +117,7 @@ Así que lo que vamos a hacer es averiguar la posición actual de un post, y lue
 
 ### Clasificando posts
 
-Hemos estado hablando de clasificar posts, pero esta "clasificación" en realidad no existe como una propiedad en los posts, ya que es sólo una consecuencia del orden en el que se enumeran los posts en nuestra colección. Si queremos ser capaces de animar los mensajes según su clasificación, vamos necesitar evocarla de alguna manera.
+Hemos estado hablando de clasificar posts, pero esta "clasificación" en realidad no existe como una propiedad en los posts, ya que es solo una consecuencia del orden en el que se enumeran los posts en nuestra colección. Si queremos ser capaces de animar los mensajes según su clasificación, vamos a necesitar invocarla de alguna manera.
 
 Ten en cuenta que no podemos meter la propiedad `rank` (clasificación) en la propia base de datos, ya que es una propiedad que depende de cómo se ordenan los posts (es decir, un post puede ser el primero al ordenar por fecha, pero el tercero al ordenar por puntos).
 
@@ -214,7 +214,7 @@ Template.postItem.helpers({
 
 Primero establecemos la altura de cada elemento del DOM, en otras palabras, nuestros divs `.post`. Esto presenta el inconveniente obvio de que cualquier cambio en esta altura (por ejemplo, un título de una entrada que ocupe dos líneas) romperá toda nuestra lógica de animación. Pero por el bien de mantener las cosas simples, por ahora, vamos a suponer que todos los posts tendrán exactamente 80 píxeles de alto.
 
-A continuación, declaramos una colección local llamada `Positions`. Ten en cuenta que pasar `null` como argumento permite a Meteor saber que se trata de una local (en otras palabras, sólo para el cliente).
+A continuación, declaramos una colección local llamada `Positions`. Ten en cuenta que pasar `null` como argumento permite a Meteor saber que se trata de una local (en otras palabras, solo para el cliente).
 
 Ahora estamos listos para construir nuestro ayudante `attributes`.
 
@@ -226,7 +226,7 @@ A menudo, puede ser difícil saber cuándo se ejecuta un trozo de código reacti
 
 Como cada ayudante, se ejecutará una vez cuando la plantilla se representa por primera vez. Debido a su dependencia de la propiedad `_rank`, se ejecutará también cada vez que cambie la clasificación de un post. Y, por último, su dependencia de la colección `Positions` significa que también va a ejecutarse cada vez que el elemento en cuestión se modifica.
 
-Esto significa que el ayudante se ejecutará dos o tres veces si cambian varias cosas. Esto puede parecer un desperdicio en un primer momento, pero es así como funciona la reactividad. Una vez que te acostumbras, acaba convirtiéndose en otra forma de pensar en el código.
+Esto significa que el ayudante se ejecutará dos o tres veces si cambian varias cosas. Esto puede parecer un desperdicio en un primer momento, pero así funciona la reactividad. Una vez que te acostumbras, acaba convirtiéndose en otra forma de pensar en el código.
 
 <% end %>
 
@@ -238,7 +238,7 @@ Ahora tenemos que gestionar dos casos distintos: o el ayudante está corriendo p
 
 Sólo queremos animar el elemento en el caso B, por lo que nos aseguramos de que `post.position` está definido (en breve veremos *cómo* está definido).
 
-Además, el caso B incluye dos sub-casos, B1 y B2: o estamos *teletransportando* el elemento del DOM de nuevo a los "tacos de salida" (su posición anterior), o estamos *animándolo* desde su posición anterior a su nueva posición.
+Además, el caso B incluye dos subcasos, B1 y B2: o estamos *teletransportando* el elemento del DOM de nuevo a los "tacos de salida" (su posición anterior), o estamos *animándolo* desde su posición anterior a su nueva posición.
 
 Aquí es donde entra en juego la variable `offset`. Dado que estamos utilizando posicionamiento *relativo*, vamos a querer averiguar dónde enviar el elemento *en relación* a su posición actual. Esto significa restar la nueva posición de la anterior.
 
@@ -265,7 +265,7 @@ Y esto es lo que sucede cuando se detecta un upvote:
 - El ayudante `attributes` se ejecuta de manera reactiva.
 - El `offset` vuelve a 0 (con animación) **(B2)**.
 
-Ahora abre el sitio y empieza a votar. ¡Deberías ver mensajes moviendose suavemente hacia arriba y hacia abajo elegantamente como en un ballet!
+Ahora abre el sitio y empieza a votar. ¡Deberías ver mensajes moviéndose suavemente hacia arriba y hacia abajo elegantemente como en un ballet!
 
 <%= commit "14-1", "Añadida la animación de los posts al reordenarse." %>
 
@@ -312,8 +312,8 @@ Lo que estamos haciendo aquí es aislar el caso **(A)** y añadir la clase CSS `
 
 Te habrás dado cuenta de que estamos usando la clase CSS `.invisible` para activar la animación en lugar de animar la propiedad de `opacity` directamente como hicimos para `top`. Esto se debe a que para `top`, necesitábamos animar la propiedad a un valor específico que depende de los datos de la instancia actual.
 
-Pero aquí sólo queremos mostrar y ocultar un elemento independiente de sus datos. Y como es una buena idea mantener el CSS fuera de JavaScript en la medida de lo posible, aquí sólo agregamos y eliminamos la clase, y especificamos los detalles de la animación en nuestra hoja de estilos.
+Pero aquí solo queremos mostrar y ocultar un elemento independiente de sus datos. Y como es una buena idea mantener el CSS fuera de JavaScript en la medida de lo posible, aquí solo agregamos y eliminamos la clase, y especificamos los detalles de la animación en nuestra hoja de estilos.
 
 <% end %>
 
-Por fin deberíamos tener el comportamiento que buscábamos. Carga la aplicación y ¡juega con ella!. También merece la pena jugar con la clase `.post.animated` para ver si se pueden aplicar otras transiciones. Sugerencia: [las funciones de aceleración CSS](http://matthewlein.com/ceaser/) son un buen lugar para empezar!
+Por fin deberíamos tener el comportamiento que buscábamos. Carga la aplicación y ¡juega con ella!. También merece la pena jugar con la clase `.post.animated` para ver si se pueden aplicar otras transiciones. Sugerencia: [las funciones de aceleración CSS](http://matthewlein.com/ceaser/) ¡son un buen lugar para empezar!

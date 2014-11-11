@@ -11,7 +11,7 @@ paragraphs: 67
 ---
 
 
-Nuestra aplicación va tomando forma y podemos esperar una gran éxito cuando salga al mercado.
+Nuestra aplicación va tomando forma y podemos esperar un gran éxito cuando salga al mercado.
 
 Así que quizás debamos pensar un poco sobre cómo afectará al rendimiento el gran número de nuevos posts que vamos a recibir.
 
@@ -61,7 +61,7 @@ Después de ejecutar `meteor reset` e iniciar la aplicación de nuevo, deberíam
 
 ### Paginación infinita
 
-Vamos a implementar una paginación de estilo estilo "infinito". Lo que queremos decir con esto es que primero mostramos, por ejemplo, 10 posts, con un enlace de "cargar más" en la parte inferior. Al hacer clic en este enlace se cargarán 10 más, y así _hasta el infinito y más allá_. Esto significa que podemos controlar todo nuestro sistema de paginación con un solo parámetro que representa el número de posts que mostraremos en pantalla.
+Vamos a implementar una paginación de estilo "infinito". Lo que queremos decir con esto es que primero mostramos, por ejemplo, 10 posts, con un enlace de "cargar más" en la parte inferior. Al hacer clic en este enlace se cargarán 10 más, y así _hasta el infinito y más allá_. Esto significa que podemos controlar todo nuestro sistema de paginación con un solo parámetro que representa el número de posts que mostraremos en pantalla.
 
 Vamos a necesitar entonces una forma de pasar este parámetro al servidor para que sepa la cantidad de mensajes que debe enviar al cliente. Se da la circunstancia de que ya estamos suscritos a la publicación `posts` en el router, así que vamos a aprovecharlo y a dejar que el router maneje también la paginación.
 
@@ -71,7 +71,7 @@ Para hacer esto correctamente, tenemos que cambiar la forma en que nos suscribim
 
 Parece demasiado para hacerlo todo de una sola vez, pero se verá más claro escribiendo el código.
 
-En primer lugar, vamos a dejar de suscribirnos a la publicación `posts` en el bloque `Router.configure()`. Simplemente elimina `Meteor.subscribe('posts')`, dejando sólo la suscripción `notifications`:
+En primer lugar, vamos a dejar de suscribirnos a la publicación `posts` en el bloque `Router.configure()`. Simplemente elimina `Meteor.subscribe('posts')`, dejando solo la suscripción `notifications`:
 
 ~~~js
 Router.configure({
@@ -84,9 +84,9 @@ Router.configure({
 });
 ~~~
 <%= caption "lib/router.js" %>
-<%= highlight "5" %>
+<%= highlight "6" %>
 
-A continuación, añadiremos el parámetro `postsLimit` al path de la ruta. Si añadimos un `?` después del parámetro, lo hacemos opcional. De forma que  nuestra ruta no sólo coincidirá con `http://localhost:3000/50`, sino también con `http://localhost:3000`.
+A continuación, añadiremos el parámetro `postsLimit` al path de la ruta. Si añadimos un `?` después del parámetro, lo hacemos opcional. De forma que nuestra ruta no solo coincidirá con `http://localhost:3000/50`, sino también con `http://localhost:3000`.
 
 ~~~js
 //...
@@ -102,7 +102,7 @@ Router.route('/:postsLimit?', {
 
 Es importante señalar que un path de la forma `/:parameter?` coincide con todos los path posibles. Dado que cada ruta se analiza en orden secuencial para comprobar si coincide con la ruta actual, tenemos que asegurarnos que organizamos bien nuestras rutas con el fin de disminuir la especificidad.
 
-En otras palabras, las rutas más específicas como `/posts/:_id` deben ir primero en el código, y nuestra ruta `postsList` debería ir **en la parte inferior** del conjunto de rutas para que todo conincida correctamente.
+En otras palabras, las rutas más específicas como `/posts/:_id` deben ir primero, y nuestra ruta `postsList` debería ir **en la parte inferior** del grupo de rutas para que todo coincida correctamente.
 
 Es el momento de abordar el difícil problema de suscribirse y encontrar los datos correctos. Tenemos que lidiar con el caso en el que el parámetro `postsLimit` no está presente, por lo que vamos a asignarle un valor predeterminado. Usaremos "5", que nos dará suficiente espacio para jugar con la paginación.
 
@@ -120,9 +120,9 @@ Router.route('/:postsLimit?', {
 //...
 ~~~
 <%= caption "lib/router.js" %>
-<%= highlight "7~9" %>
+<%= highlight "5~8" %>
 
-Ya te habrás dado cuenta que estamos pasando un objeto JavaScript ({sort: {submitted: -1}, limit: postsLimit}) junto con el nombre de nuestra publicación `posts`. Este objeto servirá como parámetro `options` en la llamada a `Posts.find()` en el lado del servidor. Vamos a cambiar nuestro código en el servidor para implementarlo:
+Ya te habrás dado cuenta de que estamos pasando un objeto JavaScript ({sort: {submitted: -1}, limit: postsLimit}) junto con el nombre de nuestra publicación `posts`. Este objeto servirá como parámetro `options` en la llamada a `Posts.find()` en el lado del servidor. Vamos a cambiar nuestro código en el servidor para implementarlo:
 
 ~~~js
 Meteor.publish('posts', function(options) {
@@ -270,13 +270,13 @@ Como nuestra aplicación es en tiempo real, nuestra base de datos cambiaría. El
 
 Incluso si toleramos esta peculiaridad, la paginación tradicional también es difícil de implementar por razones técnicas.
 
-Volvamos a nuestro ejemplo anterior. Estamos publicando los posts 10-20 de la colección `Posts`, pero ¿cómo los encontramos en el cliente? No se pueden seleccionar los mensajes 10 a 20 porque sólo hay diez posts en total en el conjunto de datos del lado del cliente.
+Volvamos a nuestro ejemplo anterior. Estamos publicando los posts 10-20 de la colección `Posts`, pero ¿cómo los encontramos en el cliente? No se pueden seleccionar los mensajes 10 a 20 porque solo hay diez posts en total en el conjunto de datos del lado del cliente.
 
 Una solución sería publicar esos 10 mensajes en el servidor y, a continuación, hacer un `Posts.find()` en el lado del cliente para recoger todos los posts publicados.
 
-Esto funciona si sólo tienes una suscripción. Pero, ¿y si tenemos más de una?
+Esto funciona si solo tienes una suscripción. Pero, ¿y si tenemos más de una?
 
-Digamos que una suscripción pide los posts 10 a 20, y otra 30 a 40 . Ahora tenemos 20 mensajes cargados del lado del cliente en total, y no hay forma de saber cuáles pertenecen a cada suscripción.
+Digamos que una suscripción pide los posts 10 a 20, y otra 30 a 40. Ahora tenemos 20 mensajes cargados del lado del cliente en total, y no hay forma de saber cuáles pertenecen a cada suscripción.
 
 Por todas estas razones, la paginación tradicional simplemente no tiene mucho sentido cuando se trabaja con Meteor.
 
@@ -284,9 +284,9 @@ Por todas estas razones, la paginación tradicional simplemente no tiene mucho s
 
 ### Creando un controlador de rutas
 
-Te habrás dado cuenta que repetimos dos veces la línea `var limit = parseInt(this.params.postsLimit) || 5;`. Además, codificar el número "5" no es lo ideal. No te preocupes, no es el fin del mundo, pero como siempre es mejor seguir el principio DRY (Don't Repeat Yourself), vamos a ver cómo podemos refactorizar un poco las cosas.
+Te habrás dado cuenta de que repetimos dos veces la línea `var limit = parseInt(this.params.postsLimit) || 5;`. Además, codificar el número "5" no es lo ideal. No te preocupes, no es el fin del mundo, pero como siempre es mejor seguir el principio DRY (Don't Repeat Yourself), vamos a ver cómo podemos refactorizar un poco las cosas.
 
-Introduciremos un nuevo aspecto de Iron Router, los _controladores de ruta_. Un controlador de ruta es simplemente una forma de agrupar en un paquete reutilizable, características de enrutamiento que puede heredar cualquier ruta. Ahora sólo lo utilizaremos para una sola ruta, pero en el próximo capítulo veremos que esta característica es muy útil.
+Introduciremos un nuevo aspecto de Iron Router, los _controladores de ruta_. Un controlador de ruta es simplemente una forma de agrupar en un paquete reutilizable, características de enrutamiento que puede heredar cualquier ruta. Ahora solo lo utilizaremos para una sola ruta, pero en el próximo capítulo veremos que esta característica es muy útil.
 
 ~~~js
 //...
@@ -319,23 +319,23 @@ Router.route('/:postsLimit?', {
 <%= caption "lib/router.js" %>
 <%= highlight "3~18, 25" %>
 
-Vamos a verlo paso a paso. En primer lugar, creamos nuestro controlador extendiendo `RouteController`. A continuación, establecemos la propiedad `template` tal y como hicimos antes, y luego una nueva propiedad  `increment`.
+Vamos a verlo paso a paso. En primer lugar, creamos nuestro controlador extendiendo `RouteController`. A continuación, establecemos la propiedad `template` tal y como hicimos antes, y luego una nueva propiedad `increment`.
 
 A continuación, definimos una nueva función `limit` que devolverá el límite actual, y una función `findOptions` que devolverá un objeto con las opciones. Esto puede parecer un paso extra, pero vamos a hacer uso de él en el futuro.
 
 A continuación, definimos nuestras funciones `waitOn` y de `data` igual que antes, excepto que ahora usan la nueva función `findOptions`.
 
-Como nuestro controlador se llama `PostsListController` y nuestra ruta se llama `postsList`, Iron Router usará el controlador automáticamente. Así que sólo necesitamos eliminar `waitOn` y `data` de la definicíon de la ruta (ya que es el controldor quien los gestiona ahora). Si necesitáramos utilizar un controlador con un nombre diferente, lo podemos hacer usando la opción `controller` (veremos un ejemplo de esto en el siguiente capítulo).
+Como nuestro controlador se llama `PostsListController` y nuestra ruta se llama `postsList`, Iron Router usará el controlador automáticamente. Así que solo necesitamos eliminar `waitOn` y `data` de la definicíon de la ruta (ya que es el controldor quien los gestiona ahora). Si necesitáramos utilizar un controlador con un nombre diferente, lo podemos hacer usando la opción `controller` (veremos un ejemplo de esto en el siguiente capítulo).
 
 <%= commit "12-3", "postLists refactorizado en un controlador de rutas" %>
 
 ### Añadiendo un botón "Load more"
 
-Ya tenemos funcionando la paginación. Sólo hay un problema: no hay manera de utilizarla realmente si no escribimos en la URL manualmente. Desde luego, no parece una gran experiencia de usuario, así que vamos a arreglarlo.
+Ya tenemos funcionando la paginación. Solo hay un problema: no hay manera de utilizarla realmente si no escribimos en la URL manualmente. Desde luego, no parece una gran experiencia de usuario, así que vamos a arreglarlo.
 
-Lo que queremos hacer es bastante simple. Vamos a añadir un botón "Load more" en la parte inferior de nuestra lista de posts, que incrementará en 5 el número de posts que se muestran. Así que si estamos en la URL `http://localhost:3000/5`, haciendo clic en "Load more" debería llevarnos a `http://localhost:3000/10`. Si has llegado hasta aquí, confiamos en que podrás manejar un poco de aritmética!
+Lo que queremos hacer es bastante simple. Vamos a añadir un botón "Load more" en la parte inferior de nuestra lista de posts, que incrementará en 5 el número de posts que se muestran. Así que si estamos en la URL `http://localhost:3000/5`, haciendo clic en "Load more" debería llevarnos a `http://localhost:3000/10`. Si has llegado hasta aquí, ¡confiamos en que podrás manejar un poco de aritmética!
 
-Al igual que antes, vamos a añadir nuestra lógica de paginación en la ruta. ¿Recuerdas que nombramos explícitamente el contexto de datos en lugar de usar un cursor anónimo? Bueno, pues no hay ninguna regla que diga que la función `data` sólo puede pasar cursores, de modo que usaremos la misma técnica para generar la URL del botón "Load more".
+Al igual que antes, vamos a añadir nuestra lógica de paginación en la ruta. ¿Recuerdas que nombramos explícitamente el contexto de datos en lugar de usar un cursor anónimo? Bueno, pues no hay ninguna regla que diga que la función `data` solo puede pasar cursores, de modo que usaremos la misma técnica para generar la URL del botón "Load more".
 
 ~~~js
 //...
@@ -372,11 +372,11 @@ PostsListController = RouteController.extend({
 
 Echemos un vistazo en profundidad a este pequeño truco de magia que hemos puesto en el router. Recuerda que la ruta `postsList` (que se hereda del controlador `PostsListController` con el que estamos trabajando) toma un parámetro `postsLimit`.
 
-Cuando alimentamos `{postsLimit: this.limit() + this.increment}` a `this.route.path()`, le estamos diciendo a la ruta `postsList` que  construya su propio path utilizando ese objeto JavaScript como contexto de datos.
+Cuando alimentamos `{postsLimit: this.limit() + this.increment}` a `this.route.path()`, le estamos diciendo a la ruta `postsList` que construya su propio path utilizando ese objeto JavaScript como contexto de datos.
 
 En otras palabras, es exactamente lo mismo que usar el ayudante Spacebars `{{pathFor 'postsList'}}`, salvo que reemplazamos el `this` implícito por nuestro propio contexto de datos a medida.
 
-Estamos cogiendo ese path y añadiendolo al contexto de datos de nuestra plantilla, pero _sólo_ si hay más posts que mostrar. La forma de hacerlo es un poco complicada.
+Estamos cogiendo ese path y añadiéndolo al contexto de datos de nuestra plantilla, pero _sólo_ si hay más posts que mostrar. La forma de hacerlo es un poco complicada.
 
 Sabemos que `this.limit()` devuelve el número actual de posts que nos gustaría mostrar, que puede ser el valor de la URL actual, o el valor por defecto (5) si la URL no contiene ningún parámetro.
 
@@ -388,7 +388,7 @@ Con todo esto, nuestro sistema falla en un caso: cuando el número de posts en n
 
 Lamentablemente, no hay soluciones sencillas para este problema, así que por ahora vamos a tener que conformarnos con esto.
 
-Todo lo que queda por hacer es añadir el botón "Load more" en la parte inferior de nuestra lista de posts, asegurándonos de mostrarlo sólo si tenemos más posts que cargar:
+Todo lo que queda por hacer es añadir el botón "Load more" en la parte inferior de nuestra lista de posts, asegurándonos de mostrarlo solo si tenemos más posts que cargar:
 
 ~~~html
 <template name="postsList">
@@ -416,9 +416,9 @@ Así es como se debería ver la lista ahora:
 
 La paginación funciona correctamente, pero tiene una peculiaridad algo molesta: cada vez que se hace clic en "Load more" y el router pide más posts, nos envía a plantilla de la carga mientras esperamos los nuevos datos. El resultado es que cada vez, nos envía a la parte superior de la página y tenemos que desplazarnos hasta el final para reanudar la navegación.
 
-Así que primero, tenemos que decirle a Iron Router que no espere (`waitOn`) la subscripción. En su lugar, definiremos nuestras subscripciones en el hook `subscriptions`.
+Así que primero, tenemos que decirle a Iron Router que no espere (`waitOn`) la suscripción. En su lugar, definiremos nuestras suscripciones en el hook `subscriptions`.
 
-También estamos pasando una variable `ready` que hace referencia a `this.postsSub.ready` como parte de nuestro contexto de datos. Esto le dirá a la plantilla cuando la subscripción de los posts ha terminado de cargar.
+También estamos pasando una variable `ready` que hace referencia a `this.postsSub.ready` como parte de nuestro contexto de datos. Esto le dirá a la plantilla cuando la suscripción de los posts ha terminado de cargar.
 
 ~~~js
 //...
@@ -488,7 +488,7 @@ Si lo pruebas, se mostrará un error "no encontrado". En realidad, tiene sentido
 
 Pero hasta el momento, lo único que sabemos es suscribirnos a una lista de los `n` últimos posts. ¿Cómo pedimos al servidor un solo post? Te contaré un pequeño secreto: ¡podemos usar más de una publicación para cada colección!
 
-Así que para volver a ver los posts perdidos, crearemos una nueva y separada publicación `singlePost` que sólo publica un post, identificado por `_id`.
+Así que para volver a ver los posts perdidos, crearemos una nueva y separada publicación `singlePost` que solo publica un post, identificado por `_id`.
 
 ~~~js
 Meteor.publish('posts', function(options) {
@@ -536,4 +536,4 @@ Router.route('/posts/:_id/edit', {
 
 <%= commit "12-6"," Usando una sola suscripción a los posts para asegurarnos de que siempre se puede ver y editar el post correcto." %>
 
-Terminada la paginación, nuestra aplicación ya no sufre de problemas de escalado, y los usuarios pueden contribuir con muchos más enlaces que antes. ¿No estaría bien tener una forma de clasificarlos? Si no lo sabías, ¡este es precisamente el tema del siguiente capítulo!.
+Terminada la paginación, nuestra aplicación ya no sufre de problemas de escalado, y los usuarios pueden contribuir con muchos más enlaces que antes. ¿No estaría bien tener una forma de clasificarlos? Si no lo sabías, ¡este es precisamente el tema del siguiente capítulo!

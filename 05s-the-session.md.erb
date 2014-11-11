@@ -19,11 +19,11 @@ En capítulos posteriores veremos más en profundidad cómo funciona todo esto, 
 
 ### La sesión en Meteor
 
-Ahora mismo, en Microscope, el estado actual de la aplicación está contenida en su totalidad en la URL que se está mostrando (y en la base de datos).
+Ahora mismo, en Microscope, el estado actual de la aplicación está contenido en su totalidad en la URL que se está mostrando (y en la base de datos).
 
-Pero en muchos casos, necesitarás almacenar valores de estado que sólo son relevante en la versión de la aplicación para usuario actual (por ejemplo, si algún elemento se muestra o está oculto). Usar la Sesión es una forma conveniente de hacerlo.
+Pero en muchos casos, necesitarás almacenar valores de estado que solo son relevantes en la versión de la aplicación para usuario actual (por ejemplo, si algún elemento se muestra o está oculto). Usar la Sesión es una forma conveniente de hacerlo.
 
-La sesión es un almacén global de datos reactivo. Es global en el sentido de que es un objeto global: sólo hay una sesión, y ésta es accesible desde todas partes. Las variables globales se suelen ver como algo malo, pero en este caso la sesión se utiliza como un bus de comunicación central para diferentes partes de la aplicación.
+La sesión es un almacén global de datos reactivo. Es global en el sentido de que es un objeto global: solo hay una sesión, y esta es accesible desde todas partes. Las variables globales se suelen ver como algo malo, pero en este caso la sesión se utiliza como un bus de comunicación central para diferentes partes de la aplicación.
 
 ### Modificando la Sesión
 
@@ -58,11 +58,11 @@ Template.layout.helpers({
 
 ### Una nota sobre el código de las barras laterales
 
-Ten en cuenta que el código mostrado en las barras laterales no forman parte del flujo principal del libro. Por lo que debería crear una nueva rama (si estas usando Git), o si no, asegurarte de deshacer los cambios al final del capítulo.
+Ten en cuenta que el código mostrado en las barras laterales no forma parte del flujo principal del libro. Por lo que debería crear una nueva rama (si estás usando Git), o si no, asegurarte de deshacer los cambios al final del capítulo.
 
 <% end %>
 
-La recarga automática de Meteor ("recarga de código en caliente" o HCR, de Hot Code Reload) preserva las variables de sesión, por lo que ahora debes ver "A different title" en la barra de navegación. Si no es así, sólo tienes que escribir el comando `Session.set()` de nuevo.
+La recarga automática de Meteor ("recarga de código en caliente" o HCR, de Hot Code Reload) preserva las variables de sesión, por lo que ahora debes ver "A different title" en la barra de navegación. Si no es así, solo tienes que escribir el comando `Session.set()` de nuevo.
 
 Si lo cambiamos de nuevo (desde la consola del navegador), debemos ver que se visualiza otro título:
 
@@ -115,7 +115,7 @@ Value is: Yet another value
 ~~~
 <%= caption "Consola del navegador" %>
 
-Magia! Al cambiar el valor, `autorun` sabe que tiene que ejecutar su contenido de nuevo, volviendo a mostrar el  nuevo valor por la consola.
+¡Magia! Al cambiar el valor, `autorun` sabe que tiene que ejecutar su contenido de nuevo, volviendo a mostrar el nuevo valor por la consola.
 
 Volviendo a nuestro ejemplo anterior, si queremos activar una nueva alerta cada vez que cambien variables de sesión, lo único que tenemos que hacer es envolver nuestro código en un bloque `autorun`:
 
@@ -129,7 +129,7 @@ Como acabamos de ver, los `autorun` pueden ser muy útiles para rastrear fuentes
 
 ### Recarga automática de código
 
-Durante el desarrollo de Microscope, hemos estado aprovechando una de las características de ahorro de tiempo que proporciona Meteor: La recarga de código en caliente (HCR). Cada vez que guardamos uno de nuestros archivos fuente, Meteor detecta los cambios y reinicia el servidor de forma transparente, informando a todos los clientes para que recarguen la página.
+Durante el desarrollo de Microscope, hemos estado aprovechando una de las características de ahorro de tiempo que proporciona Meteor: La recarga de código en caliente (HCR). Cada vez que guardamos uno de nuestros archivos fuente, Meteor detecta los cambios y reinicia el servidor de forma trasparente, informando a todos los clientes para que recarguen la página.
 
 Es similar a una recarga automática de página, pero con una diferencia importante.
 
@@ -150,9 +150,9 @@ Si recargáramos la página manualmente se perderían las variables de sesión (
 ~~~
 <%= caption "Consola del navegador" %>
 
-Así que si utilizamos variables de sesión para hacer un seguimiento de lo que está haciendo el usuario, el HCR debe ser prácticamente transparente para el usuario, ya que preserva el valor de todas las variables de sesión. Esto nos permite desplegar nuevas versiones de nuestra aplicación, ya en producción, con la seguridad de que no molestaremos mucho a nuestros usuarios.
+Así que si utilizamos variables de sesión para hacer un seguimiento de lo que está haciendo el usuario, el HCR debe ser prácticamente trasparente para el usuario, ya que preserva el valor de todas las variables de sesión. Esto nos permite desplegar nuevas versiones de nuestra aplicación, ya en producción, con la seguridad de que no molestaremos mucho a nuestros usuarios.
 
-Considera esto un momento. Si podemos llegar a mantener el estado entre la URL y la sesión, podemos cambiar de forma transparente el _código que está corriendo_ por debajo con una mínima interrupción.
+Considera esto un momento. Si podemos llegar a mantener el estado entre la URL y la sesión, podemos cambiar de forma trasparente el _código que está corriendo_ por debajo con una mínima interrupción.
 
 Ahora vamos a comprobar lo que pasa cuando refrescamos la página de forma manual:
 

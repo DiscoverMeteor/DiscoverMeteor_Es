@@ -156,7 +156,7 @@ La respuesta corta es no. A diferencia de Rails, Meteor no impone ninguna estruc
 
 Bueno, mentimos. En realidad no vamos a necesitar `public/` por la sencilla razón de que Microscope no utiliza ningún archivo estático. Pero como en la mayoría de aplicaciones se van a incluir al menos un par de imágenes, pensamos que era importante incluirlo.
 
-Por cierto, te puedes haber dado cuenta de que se ha creado un directorio oculto llamado  `.meteor`. Aquí es donde Meteor almacena su propio código. Cambiar cosas aquí dentro es, en general, una muy mala idea con las únicas excepciones de los archivos `.meteor/packages` y `.meteor/release`, que se utilizan, respectivamente, para listar nuestros paquetes y para establecer la versión de Meteor que queremos utilizar.
+Por cierto, te puedes haber dado cuenta de que se ha creado un directorio oculto llamado `.meteor`. Aquí es donde Meteor almacena su propio código. Cambiar cosas aquí dentro es, en general, una muy mala idea con las únicas excepciones de los archivos `.meteor/packages` y `.meteor/release`, que se utilizan, respectivamente, para listar nuestros paquetes y para establecer la versión de Meteor que queremos utilizar.
 
 <% note do %>
 
@@ -226,8 +226,7 @@ body {
     -o-transition: none;
     transition: none; }
   .post.animate{
-    -webkit-transition: all 300ms 0ms;
-    -webkit-transition-delay: ease-in;
+    -webkit-transition: all 300ms 0ms ease-in;
     -moz-transition: all 300ms 0ms ease-in;
     -o-transition: all 300ms 0ms ease-in;
     transition: all 300ms 0ms ease-in; }

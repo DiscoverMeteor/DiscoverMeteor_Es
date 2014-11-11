@@ -12,7 +12,7 @@ contents: "Aprenderemos cómo usar GitHub para seguir el libro."
 paragraphs: 32
 ---
 
-[GitHub](https://github.com/) es un repositorio para proyectos de código abierto basado en el sistema de control de versiones [Git](http://git-scm.com/), y su función es hacer que sea fácil compartir código y colaborar en proyectos. Pero también es una gran herramienta de aprendizaje. En este capítulo, vamos ver cómo usar GitHub para seguir *Descubriendo Meteor*.
+[GitHub](https://github.com/) es un repositorio para proyectos de código abierto basado en el sistema de control de versiones [Git](http://git-scm.com/), y su función es hacer que sea fácil compartir código y colaborar en proyectos. Pero también es una gran herramienta de aprendizaje. En este capítulo, vamos a ver cómo usar GitHub para seguir *Descubriendo Meteor*.
 
 Esta barra lateral asume que no estás familiarizado con Git ni con Github. Si ya manejas las dos cosas, ¡no dudes en pasar al siguiente capítulo!
 
@@ -20,7 +20,7 @@ Esta barra lateral asume que no estás familiarizado con Git ni con Github. Si y
 
 El bloque básico de trabajo de un repositorio git es el *commit* o _confirmación de código_. Puedes pensar en un commit como en una instantánea del estado de tu código en un momento dado.
 
-En lugar de darte el código final de microscope, hemos ido tomado instantáneas en cada paso del proceso de construcción, y las hemos compartido todas en GitHub.
+En lugar de darte el código final de microscope, hemos ido tomando instantáneas en cada paso del proceso de construcción, y las hemos compartido todas en GitHub.
 
 Por ejemplo, este es [el último commit del capítulo anterior](https://github.com/DiscoverMeteor/Microscope/commit/chapter3-2) y se ve así:
 
@@ -32,7 +32,7 @@ Vamos a compararlo con un ejemplo de [más adelante](https://github.com/Discover
 
 <%= screenshot "s3-2", "Modificando código." %>
 
-Esta vez, sólo se resaltan en verde las líneas modificadas.
+Esta vez, solo se resaltan en verde las líneas modificadas.
 
 Y, por supuesto, a veces no estás añadiendo o modificando código, también [borras cosas](https://github.com/DiscoverMeteor/Microscope/commit/chapter12-2):
 
@@ -42,7 +42,7 @@ Ya hemos visto el primer uso de GitHub: ver de un vistazo lo que ha cambiado.
 
 ### Navegando entre commits de código
 
-La vista de commits muestra los cambios incluidos en este commit en particular, pero a veces, puede que quieras ver los archivos que *no* han cambiado, sólo para asegurarnos cuál es el estado del código en esta etapa del proceso.
+La vista de commits muestra los cambios incluidos en este commit en particular, pero a veces, puede que quieras ver los archivos que *no* han cambiado, solo para asegurarnos cuál es el estado del código en esta etapa del proceso.
 
 Una vez más GitHub nos echa una mano. Cuando estás en una página de un commit, haz clic en el código **Browse code**:
 
@@ -66,7 +66,7 @@ Para verlo, empezaremos a usar la `utilidad de línea de comandos` de git. Para 
 git clone git@github.com:DiscoverMeteor/Microscope.git github_microscope
 ~~~
 
-`github_microscope` es el nombre del directorio local dónde se le "clonará" la aplicación. Si ya existe el directorio `microscope`, sólo tienes que elegir cualquier otro nombre (no tiene que tener el mismo nombre que el repositorio GitHub).
+`github_microscope` es el nombre del directorio local dónde se le "clonará" la aplicación. Si ya existe el directorio `microscope`, solo tienes que elegir cualquier otro nombre (no tiene que tener el mismo nombre que el repositorio GitHub).
 
 Ahora entramos con `cd` en el repositorio recién descargado y estamos listos para usar la `utilidad de línea de comando` de git:
 
@@ -96,9 +96,9 @@ HEAD is now at a004b56... Added basic posts list template and static data.
 
 Git nos está informando de que estamos "aislados de HEAD", lo que significa que ahora podremos ver commits del pasado pero no podremos cambiarlos, como si los viéramos a través de una bola de cristal.
 
-(Ten en cuenta que Git tiene comandos que permiten *cambiar* commits del pasado. Esto sería como viajar en el tiempo y pisar una mariposa, pero queda fuera del alcance de esta breve introducción.)
+(Ten en cuenta que Git tiene comandos que permiten *cambiar* commits del pasado. Esto sería como viajar en el tiempo y pisar una mariposa, pero queda fuera del alcance de esta breve introducción).
 
-Hemos sido capaces de escribir tan solo `chapter3-1` porque todos los commits de Microscope están etiquetados con el númeor de capítulo correcto. Si este no fuera el caso, tendrías que encontrar el **hash** o identificador único del commit que quieres ver.
+Hemos sido capaces de escribir tan solo `chapter3-1` porque todos los commits de Microscope están etiquetados con el número de capítulo correcto. Si este no fuera el caso, tendrías que encontrar el **hash** o identificador único del commit que quieres ver.
 
 Una vez más, GitHub nos lo pone fácil. Podemos encontrar el hash de cada commit en la esquina inferior derecha de la cabecera azul como se puede ver a continuación:
 
@@ -118,7 +118,7 @@ Y por último, ¿qué pasa si queremos dejar de mirar la bola mágica y volver a
 git checkout master
 ~~~
 
-Recuerda que, en cualquier momento del proceso, puedes ejecutar la aplicación usando el comando `meteor`, aunque el repositorio no esté en HEAD. Puede ser necesario ejecutar un `meteor update` primero si Meteor se queja de que faltan paquetes, ya que el código de los paquetes no está incluido en el repositorio .
+Recuerda que, en cualquier momento del proceso, puedes ejecutar la aplicación usando el comando `meteor`, aunque el repositorio no esté en HEAD. Puede ser necesario ejecutar un `meteor update` primero si Meteor se queja de que faltan paquetes, ya que el código de los paquetes no está incluido en el repositorio.
 
 ### Una perspectiva histórica
 
@@ -142,4 +142,4 @@ Esta vista ordenada nos muestra línea por línea quién modificó el archivo en
 
 <%= screenshot "s3-11", "La vista Blame de GitHub." %>
 
-Git, al igual que GitHub, son herramientas complejas, por lo que no podemos pretender conocerlas en profundidad en un solo capítulo. De hecho, apenas hemos arañado la superficie de lo que es posible hacer con ellas. Pero, lo poco que hemos visto te va a permitir seguir el resto del libro sin problemas.
+Git, al igual que GitHub, son herramientas complejas, por lo que no podemos pretender conocerlas con profundidad en un solo capítulo. De hecho, apenas hemos arañado la superficie de lo que es posible hacer con ellas. Pero, lo poco que hemos visto te va a permitir seguir el resto del libro sin problemas.

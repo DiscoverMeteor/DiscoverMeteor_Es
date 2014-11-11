@@ -15,7 +15,7 @@ No es común tener que escribir código de seguimiento de dependencias por ti mi
 
 Imagina que quisiéramos saber a cuántos amigos del usuario actual de Facebook le ha gustado cada post en Microscope. Supongamos que ya hemos trabajado en los detalles de cómo autenticar el usuario con Facebook, hacer las llamadas necesarias a la API, y procesar los datos relevantes. Ahora tenemos una función asíncrona en el lado del cliente que devuelve el número de "me gusta": `getFacebookLikeCount(user, url, callback)`.
 
-Lo importante a recordar sobre una función de esta naturaleza es que *no es reactiva* ni funciona en tiempo real. Hará una petición HTTP a Facebook, enviando algunos datos, y obtendremos el resultado en la aplicación a través de un llamada asíncrona. Pero la función no se va a volver a ejecutar por sí sola cuando haya un cambio en Facebook, ni nuestra UI va a cambiar cuando los datos lo hagan.
+Lo importante a recordar sobre una función de esta naturaleza es que *no es reactiva* ni funciona en tiempo real. Hará una petición HTTP a Facebook, enviando algunos datos, y obtendremos el resultado en la aplicación a través de una llamada asíncrona. Pero la función no se va a volver a ejecutar por sí sola cuando haya un cambio en Facebook, ni nuestra UI va a cambiar cuando los datos lo hagan.
 
 Para solucionar esto, podemos comenzar utilizando `setInterval` para llamar a la función cada ciertos segundos:
 
@@ -51,9 +51,9 @@ Como vimos anteriormente, una computación es una parte de código que usa datos
 
 Puedes pensar de la computación como una parte del código que se "preocupa" por los datos reactivos. Cuando los datos cambien, está computación será informada (a través de `invalidate()`), y es la computación la que debe decidir si algo debe hacerse.
 
-### Transformando una Variable en una Función Reactiva
+### Trasformando una Variable en una Función Reactiva
 
-Para transformar nuestra variable `currentLikeCount` en una fuente de datos reactiva, necesitamos rastrear todas las computaciones que la usan como una dependencia. Esto requiere transformarla de una variable a una función (que devolverá un valor):
+Para trasformar nuestra variable `currentLikeCount` en una fuente de datos reactiva, necesitamos rastrear todas las computaciones que la usan como una dependencia. Esto requiere trasformarla de una variable a una función (que devolverá un valor):
 
 ~~~js
 var _currentLikeCount = 0;
@@ -83,13 +83,13 @@ Lo que hemos hecho es configurar una dependencia `_currentLikeCountListeners`, q
 
 Estas computaciones pueden entonces seguir adelante y evaluar los cambios caso por caso.
 
-Parece un montón de código para una única fuente de datos reactiva, y tienes razón, por lo que Meteor proporciona algunas herramientas de serie para hacerlo un poco mas sencillo. (normalmente no se usan computaciones directamente, si no sencillamente auto ejecuciones). Hay un paquete llamado `reactive-var` que hace exactamente lo que hacemos con la función `currentLikeCount()`. Por lo que si lo añadimos:
+Parece un montón de código para una única fuente de datos reactiva, y tienes razón, por lo que Meteor proporciona algunas herramientas de serie para hacerlo un poco más sencillo. (normalmente, no se usan computaciones directamente, si no sencillamente auto ejecuciones). Hay un paquete llamado `reactive-var` que hace exactamente lo que hacemos con la función `currentLikeCount()`. Por lo que si lo añadimos:
 
 ~~~bash
 meteor add reactive-var
 ~~~
 
-Podremos simplificar nuestro código un poco::
+Podremos simplificar nuestro código un poco:
 
 ~~~js
 var currentLikeCount = new ReactiveVar();
@@ -108,16 +108,16 @@ Meteor.setInterval(function() {
 ~~~
 <%= highlight "1,9" %>
 
-Ahora para usarlo, llamaremos a `currentLikeCount.get()` en nuestro ayudante y debería funcionar como antes. Hay trambién otro paquete `reactive-dict`, que proporciona un almacen de datos clave-valor reactivo (exactamente igual que la `Session`), que podría ser útil también.
+Ahora para usarlo, llamaremos a `currentLikeCount.get()` en nuestro ayudante y debería funcionar como antes. Hay también otro paquete `reactive-dict`, que proporciona un almacén de datos clave-valor reactivo (exactamente igual que la `Session`), que podría ser útil también.
 
 
 ### Comparando Tracker con Angular
 
-[Angular](http://angularjs.org/) es una librería de renderizado reactivo del lado del cliente, desarrollada por la buena gente de Google. Sólo se puede comparar el seguimiento de dependencias de Meteor con el de Angular de un modo ilustrativo, ya que sus enfoques son bastante diferentes.
+[Angular](http://angularjs.org/) es una librería de renderizado reactivo del lado del cliente, desarrollada por la buena gente de Google. Solo se puede comparar el seguimiento de dependencias de Meteor con el de Angular de un modo ilustrativo, ya que sus enfoques son bastante diferentes.
 
-Hemos visto que el modelo de Meteor usa bloques de código llamados computaciones. Éstas son seguidas por fuentes de datos "reactivas" (funciones) que se ocupan de invalidarlos cuando sea apropiado. Así, la fuente de datos informa _explícitamente_ todas sus dependencias cuando necesita lamar a `invalidate()`. Nótese que a pesar de que esto sucede generalmente cuando los datos cambian, la fuente de los datos puede además decidir ejecutar la invalidación por otras razones.
+Hemos visto que el modelo de Meteor usa bloques de código llamados computaciones. Estas son seguidas por fuentes de datos "reactivas" (funciones) que se ocupan de invalidarlos cuando sea apropiado. Así, la fuente de datos informa _explícitamente_ todas sus dependencias cuando necesita llamar a `invalidate()`. Nótese que a pesar de que esto sucede generalmente cuando los datos cambian, la fuente de los datos puede además decidir ejecutar la invalidación por otras razones.
 
-Además, por más que usualmente las computaciones simplemente se re-ejecutan cuando son invalidadas, se pueden configurar para que se comporten como uno quiera. Esto nos da un alto nivel de control sobre la reactividad.
+Además, por más que usualmente las computaciones simplemente se reejecutan cuando son invalidadas, se pueden configurar para que se comporten como uno quiera. Esto nos da un alto nivel de control sobre la reactividad.
 
 En Angular, la reactividad es medida por el objeto `scope`. Un scope, o alcance, puede ser pensado como un simple objeto de JavaScript con algunos métodos especiales.
 
@@ -133,7 +133,7 @@ $rootScope.$watch('currentLikeCount', function(likeCount) {
 
 Por supuesto, es tan raro tener que configurar computaciones en Meteor, como tener que invocar a `$watch` explícitamente en Angular, ya que las directivas `ng-model` y las `{{expressions}}` automáticamente se ocupan de re-renderizarse cuando haya un cambio.
 
-Cuando dicho valor reactivo sea cambiado, `scope.$apply()` debe ser llamado. Esto vuelve a evaluar cada "watcher" del scope, pero sólo llama a las funciones de aquellos "watchers" que contengan valores modificados.
+Cuando dicho valor reactivo sea cambiado, `scope.$apply()` debe ser llamado. Esto vuelve a evaluar cada "watcher" del scope, pero solo llama a las funciones de aquellos "watchers" que contengan valores modificados.
 
 Entonces, `scope.$apply()` es similar a `dependency.changed()`, excepto que actúa al nivel del scope, en lugar de darle el control al desarrollador para decirle precisamente cuáles funciones deberían ser re-evaluadas. Con eso aclarado, esta pequeña falta de control le da a Angular la habilidad de ser muy inteligente y eficiente, ya que determina precisamente qué debe ser vuelto a evaluar.
 
@@ -152,4 +152,4 @@ Meteor.setInterval(function() {
 ~~~
 <%= highlight "5~6" %>
 
-Decididamente, Meteor se ocupa de la parte más pesada por nosotros y nos deja beneficiarnos de la reactividad sin demasiado trabajo. Pero tal vez, aprender estos patrones será de ayuda si alguna vez necesitas ir mas allá.
+Decididamente, Meteor se ocupa de la parte más pesada por nosotros y nos deja beneficiarnos de la reactividad sin demasiado trabajo. Pero tal vez, aprender estos patrones será de ayuda si alguna vez necesitas ir más allá.

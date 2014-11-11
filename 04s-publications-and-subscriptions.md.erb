@@ -11,7 +11,7 @@ contents: "Entenderemos cómo funcionan las publicaciones y las suscripciones.|A
 paragraphs: 52
 ---
 
-Las publicaciones y las suscripciones son dos de los conceptos más importantes de Meteor, pero puede que sean difíciles de comprender si acabas de empezar.
+Las publicaciones y las suscripciones son dos de los conceptos más importantes de Meteor, pero pueden que sean difíciles de comprender si acabas de empezar.
 
 Esto ha acarreado una gran cantidad de mal entendidos, como la creencia de que Meteor es inseguro, o que las aplicaciones no pueden manejar grandes cantidades de datos.
 
@@ -21,21 +21,21 @@ La "magia" que hace Meteor es la razón más importante de que ocurra esto al pr
 
 Pero primero, vamos a echar una mirada a los buenos tiempos allá por 2011, cuando todavía no existía Meteor. Digamos que estás haciendo una sencilla aplicación con Rails. Cuando un usuario llega a tu sitio, el cliente (es decir, su navegador) envía una solicitud a tu aplicación, que reside en el servidor.
 
-Lo primero que hace la App es averiguar qué datos necesita ver el usuario. Éstos podrían ser la página 12 de resultados de búsqueda, la información del perfil de usuario de Mary, los 20 tweets más recientes de Bob, y así sucesivamente. Básicamente, podríamos verlo como un dependiente de una librería buscando por los pasillos el libro que has pedido.
+Lo primero que hace la App es averiguar qué datos necesita ver el usuario. Estos podrían ser la página 12 de resultados de búsqueda, la información del perfil de usuario de Mary, los 20 tweets más recientes de Bob, y así sucesivamente. Básicamente, podríamos verlo como un dependiente de una librería buscando por los pasillos el libro que has pedido.
 
 Una vez que tiene los datos correctos, el segundo trabajo de la aplicación es traducir esos datos a un formato HTML agradable y legible (o JSON en el caso de una API).
 
-En la metáfora de la librería, estaríamos envolviendo el libro y metiendolo en una bolsa bonita. Esta es la "Vista", del famoso modelo Model-View-Controller.
+En la metáfora de la librería, estaríamos envolviendo el libro y metiéndolo en una bolsa bonita. Esta es la "Vista", del famoso modelo Model-View-Controller.
 
 Por último, la aplicación coge el código HTML y lo envía hacia el navegador. El trabajo de la aplicación ha terminado, y puede relajarse tomando una cerveza mientras espera la siguiente solicitud.
 
 ### ¿Cómo lo hace Meteor?
 
-Veamos lo que hace Meteor tan especial. Como hemos visto, la principal innovación de Meteor es que, mientras que una aplicación Rails sólo vive **en el servidor**, una aplicación Meteor también incluye componentes que se ejecutarán **en el cliente** (el navegador).
+Veamos lo que hace Meteor tan especial. Como hemos visto, la principal innovación de Meteor es que, mientras que una aplicación Rails solo vive **en el servidor**, una aplicación Meteor también incluye componentes que se ejecutarán **en el cliente** (el navegador).
 
 <%= diagram "client-server", "Enviar un subconjunto de la base de datos al cliente.", "pull-right" %>
 
-Así que lo que ocurre es que el empleado de la tienda, no sólo encuentra el libro, sino que además te sigue a casa para leértelo por la noche (admitiremos que suena un poco raro).
+Así que lo que ocurre es que el empleado de la tienda, no solo encuentra el libro, sino que además te sigue a casa para leértelo por la noche (admitiremos que suena un poco raro).
 
 Esta arquitectura permite a Meteor hacer cosas muy interesantes, la más importante es lo que Meteor llama [base de datos en todas partes](http://docs.meteor.com/#sevenprinciples). En pocas palabras, Meteor tomará un subconjunto de la base de datos y la *copiará en el cliente*.
 
@@ -53,7 +53,7 @@ Volvamos a Microscope. Aquí están todos los posts de nuestra aplicación que h
 
 Aunque esta función no exista realmente en Microscope, imaginemos que algunos de nuestros posts se han marcado como entradas con lenguaje abusivo. Aunque queramos mantenerlos en nuestra base de datos, no deben ponerse a disposición de los usuarios (es decir, enviarse a los clientes).
 
-Nuestra primera tarea será decirle a Meteor qué datos *queremos* enviar. Le diremos que sólo queremos **publicar** posts sin marcar:
+Nuestra primera tarea será decirle a Meteor qué datos *queremos* enviar. Le diremos que solo queremos **publicar** posts sin marcar:
 
 <%= diagram "collections-2", "Excluyendo posts marcados.", "pull-center" %>
 
@@ -66,13 +66,13 @@ Meteor.publish('posts', function() {
 });
 ~~~
 
-Esto asegura que **no hay manera posible** de que el cliente pueda acceder a un post marcado. Esta es la forma de hacer una aplicación segura con Meteor: basta con asegurarse de que sólo publicas los datos a los que el cliente actual debe tener acceso.
+Esto asegura que **no hay manera posible** de que el cliente pueda acceder a un post marcado. Esta es la forma de hacer una aplicación segura con Meteor: basta con asegurarse de que solo publicas los datos a los que el cliente actual debe tener acceso.
 
 <% note do %>
 
 ### DDP
 
-Puedes pensar en el sistema de publicaciónes/suscripciónes como un embudo que transfiere datos desde una colección en el servidor (origen) a una en el cliente (destino).
+Puedes pensar en el sistema de publicaciones/suscripciones como un embudo que trasfiere datos desde una colección en el servidor (origen) a una en el cliente (destino).
 
 El protocolo que se habla dentro del embudo se llama **DDP** (que significa Protocolo de Datos Distribuidos). Para aprender más sobre DDP, puedes ver [esta charla de la conferencia en Real-time](http://2012.realtimeconf.com/video/matt-debergalis) de Matt DeBergalis (uno de los fundadores de Meteor), o [este screencast](http://www.eventedmind.com/posts/meteor-subscriptions-and-ddp) de Chris Mather que te guía a través de este concepto con un poco más de detalle.
 
@@ -80,11 +80,11 @@ El protocolo que se habla dentro del embudo se llama **DDP** (que significa Prot
 
 ### Suscripciones
 
-A pesar de que no vamos a poner a disposición de los clientes los posts marcados, pueden quedar miles que no debemos enviar de una sola vez. Necesitamos una forma de que los clientes especifiquen qué subconjunto  necesitan en un momento determinado, y aquí es exactamente donde entran las  **suscripciones**.
+A pesar de que no vamos a poner a disposición de los clientes los posts marcados, pueden quedar miles que no debemos enviar de una sola vez. Necesitamos una forma de que los clientes especifiquen qué subconjunto necesitan en un momento determinado, y aquí es exactamente donde entran las **suscripciones**.
 
 Cualquier dato que se suscribe, se **refleja** en el cliente gracias a Minimongo, la implementación de MongoDB en el lado del cliente que provee Meteor.
 
-Por ejemplo, digamos que estamos viendo la página del perfil de Bob Smith, y que sólo queremos ver *sus* posts.
+Por ejemplo, digamos que estamos viendo la página del perfil de Bob Smith, y que solo queremos ver *sus* posts.
 
 <%= diagram "collections-3", "La suscripción a los posts de Bob será un reflejo de ellos en el cliente.", "pull-center" %>
 
@@ -104,11 +104,11 @@ Entonces podríamos definir ese parámetro cuando *nos suscribimos* a esa public
 Meteor.subscribe('posts', 'bob-smith');
 ~~~
 
-Esta es la forma de hacer escalable una aplicación Meteor: en lugar de suscribirse a *todos* los datos disponibles, sólo escogemos las piezas que necesitamos en un momento dado. De esta manera, evitaremos sobrecargar la memoria del navegador, sin importar si el tamaño de la base de datos del servidor es enorme.
+Esta es la forma de hacer escalable una aplicación Meteor: en lugar de suscribirse a *todos* los datos disponibles, solo escogemos las piezas que necesitamos en un momento dado. De esta manera, evitaremos sobrecargar la memoria del navegador, sin importar si el tamaño de la base de datos del servidor es enorme.
 
 ### Búsquedas
 
-Ahora resulta que los mensajes de Bob tienen varias categorías (por ejemplo: "JavaScript", "Ruby", y "Python"). Tal vez todavía queremos cargar todos los Mensajes de Bob en la memoria, pero en este momento sólo queremos mostrar los de la categoría "JavaScript". Aquí es donde "la búsqueda" entra en juego
+Ahora resulta que los mensajes de Bob tienen varias categorías (por ejemplo: "JavaScript", "Ruby", y "Python"). Tal vez todavía queremos cargar todos los Mensajes de Bob en la memoria, pero en este momento solo queremos mostrar los de la categoría "JavaScript". Aquí es donde "la búsqueda" entra en juego
 
 <%= diagram "collections-4", "Selección de un subconjunto de documentos en el cliente.", "pull-center" %>
 
@@ -133,11 +133,11 @@ El objetivo de `autopublish` es que sea muy fácil empezar a desarrollar y lo ha
 
 <%= diagram "autopublish", "Autopublish", "pull-center"%>
 
-¿Y cómo funciona? Supon que tienes una colección en el servidor llamada `'posts'`. Entonces `autopublish` buscará todos los posts que haya en la base de datos Mongo y los enviará automáticamente a una colección llamada `'posts'` en el cliente.
+¿Y cómo funciona? Supón que tienes una colección en el servidor llamada `'posts'`. Entonces `autopublish` buscará todos los posts que haya en la base de datos Mongo y los enviará automáticamente a una colección llamada `'posts'` en el cliente.
 
 Así que si usas `autopublish`, no necesitas pensar en publicaciones. Los datos son omnipresentes, y todo es más sencillo. Por supuesto, aparecen problemas obvios al tener una copia completa de la base de datos en la caché de cada usuario.
 
-Por esta razón, `autopublish` sólo es apropiado cuando estamos empezando, cuándo todavía no se ha pensado en las publicaciones.
+Por esta razón, `autopublish` solo es apropiado cuando estamos empezando, cuándo todavía no se ha pensado en las publicaciones.
 
 ### Publicando colecciones completas
 
@@ -155,7 +155,7 @@ Todavía publicamos colecciones completas, pero al menos ahora tenemos control s
 
 ### Publicando colecciones parciales
 
-El siguiente nivel de control es publicar sólo _una parte_ de una colección. Por ejemplo, sólo los posts que pertenecen a un determinado autor:
+El siguiente nivel de control es publicar solo _una parte_ de una colección. Por ejemplo, solo los posts que pertenecen a un determinado autor:
 
 ~~~js
 Meteor.publish('somePosts', function(){
@@ -181,13 +181,13 @@ Esto es lo que hace `_publishCursor()`:
 - Toma todos los documentos que coinciden con el cursor y los envía al cliente en una colección *del mismo nombre*. (Para hacer esto, utiliza `.added()`).
 - Cada vez que se añade, elimina o modifica un documento, envía esos cambios a la colección del lado del cliente. (Para hacerlo, utiliza `.observe()` en el cursor y `.added()`, `.changed()` y `.removed()`).
 
-Así, en el ejemplo anterior, podemos asegurar que el usuario sólo tiene en la caché, los posts en los que está interesado (los escritos por Tom).
+Así, en el ejemplo anterior, podemos asegurar que el usuario solo tiene en la caché, los posts en los que está interesado (los escritos por Tom).
 
 <% end %>
 
 ### Publicando propiedades parciales
 
-Hemos visto cómo publicar sólo algunos de nuestros posts, pero ¡todavía podemos seguir recortando! Vamos a ver cómo publicar sólo algunas *propiedades*.
+Hemos visto cómo publicar solo algunos de nuestros posts, pero ¡todavía podemos seguir recortando! Vamos a ver cómo publicar sólo algunas *propiedades*.
 
 Al igual que antes, vamos a utilizar `find()` para devolver un cursor, pero esta vez vamos a excluir ciertos campos:
 
@@ -213,8 +213,8 @@ Meteor.publish('allPosts', function(){
 
 ### Recapitulando
 
-Hemos visto cómo pasar de publicar todas las propiedades de todos los documentos de todas las colecciones (con `autopublish`) a publicar sólo _algunas_ propiedades de _algunos_ documentos de _algunas_ colecciones.
+Hemos visto cómo pasar de publicar todas las propiedades de todos los documentos de todas las colecciones (con `autopublish`) a publicar solo _algunas_ propiedades de _algunos_ documentos de _algunas_ colecciones.
 
 Esto cubre los fundamentos de lo que se puede hacer con las publicaciones en Meteor, y estas técnicas tan sencillas deberían servir para la gran mayoría de casos de uso.
 
-Aún así, en ocasiones, tendrás que ir más allá combinando, vinculando, o fusionando publicaciones. ¡Todo esto lo veremos más adelante en uno de los capítulos del libro!.
+Aún así, en ocasiones, tendrás que ir más allá combinando, vinculando, o fusionando publicaciones. ¡Todo esto lo veremos más adelante en uno de los capítulos del libro!
