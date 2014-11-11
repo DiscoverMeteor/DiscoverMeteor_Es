@@ -13,11 +13,11 @@ paragraphs: 22
 
 Durante nuestro trabajo en los errores, hemos construido un modelo reutilizable, ¿por qué no ponerlo dentro de un paquete y compartirlo con el resto de la comunidad Meteor?
 
-Para empezar, tenemos que asegurarnos de que tenemos una cuenta de desarrollador Meteor. Puedes hacerte una en [meteor.com](meteor.com), pero es muy probable que ya lo hayas hecho ¡cuando te registraste en el libro!. En cualquier caso, deberías saber cual es tu nombre de usuario, el cúal utilizaremos bastante durante este capítulo.
+Para empezar, tenemos que asegurarnos de que tenemos una cuenta de desarrollador Meteor. Puedes hacerte una en [meteor.com](meteor.com), pero es muy probable que ya lo hayas hecho ¡cuando te registarte en el libro! En cualquier caso, deberías saber cuál es tu nombre de usuario, el cual utilizaremos bastante durante este capítulo.
 
 En este capítulo usaremos `tmeasday` como usuario -- puedes cambiarlo por el tuyo.
 
-En primer lugar, necesitamos crear una estructura de carpetas para nuestro paquete. Podemos usar el comando `meteor create --package tmeasday:errors`  para conseguirla. Fíjate que Meteor ha creado una carpeta llamada `packages/tmeasday:errors/`, con algunos ficheros dentro. Comenzaremos por editar `package.js`, el archivo que informa a Meteor de cómo debe utilizar el paquete, y los símbolos y funciones que exporta.
+En primer lugar, necesitamos crear una estructura de carpetas para nuestro paquete. Podemos usar el comando `meteor create --package tmeasday:errors` para conseguirla. Fíjate que Meteor ha creado una carpeta llamada `packages/tmeasday:errors/`, con algunos ficheros dentro. Comenzaremos por editar `package.js`, el archivo que informa a Meteor de cómo debe utilizar el paquete, y los símbolos y funciones que exporta.
 
 ~~~js
 Package.describe({
@@ -39,9 +39,9 @@ Package.onUse(function (api, where) {
 ~~~
 <%= caption "packages/tmeasday:errors/package.js" %>
 
-Cuando desarrollamos un paquete para su uso en el mundo-real, es una buena práctica rellenar la sección `Package.describe` con la URL del repositorio Git (como por ejemplo, `https://github.com/tmeasday/meteor-errors.git`). De esta manera los usuarios pueden acceder al código fuente, y (si usas GitHub) ver el readme del paquete en Atmosphere.
+Cuando desarrollamos un paquete para su uso en el mundo-real, es una buena práctica rellenar la sección `Package.describe` con la URL del repositorio Git (como por ejemplo, `https://github.com/tmeasday/meteor-errors.git`). De esta manera, los usuarios pueden acceder al código fuente, y (si usas GitHub) ver el readme del paquete en Atmosphere.
 
-Vamos a añadir al paquete los tres archivos que se pasan en la llamada a `add_files`. Podemos usar los mismos que tenemos para Microscope, haciendo sólo, unos pequeños cambios para los espacios de nombres y para dejar la API un poco más limpia:
+Vamos a añadir al paquete los tres archivos que se pasan en la llamada a `add_files`. Podemos usar los mismos que tenemos para Microscope, haciendo solo, unos pequeños cambios para los espacios de nombres y para dejar la API un poco más limpia:
 
 ~~~js
 Errors = {
@@ -164,7 +164,7 @@ Con estos tests comprobamos que las funciones básicas de `Meteor.Errors` funcio
 
 No vamos a cubrir los aspectos específicos sobre cómo escribir tests de paquetes (porque la API todavía no está acabada y podría cambiar mucho), pero viendo el código, puedes hacerte una idea cómo funciona.
 
-Para decirle a Meteor que ejecute los tests, añadimos éste código a `package.js`
+Para decirle a Meteor que ejecute los tests, añadimos este código a `package.js`
 
 ~~~js
 Package.onTest(function(api) {

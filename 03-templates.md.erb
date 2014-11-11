@@ -12,7 +12,7 @@ paragraphs: 46
 
 Para aprender a desarrollar con Meteor adoptaremos un enfoque de afuera hacia adentro, es decir, primero construiremos el envoltorio exterior y luego lo conectaremos al funcionamiento interno de la aplicación.
 
-Esto implica que, en este capítulo, sólo utilizaremos el directorio `/client`.
+Esto implica que, en este capítulo, solo utilizaremos el directorio `/client`.
 
 Si todavía no lo has hecho, crea un nuevo archivo `main.html` dentro del directorio `client`, rellenándolo con el siguiente código:
 
@@ -53,7 +53,7 @@ También significa que se podrían poner todos los archivos en el mismo director
 
 <% end %>
 
-Ya estamos listos para nuestras segunda plantilla. Dentro de `client/templates/posts`, crea el fichero `posts_list.html`:
+Ya estamos listos para nuestra segunda plantilla. Dentro de `client/templates/posts`, crea el fichero `posts_list.html`:
 
 ~~~html
 <template name="postsList">
@@ -103,7 +103,7 @@ Primero, en la plantilla `postsList` iteramos sobre un objeto `posts`, y para ca
 
 Pero, ¿de dónde viene el objeto `posts`?. Buena pregunta. Es un **ayudante de plantilla**, y puedes pensar en ellos como un cajón o hueco para nuestros valores dinámicos.
 
-La plantilla `postItem` es bastante sencilla. Sólo usa tres expresiones: `{{url}}` y `{{title}}` devuelven propiedades, y `{{domain}}` llama a un ayudante.
+La plantilla `postItem` es bastante sencilla. Solo usa tres expresiones: `{{url}}` y `{{title}}` devuelven propiedades, y `{{domain}}` llama a un ayudante.
 
 ### Ayudantes de plantillas
 
@@ -111,7 +111,7 @@ Hasta ahora hemos estado tratando con Spacebars, que es poco más que HTML con a
 
 Para que una plantilla tenga vida necesita **ayudantes**. Puedes pensar en estos ayudantes como los cocineros que toman los ingredientes (tus datos) y los preparan, antes de entregar el plato terminado (las plantillas) al camarero, que los entregan.
 
-En otras palabras, mientras el rol de las plantillas está limitada a mostrar o iterar sobre variables, los ayudantes son los que actualmente hacen el trabajo pesado asignando un valor a cada variable.
+En otras palabras, mientras la función de las plantillas está limitada a mostrar o iterar sobre variables, los ayudantes son los que actualmente hacen el trabajo pesado asignando un valor a cada variable.
 
 <% note do %>
 
@@ -150,7 +150,7 @@ Si todo está bien, ya se pueden ver los datos en el navegador:
 
 <%= screenshot "3-1", "Nuestra primera plantilla con datos estáticos" %>
 
-Estamos haciendo dos cosas. Primero, creamos algunos datos prototipo en `postsData`. Normalmente estos datos vienen de la base de datos, pero como no hemos visto cómo hacerlo todavía (espera al siguiente capítulo), hacemos trampa mediante el uso de datos estáticos.
+Estamos haciendo dos cosas. Primero, creamos algunos datos prototipo en `postsData`. Normalmente, estos datos vienen de la base de datos, pero como no hemos visto cómo hacerlo todavía (espera al siguiente capítulo), hacemos trampa mediante el uso de datos estáticos.
 
 Segundo, usamos la función `Template.postsList.helpers()` para definir un ayudante de plantilla llamado `posts` que sencillamente devuelve nuestros datos creados en `postsData`.
 
@@ -192,9 +192,9 @@ Esta vez el valor de nuestro ayudante `domain`, no son datos sino una función a
 
 El ayudante `domain` coge una URL y devuelve su dominio a través de un poco de magia JavaScript. Pero, ¿de dónde saca esa url la primera vez?.
 
-Para responder a esta pregunta tenemos que volver a nuestra plantilla `posts_list.html`. El bloque `{{#each}}` no sólo itera nuestros datos, sino que también **establece el valor de `this` dentro del bloque al objeto siendo iterado**.
+Para responder a esta pregunta tenemos que volver a nuestra plantilla `posts_list.html`. El bloque `{{#each}}` no solo itera nuestros datos, sino que también **establece el valor de `this` dentro del bloque al objeto siendo iterado**.
 
-Esto significa que entre los dos etiquetas `{{each}}`, el valor de `this` es asignado a cada `post` sucesivamente, y esto se hace extensivo al gestor de la plantilla (`post_item.js`).
+Esto significa que entre las dos etiquetas `{{each}}`, el valor de `this` es asignado a cada `post` sucesivamente, y esto se hace extensivo al gestor de la plantilla (`post_item.js`).
 
 Ahora entendemos porqué `this.url` devuelve la URL del post actual. Y más aún, como utilizamos `{{title}}` y `{{url}}` dentro de nuestra plantilla `post_item.html`, Meteor sabe que lo que queremos es `this.title` y `this.url` y devuelve los valores correctos.
 
@@ -212,7 +212,7 @@ Por último, aprovechamos de la propiedad `hostname` del elemento `a` para devol
 
 <% end %>
 
-Si todo ha ido bien deberíamos ver una lista de posts en el navegador. Esta lista son sólo datos estáticos, lo que, por el momento, no nos permite aprovechar las características de tiempo real de Meteor. ¡Aprenderemos cómo hacerlo en el próximo capítulo!
+Si todo ha ido bien deberíamos ver una lista de posts en el navegador. Esta lista son solo datos estáticos, lo que, por el momento, no nos permite aprovechar las características de tiempo real de Meteor. ¡Aprenderemos cómo hacerlo en el próximo capítulo!
 
 <% note do %>
 

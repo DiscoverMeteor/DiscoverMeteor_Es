@@ -18,7 +18,7 @@ Vamos a implementar un simple sistema que muestre los nuevos errores en la parte
 
 ### Introduciendo las colecciones locales
 
-Para empezar, crearemos una colección para almacenar nuestros errores. Puesto que los errores sólo son relevantes en la sesión actual y no necesitan ser persistentes, haremos algo nuevo, vamos a crear una *colección local*. Es decir, la colección `Errors` sólo existirá *en el navegador*, y no se sincronizará con el servidor.
+Para empezar, crearemos una colección para almacenar nuestros errores. Puesto que los errores solo son relevantes en la sesión actual y no necesitan ser persistentes, haremos algo nuevo, vamos a crear una *colección local*. Es decir, la colección `Errors` solo existirá *en el navegador*, y no se sincronizará con el servidor.
 
 Para conseguirlo, creamos la colección de errores dentro del directorio `client` (para hacer la colección solo disponible en la parte cliente), con el nombre de la colección establecido a `null` (ya que esta los datos nunca se almacenarán en la base de datos del servidor):
 
@@ -57,7 +57,7 @@ Mostraremos los errores en la parte de arriba de nuestro layout:
 <%= caption "client/templates/application/layout.html" %>
 <%= highlight "4" %>
 
-Ahora vamos a crear las plantilla de error en `errors.html`:
+Ahora vamos a crear la plantilla de error en `errors.html`:
 
 ~~~html
 <template name="errors">
@@ -81,13 +81,13 @@ Ahora vamos a crear las plantilla de error en `errors.html`:
 
 ### Dos plantillas en un archivo
 
-Te habrás dado cuenta de que estamos definiendo dos plantillas en un solo archivo. Hasta ahora hemos tratado de mantener la regla "un archivo, una plantilla", pero con Meteor podemos poner todas las plantillas en un único fichero  y también funcionaría (¡Aunque tendríamos un fichero `main.html` muy confuso!)
+Te habrás dado cuenta de que estamos definiendo dos plantillas en un solo archivo. Hasta ahora hemos tratado de mantener la regla "un archivo, una plantilla", pero con Meteor podemos poner todas las plantillas en un único fichero y también funcionaría (¡Aunque tendríamos un fichero `main.html` muy confuso!).
 
 En este caso, como ambas plantillas de error son muy pequeñas, haremos una excepción y las pondremos en el mismo fichero para que nuestro repositorio quede más limpio.
 
 <% end %>
 
-Sólo nos falta integrar el ayudante de plantilla y ¡Estará listo!
+Solo nos falta integrar el ayudante de plantilla y ¡Estará listo!
 
 ~~~js
 Template.errors.helpers({
@@ -184,13 +184,13 @@ Template.postEdit.events({
 
 <%= commit "9-2", "Usando el mecanismo de presentar errores." %>
 
-Vamos a probar: intenta crear un post y introduce la URL `http://meteor.com`. Como esta URL ya existe en un post en nuestros datos de ejemplo, deberíamos ver:
+Vamos a probar: intenta crear un post e introduce la URL `http://meteor.com`. Como esta URL ya existe en un post en nuestros datos de ejemplo, deberíamos ver:
 
 <%= screenshot "9-2", "Disparando un error" %>
 
 ### Limpiando los errores
 
-Te habrás dado cuenta que los mensajes de error desaparecen por si mismos después de unos segundos. Esto es debido un poco de magia CSS incluída en la hoja de estilos que hemos añadido al principio del libro:
+Te habrás dado cuenta de que los mensajes de error desaparecen por sí mismos después de unos segundos. Esto es debido un poco de magia CSS incluida en la hoja de estilos que hemos añadido al principio del libro:
 
 ~~~css
 @keyframes fadeOut {
@@ -209,7 +209,7 @@ Te habrás dado cuenta que los mensajes de error desaparecen por si mismos despu
 ~~~
 <%= caption "client/stylesheets/style.css" %>
 
-Estamos definiendo un animación CSS `fadeOut` que especifica cuatro keyframes para la propiedad opacidad (al 0%, 10%, 90% y 100% del total de la duración de la animación), y aplicando esta animación a la clase `alert`.
+Estamos definiendo una animación CSS `fadeOut` que especifica cuatro keyframes para la propiedad opacidad (al 0%, 10%, 90% y 100% del total de la duración de la animación), y aplicando esta animación a la clase `alert`.
 
 La animación se ejecuta durante 2700 milisegundos en total, usa la ecuación de tiempo `ease-in`, se inicia con un retardo de 0 segundos, se ejecuta una sola vez, y finalmente permanece en el último keyframe una vez que se ha terminado de ejecutar.
 
@@ -219,7 +219,7 @@ La animación se ejecuta durante 2700 milisegundos en total, usa la ecuación de
 
 Te estarás preguntando porqué estamos usando animaciones basadas en CSSS (que son predeterminadas y fuera del control de nuestra aplicación), en lugar de animaciones controladas por el propio Meteor.
 
-Si bien Meteor proporciona soporte para insertar animaciones, queríamos en este capitulo enfocarnos en los errores. Así que usaremos una “tonta” animación CSS por ahora y dejaremos esas cosas para el capítulo de las Animaciones.
+Si bien Meteor proporciona soporte para insertar animaciones, queríamos en este capítulo enfocarnos en los errores. Así que usaremos una “tonta” animación CSS por ahora y dejaremos esas cosas para el capítulo de las Animaciones.
 
 <% end %>
 
@@ -288,7 +288,7 @@ Para comenzar, vamos a preparar nuestra plantilla `postSubmit` para aceptar este
 
 Fíjate que estamos pasando parámetros (`url` y `title` respectivamente) a cada ayudante. Esto nos permite reutilizar el mismo ayudante ambas veces, modificando su comportamiento según el parámetro.
 
-Ahora la parte divertida: hacer que estos ayudante hagan algo realmente.
+Ahora la parte divertida: hacer que estos ayudantes hagan algo realmente.
 
 Usaremos la **Session** para almacenar un objeto `postSubmitErrors` que contendrá el potencial mensaje de error. Conforme el usuario interactúa con el formulario, este objeto irá cambiando, por lo que irá cambiando reactivamente el estilo y contenido del formulario.
 
@@ -296,7 +296,7 @@ Primero, inicializaremos el objeto en donde la plantilla `postSubmit` sea creada
 
 Después definiremos dos ayudantes de plantilla. Ambos buscarán la propiedad `field` del objeto `Session.get('postSubmitErrors')` (donde `field`sería `url` o `title` dependiendo del ayudante desde que el que se llame).
 
-Mientras que `errorMessage` sólo devuelve el mensaje en sí mismo, `errorClass` comprueba la *presencia* de un mensaje y devuelve `has-error` en caso de que exista un mensaje.
+Mientras que `errorMessage` solo devuelve el mensaje en sí mismo, `errorClass` comprueba la *presencia* de un mensaje y devuelve `has-error` en caso de que exista un mensaje.
 
 ~~~js
 Template.postSubmit.created = function() {
@@ -388,7 +388,7 @@ Fíjate que estamos usando `return` para abortar la ejecución del ayudante si h
 
 Pensarás que no hemos terminado totalmente. Estamos validando la presencia de una URL y un título en el lado del cliente, ¿Pero que pasa con el servidor? Después de todo, alguien podría añadir una publicación llamando manualmente al método `postInsert` desde la consola del navegador.
 
-Aunque pienses que no necesitamos mostrar ningún mensaje de error en el servidor, podemos hacer uso de la función `validatePost`. Solo que esta vez lo llamaremos desde el método `postInsert` también, y no sólo desde el ayudante d eventos:
+Aunque pienses que no necesitamos mostrar ningún mensaje de error en el servidor, podemos hacer uso de la función `validatePost`. Solo que esta vez lo llamaremos desde el método `postInsert` también, y no solo desde el ayudante d eventos:
 
 ~~~js
 Meteor.methods({
@@ -443,7 +443,7 @@ Si hemos hecho bien nuestro trabajo, obtendrás un montón de código extraño j
 
 ### Validación al editar
 
-Pare redondear las cosas, aplicaremos la misma validación a nuestro formulario de *edición* de publicaciones. El código se muy similar. Primero, la plantilla:
+Pare redondear las cosas, aplicaremos la misma validación a nuestro formulario de *edición* de publicaciones. El código es muy similar. Primero, la plantilla:
 
 ~~~html
 <template name="postEdit">
@@ -526,7 +526,7 @@ Template.postEdit.events({
 <%= caption "client/templates/posts/post_edit.js" %>
 <%= highlight "1~12,25~27,32" %>
 
-Tal y como hicimos en el formulario de envío de publicaciones, queremos validar nuestras publicaciones en el servidor. Excepto que recordarás que no estamos usando un método para editar las publicaciones, si no un llamada `update` directamente desde el lado cliente.
+Tal y como hicimos en el formulario de envío de publicaciones, queremos validar nuestras publicaciones en el servidor. Excepto que recordarás que no estamos usando un método para editar las publicaciones, si no una llamada `update` directamente desde el lado cliente.
 
 Esto significa que tenemos que añadir una nueva regla `deny`:
 
@@ -547,8 +547,8 @@ Posts.deny({
 
 Fíjate que el argumento `post` se refiere a la publicación *existente*. En este caso, queremos validar la *actualización*, que es por lo que estamos llamando a `validatePost` con el contenido del modificador de la propiedad `$set` (como en `Posts.update({$set: {title: ..., url: ...}})`).
 
-Esto funciona porque `modifier.$set` contiene las mismas dos propiedades `title` y `url` que el objeto `post`. Por supuesto, esto quiere decir que cualquier actualización parcial que afecte sólo a `title` o `url` fallará, pero en la práctica no debería ser una complicación.
+Esto funciona porque `modifier.$set` contiene las mismas dos propiedades `title` y `url` que el objeto `post`. Por supuesto, esto quiere decir que cualquier actualización parcial que afecte solo a `title` o `url` fallará, pero en la práctica no debería ser una complicación.
 
-Te habrás dado cuenta que esta es nuestra segunda llamada `deny`. Cuando añadimos múltiples llamadas `deny`, la operación fallará si uno de ellos devuelve `true`. En este caso, esto significa que el `update` solo será satisfactorio si estamos modificando el `title` y la `url`, y ninguna de ellas esté vacía.
+Te habrás dado cuenta de que esta es nuestra segunda llamada `deny`. Cuando añadimos múltiples llamadas `deny`, la operación fallará si uno de ellos devuelve `true`. En este caso, esto significa que el `update` solo será satisfactorio si estamos modificando el `title` y la `url`, y ninguna de ellas esté vacía.
 
 <%= commit "9-5", "Validar el contenido de la publicación al editar." %>

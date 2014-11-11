@@ -145,7 +145,7 @@ return {
 //...
 ~~~
 <%= caption "collections/posts.js" %>
-<%= highlight "16~17" %>
+<%= highlight "17~18" %>
 
 ### Plantillas de voto
 
@@ -225,7 +225,7 @@ Meteor.methods({
 
 El método es bastante sencillo. Hacemos algunas comprobaciones para garantizar que el usuario ha iniciado sesión y que el post realmente existe. Después de corroborar que el usuario no ha votado ya este post, incrementamos el total de votos y añadimos al usuario a la lista de upvoters.
 
-Este último paso es muy interesante. Hemos utilizado un par de operadores de Mongo que son muy útiles: `$addToSet` agrega un elemento a una lista siempre y cuando éste no exista ya en ella, y `$inc` simplemente incrementa un entero.
+Este último paso es muy interesante. Hemos utilizado un par de operadores de Mongo que son muy útiles: `$addToSet` agrega un elemento a una lista siempre y cuando este no exista ya en ella, y `$inc` simplemente incrementa un entero.
 
 ### Mejoras en la interfaz de usuario
 
@@ -322,13 +322,13 @@ Ahora ya deberíamos ver "1 Vote".
 
 Nuestro código para el método `upvote` en `collections/posts.js` parece bueno, pero todavía podemos hacerlo mejor. En él, hacemos dos llamadas a Mongo: una para obtener el post y otra para actualizarlo.
 
-Veamos como con esta aproximación, tenemos dos problemas. En primer lugar, es  ineficaz consultar la base de datos dos veces. Pero lo más importante es que se introduce una condición de carrera. Estamos siguiendo el siguiente algoritmo:
+Veamos como con esta aproximación, tenemos dos problemas. En primer lugar, es ineficaz consultar la base de datos dos veces. Pero lo más importante es que se introduce una condición de carrera. Estamos siguiendo el siguiente algoritmo:
 
 1. Coger el post desde la base de datos.
 2. Comprobar si el usuario lo ha votado.
 3. Si no, añadir un voto.
 
-¿Qué pasa si el mismo usuario vota el mismo post entre los pasos 1 y 3?. Nuestro código abre la puerta al usuario a votar dos veces el mismo post. Afortunadamente, Mongo nos permite ser más inteligentes y combinar las consultas 1 y 3 en una sola:
+¿Qué pasa si el mismo usuario vota el mismo post entre los pasos 1 y 3? Nuestro código abre la puerta al usuario a votar dos veces el mismo post. Afortunadamente, Mongo nos permite ser más inteligentes y combinar las consultas 1 y 3 en una sola:
 
 ~~~js
 //...
@@ -379,11 +379,11 @@ Digamos que tratas de engañarnos y pones uno de tus posts el primero de la list
 
 Este descarado intento de jugar con el sistema sería capturado por nuestro callback `deny()` (en `collections/posts.js`, ¿recuerdas?) e inmediatamente denegada.
 
-Pero si miras detenidamente, podrás ver la compensación de latencia en  acción. Puede ser rápido, pero el post saltará brevemente al principio de la lista antes de volver de nuevo a su posición.
+Pero si miras detenidamente, podrás ver la compensación de latencia en acción. Puede ser rápido, pero el post saltará brevemente al principio de la lista antes de volver de nuevo a su posición.
 
 ¿Qué está pasando? En su colección de `Posts` locales, la actualización se ha aplicado sin incidentes. Esto sucede al instante, por lo que el mensaje se va al principio de la lista. Mientras tanto, en el servidor, se deniega la actualización, de forma que un poco más tarde (milisegundos si estás ejecutando Meteor en tu propia máquina), el servidor devuelve un error, obligando a la colección local a revertirse.
 
-El resultado final: mientras esperamos a que el servidor responda, la interfaz de usuario no puede dejar de confiar en la colección local. Tan pronto como el servidor deniega la modificación, las interfaces de usuario se adapta para reflejarlo.
+El resultado final: mientras esperamos a que el servidor responda, la interfaz de usuario no puede dejar de confiar en la colección local. Tan pronto como el servidor deniega la modificación, las interfaces de usuario se adaptan para reflejarlo.
 
 <% end %>
 
@@ -391,7 +391,7 @@ El resultado final: mientras esperamos a que el servidor responda, la interfaz d
 
 Ahora que disponemos de una puntuación para cada post en función del número de votos, vamos a mostrar una lista de los mejores. Para ello, vamos a ver cómo gestionamos dos suscripciones separadas contra la colección de posts, y, de paso hacer nuestra plantilla `postsList` un poco más general.
 
-Para empezar, queremos tener _dos_ suscripciones, una para cada tipo de ordenación. El truco aquí es suscribirse a la misma publicación, sólo que con diferentes argumentos!.
+Para empezar, queremos tener _dos_ suscripciones, una para cada tipo de ordenación. El truco aquí es suscribirse a la misma publicación, ¡solo que con diferentes argumentos!.
 
 También crearemos dos nuevas rutas denominadas `newPosts` y `bestPosts`, accesibles desde las direcciones `/new` y `/best` respectivamente (junto con `/new/5` y `/best/5` para la paginación, por supuesto).
 
@@ -451,7 +451,7 @@ Router.route('/new/:postsLimit?', {name: 'newPosts'});
 Router.route('/best/:postsLimit?', {name: 'bestPosts'});
 ~~~
 <%= caption "lib/router.js" %>
-<%= highlight "10,22,27~39,42~55" %>
+<%= highlight "10,23,27~55" %>
 
 Ten en cuenta que ahora que tenemos más de una ruta, sacamos la lógica para `nextPath` de `PostsListController` y la ponemos en `NewPostsController` y `BestPostsController`, ya que el path será diferente en uno y otro caso.
 
@@ -576,7 +576,7 @@ La razón por la que queremos permitir varias rutas es que tanto la ruta `home` 
 </template>
 ~~~
 <%= caption "client/templates/includes/header.html" %>
-<%= highlight "9,12,15,19" %>
+<%= highlight "15,18,22" %>
 
 ~~~js
 Template.header.helpers({

@@ -15,13 +15,13 @@ El sistema de seguridad de Meteor nos permite controlar los cambios en la base d
 
 Nosotros hemos necesitado definir un método específico para `post` porque necesitamos hacer tareas adicionales, tales como decorar el post con propiedades adicionales y tomar medidas si la URL del post existe.
 
-Por otro lado, tampoco hemos tenido que crear métodos para actualizar y eliminar posts. Sólo necesitábamos comprobar si el usuario tenía permiso para hacer la acción, y ha sido muy fácil usando los callbacks `allow` y `deny`.
+Por otro lado, tampoco hemos tenido que crear métodos para actualizar y eliminar posts. Solo necesitábamos comprobar si el usuario tenía permiso para hacer la acción, y ha sido muy fácil usando los callbacks `allow` y `deny`.
 
-Usar estos callbacks nos ha permitido ser más declarativos con las modificaciones en base de datos, definiendo qué tipo de cambios se puedes hacer. El hecho de que estén integrados en el sistema de cuentas es, además, una ventaja añadida.
+Usar estos callbacks nos ha permitido ser más declarativos con las modificaciones en base de datos, definiendo qué tipo de cambios se pueden hacer. El hecho de que estén integrados en el sistema de cuentas es, además, una ventaja añadida.
 
 ### Múltiples callbacks
 
-Podemos definir todos los callbacks `allow` que queramos. Sólo es necesario que, _al menos uno_ de ellos devuelva `true`, para el cambio actual. De esta forma, cuando se llama a `Posts.insert` desde un navegador (no importa si es desde el código cliente de nuestra aplicación o desde la consola), el servidor llamará a todos los `insert`-permitidos que pueda hasta que encuentre uno que devuelva true. Si no encuentra ninguno, no permite la inserción, y devuelve un error `403` al cliente.
+Podemos definir todos los callbacks `allow` que queramos. Solo es necesario que, _al menos uno_ de ellos devuelva `true`, para el cambio actual. De esta forma, cuando se llama a `Posts.insert` desde un navegador (no importa si es desde el código cliente de nuestra aplicación o desde la consola), el servidor llamará a todos los `insert`-permitidos que pueda hasta que encuentre uno que devuelva true. Si no encuentra ninguno, no permite la inserción, y devuelve un error `403` al cliente.
 
 Del mismo modo, podemos definir una o varios callbacks `deny`. Si _cualquier_ de ellos devuelve `true`, el cambio se cancela y se devuelve un `403`. La lógica de todo esto implica que para que un `insert` tenga éxito, se ejecutarán uno o varios callbacks `allow` así como _todos_ los `deny`.
 
@@ -37,10 +37,10 @@ Recuerda que los métodos que provocan cambios en la base de datos (como `.updat
 
 Por supuesto, este comportamiento no es un problema cuando se activa desde la consola (después de todo, si los usuarios juegan con los datos desde la consola, no es problema nuestro lo que ocurra en _sus_ navegadores). Sin embargo, necesitas asegurarte de que esto no sucede desde la interfaz de usuario. Por ejemplo, necesitas tomarte la molestia de asegurar que no muestras a los usuarios botones para eliminar documentos que no están autorizados a borrar.
 
-Afortunadamente, no suele requerir demasiado código extra poner el código que define los permisos, compartido entre el cliente y el servidor (por ejemplo, podrías escribir una función  `canDeletePost(user, post)` y ponerla en el directorio `/lib`).
+Afortunadamente, no suele requerir demasiado código extra poner el código que define los permisos, compartido entre el cliente y el servidor (por ejemplo, podrías escribir una función `canDeletePost(user, post)` y ponerla en el directorio `/lib`).
 
 ### Permisos en el lado del servidor
 
-Recuerda que el sistema de permisos sólo se aplica a cambios en la base de datos iniciados desde el cliente. En el servidor, Meteor asume que se permiten _todas_ las operaciones.
+Recuerda que el sistema de permisos solo se aplica a cambios en la base de datos iniciados desde el cliente. En el servidor, Meteor asume que se permiten _todas_ las operaciones.
 
-Esto significa que si escribes un método `DeletePost` en el lado del servidor, que puede llamarse desde el cliente, todo el mundo podrá borrar cualquier post. Así que, es probable que no quieras hacer esto, a menos que compruebes los permisos de usuario dentro de ése método.
+Esto significa que si escribes un método `DeletePost` en el lado del servidor, que puede llamarse desde el cliente, todo el mundo podrá borrar cualquier post. Así que, es probable que no quieras hacer esto, a menos que compruebes los permisos de usuario dentro de ese método.

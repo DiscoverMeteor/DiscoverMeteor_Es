@@ -12,7 +12,7 @@ paragraphs: 27
 
 Hasta el momento, hemos logrado crear y mostrar algunos datos estáticos y conectarlo todo en un prototipo simple.
 
-Incluso hemos visto cómo nuestra interfaz de usuario es sensible a los cambios en los datos, y que los cambios aparecen inmediatamente cuando se insertan o cambian los datos. Aún así, nuestro sitio está limitado por el hecho de que no podemos introducir datos. De hecho, ni siquiera tenemos usuarios todavía!
+Incluso hemos visto cómo nuestra interfaz de usuario es sensible a los cambios en los datos, y que los cambios aparecen inmediatamente cuando se insertan o cambian los datos. Aún así, nuestro sitio está limitado por el hecho de que no podemos introducir datos. De hecho, ¡ni siquiera tenemos usuarios todavía!
 
 Veamos cómo arreglamos esto.
 
@@ -22,7 +22,7 @@ En la mayoría de los frameworks web, agregar cuentas de usuario es un problema 
 
 Por suerte, Meteor nos ampara. Gracias a la forma en la que los paquetes Meteor pueden contribuir al código del servidor (JavaScript) y al del cliente (JavaScript, HTML y CSS), podemos obtener un sistema de cuentas casi sin esfuerzo.
 
-Podríamos usar el paquete para cuentas de usuario (`meteor add accounts-ui`), pero como hemos  construido toda nuestra aplicación con Bootstrap, vamos a utilizar `accounts-ui-bootstrap-dropdown` (la única diferencia es el estilo). En la línea de comandos, tecleamos:
+Podríamos usar el paquete para cuentas de usuario (`meteor add accounts-ui`), pero como hemos construido toda nuestra aplicación con Bootstrap, vamos a utilizar `accounts-ui-bootstrap-dropdown` (la única diferencia es el estilo). En la línea de comandos, tecleamos:
 
 ~~~bash
 meteor add ian:accounts-ui-bootstrap-3
@@ -32,7 +32,7 @@ meteor add accounts-password
 
 Estos dos comandos hacen accesibles las plantillas para cuentas de forma que podemos incluirlas en nuestro sitio usando el ayudante `{{> loginButtons}}`. Un consejo muy útil: se puede controlar en qué lado aparece el desplegable de inicio de sesión con el atributo `align` (por ejemplo: `{{> loginButtons align="right"}})`.
 
-Vamos a añadir los botones a nuestra cabecera. Y puesto que la cabecera está empezando a crecer, vamos a darle más espacio en su propia plantilla (la pondremos en el `client/templates/includes/`). Estamos utilizando algunas clases de Bootstrap para que todo se vea mejor:
+Vamos a añadir los botones a nuestra cabecera. Y puesto que la cabecera está empezando a crecer, vamos a darle más espacio en su propia plantilla (la pondremos en el `client/templates/includes/`). Estamos utilizando código y clases [como se indica en Bootstrap](http://getbootstrap.com/components/#navbar) para que todo se vea mejor:
 
 ~~~html
 <template name="layout">
@@ -77,7 +77,7 @@ Ahora ya podemos ver los botones de acceso en la esquina superior derecha.
 
 Podemos usarlos para iniciar sesión, solicitar un cambio de contraseña, y todo lo que se necesita para gestionar cuentas basadas ​​en contraseñas.
 
-Para decirle a nuestro sistema de cuentas que queremos que los usuarios accedan al sistema a través de sólo un nombre de usuario, simplemente añadimos un bloque de configuración en un nuevo archivo `config.js` dentro de `client/helpers/`
+Para decirle a nuestro sistema de cuentas que queremos que los usuarios accedan al sistema a través de solo un nombre de usuario, simplemente añadimos un bloque de configuración en un nuevo archivo `config.js` dentro de `client/helpers/`
 
 ~~~js
 Accounts.ui.config({
@@ -90,7 +90,7 @@ Accounts.ui.config({
 
 ### Creando nuestro primer usuario
 
-Adelante, regístrate para obtener una cuenta: el botón "Sign In"  cambiará para mostrar el nombre de usuario. Esto confirma has creado una cuenta. Pero, ¿de dónde vienen los datos de la cuenta?
+Adelante, regístrate para obtener una cuenta: el botón "Sign In" cambiará para mostrar el nombre de usuario. Esto confirma has creado una cuenta. Pero, ¿de dónde vienen los datos de la cuenta?
 
 Cuando añadimos el paquete `accounts`, Meteor crea una nueva colección, que se puede acceder desde `Meteor.users`. Para verlo, abre la consola del navegador y escribe:
 
@@ -109,7 +109,7 @@ Ahora, nos registramos con otro usuario y ejecutamos lo siguiente en la consola 
 ~~~
 <%= caption "Consola del navegador" %>
 
-La consola devuelve 1. ¿No debería haber 2?. ¿Se ha borrado el primero?. Si intentas acceder con ese usuario, verás que no es así.
+La consola devuelve 1. ¿No debería haber 2? ¿Se ha borrado el primero? Si intentas acceder con ese usuario, verás que no es así.
 
 Vamos a mirar en la base de datos del servidor (`meteor mongo` en la terminal):
 
@@ -119,19 +119,19 @@ Vamos a mirar en la base de datos del servidor (`meteor mongo` en la terminal):
 ~~~
 <%= caption "Consola de Mongo" %>
 
-Definitivamente hay 2 pero, ¿porqué sólo se ve uno en el navegador?
+Definitivamente hay 2, pero, ¿porqué sólo se ve uno en el navegador?
 
 ### ¡Una publicación misteriosa!
 
-Si pensamos de nuevo en el capítulo 4, recordarás que  deshabilitamos la auto-publicación `autopublish`, dejamos de enviar todos los datos procedentes del servidor a las colecciones locales de cada cliente conectado. Tuvimos que crear parejas de publicaciones y suscripciones para intercambiar datos.
+Si pensamos de nuevo en el capítulo 4, recordarás que deshabilitamos la auto-publicación `autopublish`, dejamos de enviar todos los datos procedentes del servidor a las colecciones locales de cada cliente conectado. Tuvimos que crear parejas de publicaciones y suscripciones para intercambiar datos.
 
 Sin embargo, no hemos creado ninguna clase de publicación para usuarios. Así que ¿cómo es que podemos ver esos datos?
 
-La respuesta es que el paquete `accounts`, autopublica los datos básicos de la cuenta de usuario y sólo para el usuario actual, de forma que un usuario no puede ver la cuenta de otro.
+La respuesta es que el paquete `accounts`, autopublica los datos básicos de la cuenta de usuario y solo para el usuario actual, de forma que un usuario no pueda ver la cuenta de otro.
 
 Aunque el paquete `accounts` sólo publica el *actual* usuario. Esto explica porqué un usuario no puede ver los detalles de la cuenta de los otros usuarios.
 
-Así que sólo se publica un objeto de usuario por usuario conectado (y ninguno cuando no estas autenticado).
+Así que solo se publica un objeto de usuario por usuario conectado (y ninguno cuando no está autenticado).
 
 Es más, los documentos en el navegador no parecen contener los mismos campos que en el servidor. En Mongo, un usuario tiene un montón de datos. Para verlo, vuelve a la terminal de Mongo y escribe:
 
@@ -170,7 +170,7 @@ Object {_id: "kYdBd9hr3fWPGPcii", username: "tmeasday"}
 ~~~
 <%= caption "Consola del navegador" %>
 
-Este ejemplo nos muestra como una colección local puede ser un subconjunto seguro de la base de datos real. El usuario conectado sólo ve lo necesario para poder hacer el trabajo (en este caso, el nombre de usuario). Este es un patrón que debemos aprender porque nos será muy útil más adelante.
+Este ejemplo nos muestra como una colección local puede ser un subconjunto seguro de la base de datos real. El usuario conectado solo ve lo necesario para poder hacer el trabajo (en este caso, el nombre de usuario). Este es un patrón que debemos aprender porque nos será muy útil más adelante.
 
 Eso no significa que no podamos hacer públicos más datos de usuario. Si lo necesitamos, podemos consultar la [documentación de Meteor](http://docs.meteor.com/#meteor_users) para ver cómo se hace.
 

@@ -13,11 +13,11 @@ paragraphs: 20
 
 Si las colecciones son la característica principal de Meteor, entonces la **reactividad** es lo que las hace útiles.
 
-Las colecciones transforman radicalmente la forma en que la aplicación maneja cambios en los datos. En lugar de tener que comprobarlo manualmente (por ejemplo, con una llamada AJAX) y actualizar los cambios en el código HTML, con Meteor, los cambios pueden llegar en cualquier momento y aplicarse a la interfaz de usuario sin complicaciones.
+Las colecciones trasforman radicalmente la forma en que la aplicación maneja cambios en los datos. En lugar de tener que comprobarlo manualmente (por ejemplo, con una llamada AJAX) y actualizar los cambios en el código HTML, con Meteor, los cambios pueden llegar en cualquier momento y aplicarse a la interfaz de usuario sin complicaciones.
 
 Vamos a verlo con detenimiento: entre bastidores, Meteor es capaz de cambiar *cualquier* parte de la interfaz de usuario cuando se actualiza una colección subyacente.
 
-La forma *imperativa* (o "a mano") de hacerlo sería utilizar `.observe()`, una función del cursor que dispara callbacks cuando los documentos seleccionados cambian. De esta forma podríamos hacer cambios en el DOM (el HTML de nuestra página web) a través de esos callbacks. El código resultante sería algo como esto:
+La forma *imperativa* (o "a mano") de hacerlo sería utilizar `.observe()`, una función del cursor que dispara callbacks cuando los documentos seleccionados cambian. De esta forma, podríamos hacer cambios en el DOM (el HTML de nuestra página web) a través de esos callbacks. El código resultante sería algo como esto:
 
 ~~~js
 Posts.find().observe({
@@ -50,9 +50,9 @@ En tal caso, tendrás que usar callbacks `observe()` para conseguir que el mapa 
 
 ### Un enfoque declarativo
 
-Meteor nos proporciona una forma fácil de hacer todo esto: la reactividad, que, en esencia es un enfoque **declarativo**. De esta forma podemos definir la relación entre los objetos una sola vez y podemos estar seguros de que se mantendrán siempre sincronizados, en vez de tener que especificar el comportamientos de cada uno de los posibles cambios.
+Meteor nos proporciona una forma fácil de hacer todo esto: la reactividad, que, en esencia es un enfoque **declarativo**. De esta forma, podemos definir la relación entre los objetos una sola vez y podemos estar seguros de que se mantendrán siempre sincronizados, en vez de tener que especificar el comportamiento de cada uno de los posibles cambios.
 
-Este es un concepto realmente poderoso, ya que, en un sistema de tiempo real puede haber muchas entradas y todas pueden cambiar de forma impredecibles. Con "declarativo", queremos decir que, cuando se renderiza HTML basado en una o varias fuentes de datos reactivos, Meteor se hace cargo de la tarea sincronizar las fuentes y, de forma transparente, asumir el trabajo sucio de mantener la interfaz de usuario actualizada.
+Este es un concepto realmente poderoso, ya que, en un sistema de tiempo real puede haber muchas entradas y todas pueden cambiar de formas impredecibles. Con "declarativo", queremos decir que, cuando se renderiza HTML basado en una o varias fuentes de datos reactivos, Meteor se hace cargo de la tarea sincronizar las fuentes y, de forma trasparente, asumir el trabajo sucio de mantener la interfaz de usuario actualizada.
 
 Y todo esto, sólo para acabar diciendo que, en lugar de tener que pensar en callbacks tipo `observe`, Meteor nos permite escribir:
 
@@ -86,13 +86,13 @@ En otras palabras, una computación es un bloque de código que se ejecuta cada 
 
 Ten en cuenta que, por lo general, no es necesario hacerlo de forma explícita, ya que, Meteor provee de una computación especial a cada una de nuestras plantillas (lo que significa que puedes estar seguro de que tus plantillas reflejarán los datos de los que dependen).
 
-Todas las fuente de datos reactivas hacen un seguimiento de todas las computaciones que las usan para poder avisarles de que su valor ha cambiado y deben "volver a computarse". Para hacer esto, se llama a la función `invalidate()`.
+Todas las fuentes de datos reactivas hacen un seguimiento de todas las computaciones que las usan para poder avisarles de que su valor ha cambiado y deben "volver a computarse". Para hacer esto, se llama a la función `invalidate()`.
 
 Generalmente, las computaciones se establecen para volver a evaluar su contenido, y esto es lo que ocurre con las computaciones que Meteor crea para las plantillas (aunque, además, se añade un poco más de magia para redibujar la página de manera más eficiente). Aunque, si es necesario, se puede tener más control sobre lo que hace una de estas computaciones, en la práctica, no va a ser necesario porque Meteor nos va a dar justo el comportamiento que vamos a necesitar.
 
 ### Configuración de una computación
 
-Ahora que entendemos la teoría de las computaciones, configurar una te va aparecer desproporcionadamente fácil. Usaremos la función `Tracker.autorun` para encerrar un bloque de código en una computación y hacerlo reactivo:
+Ahora que entendemos la teoría de las computaciones, configurar una te va a aparecer desproporcionadamente fácil. Usaremos la función `Tracker.autorun` para encerrar un bloque de código en una computación y hacerlo reactivo:
 
 ~~~js
 Meteor.startup(function() {
@@ -102,9 +102,9 @@ Meteor.startup(function() {
 });
 ~~~
 
-Ten en cuenta que tenemos que envolver el bloque `Tracker` dentro de un bloque `Meteor.startup()` para asegurarnos que sólo se ejecute una vez cuando Meteor ha terminado de cargar la colección `Posts`.
+Ten en cuenta que tenemos que envolver el bloque `Tracker` dentro de un bloque `Meteor.startup()` para asegurarnos que solo se ejecute una vez cuando Meteor ha terminado de cargar la colección `Posts`.
 
-Entre bastidores, `autorun` crea una computación, y la configura para que se vuelva a evaluar cada vez que cambian las fuentes de datos de las que depende. El ejemplo es muy sencillo, simplemente muestra el número actual de posts en la consola. Como `Posts.find()` es una fuente de datos de reactiva, será ésta la que se encargue de hacer que se vuelva a ejecutar la computación cada vez que cambie el número de posts.
+Entre bastidores, `autorun` crea una computación, y la configura para que se vuelva a evaluar cada vez que cambian las fuentes de datos de las que depende. El ejemplo es muy sencillo, simplemente muestra el número actual de posts en la consola. Como `Posts.find()` es una fuente de datos de reactiva, será esta la que se encargue de hacer que se vuelva a ejecutar la computación cada vez que cambie el número de posts.
 
 ~~~js
 > Posts.insert({title: 'New Post'});

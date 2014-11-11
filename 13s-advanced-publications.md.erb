@@ -40,9 +40,9 @@ Meteor.publish('postDetail', function(postId) {
 
 Ahora cuando el cliente se suscriba a esas dos publicaciones, su colección `'posts'` es rellenada de dos fuentes: una lista de títulos y nombre de los autores por la primera suscripción, y los detalles completos de un post de la segunda.
 
-Tal vez te hayas dado cuenta que el post publicado por `postDetail` es también publicado por `allPosts` (aunque sólo con un subconjunto de sus propiedades). Sin embargo, Meteor se hace cargo de la superposición fusionando los campos y asegurando que no haya posts duplicados.
+Tal vez te hayas dado cuenta de que el post publicado por `postDetail` es también publicado por `allPosts` (aunque solo con un subconjunto de sus propiedades). Sin embargo, Meteor se hace cargo de la superposición fusionando los campos y asegurando que no haya posts duplicados.
 
-Esto es genial, porque ahora cuando renderizemos la lista de los resúmenes de los posts, estaremos lidiando con objetos de datos que tienen sólo lo suficiente para mostrar lo que necesitamos. De todos modos, cuando renderizemos la página de un post entero, tenemos todo lo necesario para hacerlo. Por supuesto, tenemos que ocuparnos que el cliente no espere que todos los campos estén disponibles en todos los posts en este caso -- eso es un error común!.
+Esto es genial, porque ahora cuando renderizemos la lista de los resúmenes de los posts, estaremos lidiando con objetos de datos que tienen solo lo suficiente para mostrar lo que necesitamos. De todos modos, cuando renderizemos la página de un post entero, tenemos todo lo necesario para hacerlo. Por supuesto, tenemos que ocuparnos que el cliente no espere que todos los campos estén disponibles en todos los posts en este caso -- ¡eso es un error común!
 
 Nótese que uno no está limitado a modificar las propiedades de los documentos. Podrías tranquilamente publicar las mismas propiedades en ambas publicaciones, pero ordenar los items de otra manera.
 
@@ -57,11 +57,11 @@ Meteor.publish('bestPosts', function(limit) {
 ~~~
 <%= caption "server/publications.js" %>
 
-### Suscribiendose a una Publicación Multiples Veces
+### Suscribiéndose a una Publicación Múltiples Veces
 
-Acabamos de ver cómo se puede publicar una sola colección más de una vez. Resulta que se puede lograr un resultado muy similar con otro patrón: creando una única publicación, pero suscribiendonos a ella varias veces.
+Acabamos de ver cómo se puede publicar una sola colección más de una vez. Resulta que se puede lograr un resultado muy similar con otro patrón: creando una única publicación, pero suscribiéndonos a ella varias veces.
 
-En Microscope, nos suscribimos a la publicacion de `posts` varias veces, pero Iron Router activa y desactiva cada suscripción por nosotros. Aun así, no hay ninguna razón por la cual no podamos suscribirnos muchas veces _simultaneamente_.
+En Microscope, nos suscribimos a la publicación de `posts` varias veces, pero Iron Router activa y desactiva cada suscripción por nosotros. Aun así, no hay ninguna razón por la cual no podamos suscribirnos muchas veces _simultáneamente_.
 
 Por ejemplo, digamos que queremos cargar tanto las publicaciones más recientes y mejores en la memoria al mismo tiempo:
 
@@ -75,18 +75,18 @@ Meteor.publish('posts', function(options) {
 });
 ~~~
 
-Luego, nos suscribimos a esta publicación multiples veces. De hecho esto es más o menos exactamente lo que estamos haciendo en Microscope:
+Luego, nos suscribimos a esta publicación múltiples veces. De hecho, esto es más o menos exactamente lo que estamos haciendo en Microscope:
 
 ~~~js
 Meteor.subscribe('posts', {submitted: -1, limit: 10});
 Meteor.subscribe('posts', {baseScore: -1, submitted: -1, limit: 10});
 ~~~
 
-Entonces, ¿qué está pasando exactamente? Cada navegador ábre _dos_ suscripciones diferentes, cada uno se conecta a la _misma_ publicación en el servidor.
+Entonces, ¿qué está pasando exactamente? Cada navegador abre _dos_ suscripciones diferentes, cada uno se conecta a la _misma_ publicación en el servidor.
 
 Cada suscripción ofrece diferentes argumentos para esa publicación, pero fundamentalmente, cada vez que un conjunto de documentos (diferente) está siendo sacado de la colección de `posts`, se envía por el canal a la colección del lado del cliente.
 
-Puedes incluso suscribirte dos veces a la misma publicación con *¡los mismos argumentos!* Es difícil pensar en escenarios donde esto sea de utilidad, ¡pero esta flexibilidad puede que sea útil algún dia!
+Puedes incluso suscribirte dos veces a la misma publicación con *¡los mismos argumentos!* Es difícil pensar en escenarios donde esto sea de utilidad, ¡pero esta flexibilidad puede que sea útil algún día!
 
 ### Múltiples Colecciones sobre una Única Suscripcíon
 
@@ -96,9 +96,9 @@ Veamos un ejemplo concreto. Hemos añadido comentarios a nuestros posts, y hasta
 
 Sin embargo, supongamos que queremos mostrar _todos_ los comentarios en los posts en la página principal (teniendo en cuenta que estos posts van a cambiar a medida que paginamos a través de ellos). Este caso de uso presenta una buena razón para insertar comentarios en los posts, y de hecho es lo que nos empuja a desnormalizar la _colección_ de comentarios.
 
-Por supuesto que siempre se puede insertar comentarios en los posts, deshacerse de la colección de `comments` por completo. Pero, como hemos visto anteriormente en el capítulo _Desnormalización_ , al hacerlo estaríamos perdiendo algunos beneficios adicionales de trabajar con colecciones separadas.
+Por supuesto que siempre se puede insertar comentarios en los posts, deshacerse de la colección de `comments` por completo. Pero, como hemos visto anteriormente en el capítulo _Desnormalización_, al hacerlo estaríamos perdiendo algunos beneficios adicionales de trabajar con colecciones separadas.
 
-Pero resulta que hay un truco que implica suscripciones que hacen posible embeber, nuestro comentarios, preservando colecciones separadas.
+Pero resulta que hay un truco que implica suscripciones que hacen posible embeber nuestros comentarios, preservando colecciones separadas.
 
 Supongamos que, junto con la lista de la página principal de posts, queremos suscribirnos a una lista de los mejores 2 comentarios para cada uno de ellos.
 
@@ -114,7 +114,7 @@ Meteor.publish('topComments', function(topPostIds) {
 
 Esto sería un problema desde el punto de vista de rendimiento, ya que la publicación necesitaría ser eliminada y vuelta a ser establecida cada vez que la lista de `topPostIds` fuera a cambiar.
 
-Existe una manera de evitar esto. Acabamos de utilizar el hecho de que no sólo podemos tener más de una _publicación_ por _colección_, sino que también podemos tener más de una _colección_ por _publicación_:
+Existe una manera de evitar esto. Acabamos de utilizar el hecho de que no solo podemos tener más de una _publicación_ por _colección_, sino que también podemos tener más de una _colección_ por _publicación_:
 
 ~~~js
 Meteor.publish('topPosts', function(limit) {
@@ -153,7 +153,7 @@ Meteor.publish('topPosts', function(limit) {
 
 Tengamos en cuenta que no estamos devolviendo nada en esta publicación, le enviamos mensajes manualmente a la `sub` nosotros mismos (a través de `.added()` y amigos). Así que no necesitamos preguntar `_publishCursor` que lo haga por nosotros mediante la devolución de un cursor.
 
-Ahora, cada vez que publiquemos un post también publicaremos automáticamente los dos primeros comentarios adjuntados. Y todo con una sola llamada de suscripción!
+Ahora, cada vez que publiquemos un post también publicaremos automáticamente los dos primeros comentarios adjuntados. ¡Y todo con una sola llamada de suscripción!
 
 Aunque Meteor no hace este enfoque muy sencillo aún, también se puede utilizar el paquete `publish-with-relations` dentro de Atmosphere, cuyo objetivo es que este patrón sea más fácil de usar.
 
@@ -183,7 +183,7 @@ Y aunque tendríamos una sola colección `resources` en el servidor, podríamos 
   });
 ~~~
 
-Le estamos diciendo a `_publishCursor` que publique nuestros videos (como hacer un return) como lo haría el cursor, pero en lugar de publicar la colección `resources` en el cliente, pubilcamos de `resources` a `videos`.
+Le estamos diciendo a `_publishCursor` que publique nuestros videos (como hacer un return) como lo haría el cursor, pero en lugar de publicar la colección `resources` en el cliente, publicamos de `resources` a `videos`.
 
 Otra idea similar es usar `publish` para una colección en el lado del cliente donde *¡no hay ninguna colección en el lado servidor!*. Por ejemplo, podrías obtener datos de un servicio de terceros, y publicarlos como si fuera una colección en el cliente.
 

@@ -16,7 +16,7 @@ En este capítulo miraremos más de cerca todo esto y observaremos cómo funcion
 
 Una colección es una estructura de datos especial que se encarga de almacenar los datos de forma permanente, en una base de datos MongoDB en el servidor, y de la sincronización de datos con el navegador de cada usuario conectado en tiempo real.
 
-Queremos que nuestras publicaciones sean permanentes y compartidas entre los usuarios, así que vamosa empezar creando una colección llamada `Posts` para almacenarlas.
+Queremos que nuestras publicaciones sean permanentes y compartidas entre los usuarios, así que vamos a empezar creando una colección llamada `Posts` para almacenarlas.
 
 Las colecciones son el eje central de cualquier aplicación, así que nos aseguraremos de definirlas al principio por lo que las pondremos en el directorio `lib`. Si todavía no lo has hecho, crea un directorio llamado `collections/` dentro de `lib`, y crea un archivo llamado `posts.js`. Añade lo siguiente:
 
@@ -39,9 +39,9 @@ En Meteor, la palabra clave `var` limita el alcance del objeto al archivo actual
 
 Las aplicaciones web tienen a su disposición básicamente tres formas de almacenar datos, cada una desempeñando un rol diferente:
 
-- **La memoria del navegador:** cosas como las variables JavaScript son almacenadas en la memoria del navegador, lo que implica que no son *permanentes*: son datos locales a la pestaña del navegador y desapareceran tan pronto como la cierres.
-- **El almacén del navegador:** los navegadores tambien pueden almacenar datos de forma permanente usando cookies o [Local Storage](http://diveintohtml5.info/storage.html). Aunque estos datos sean permanentes de una sesión a otra, son *locales* al usuario actual (pero disponible entre las pestañas) y no se puede compartir de forma sencilla con otros usuarios.
-- **La base de datos del servidor:** el mejor lugar para los datos permanentes y que puedan estar disponibles para mas de un usuarios son las buenas y viejas bases de datos (Siendo MongoDB la solución por defecto para las aplicaciones Meteor).
+- **La memoria del navegador:** cosas como las variables JavaScript son almacenadas en la memoria del navegador, lo que implica que no son *permanentes*: son datos locales a la pestaña del navegador y desaparecerán tan pronto como la cierres.
+- **El almacén del navegador:** los navegadores también pueden almacenar datos de forma permanente usando cookies o [Local Storage](http://diveintohtml5.info/storage.html). Aunque estos datos sean permanentes de una sesión a otra, son *locales* al usuario actual (pero disponible entre las pestañas) y no se puede compartir de forma sencilla con otros usuarios.
+- **La base de datos del servidor:** el mejor lugar para los datos permanentes y que puedan estar disponibles para más de un usuario son las buenas y viejas bases de datos (Siendo MongoDB la solución por defecto para las aplicaciones Meteor).
 
 Meteor hace uso de estas tres formas, y a veces sincroniza los datos de un lugar a otro (como veremos pronto). Dicho esto, la base de datos permanece como la fuente de datos “canónica“ que contiene la copia maestra de los datos.
 
@@ -51,13 +51,13 @@ El código dentro de las carpetas que no sean `client/` ni `server/` se ejecutar
 
 En el servidor, la colección tiene la tarea de hablar con la base de datos MongoDB y leer y escribir cualquier cambio. En este sentido, se puede comparar con una librería de base de datos estándar.
 
-En el cliente sin embargo, la colección es una copia de un *subconjunto* de la colección canónica real. La colección del lado del cliente mantiene, de forma constantemente y (normalmente) transparente actualizado ese subconjunto de datos en tiempo real.
+En el cliente sin embargo, la colección es una copia de un *subconjunto* de la colección canónica real. La colección del lado del cliente mantiene, de forma constantemente y (normalmente) trasparente actualizado ese subconjunto de datos en tiempo real.
 
 <% note do %>
 
-### Consola vs Consola vs Consola
+### Consola vs. Consola vs. Consola
 
-En este capítulo hemos empezado a usar la **consola del navegador**, que no debemos confundir con la **terminal** o con la **shell de mongo**. A continuación explicamos brevemente cada una de ellas.
+En este capítulo hemos empezado a usar la **consola del navegador**, que no debemos confundir con la **terminal** o con la **shell de mongo**. A continuación, explicamos brevemente cada una de ellas.
 
 #### Terminal
 
@@ -116,7 +116,7 @@ Y ya que estamos, también podemos obtener los logs de nuestra aplicación escri
 
 <% end %>
 
-La sintaxis de Mongo es familiar, ya que utiliza una interfaz JavaScript. No vamos a hacer ningún tipo de manipulación de datos adicional en la consola de Mongo, pero podemos echar un vistazo de vez en cuando sólo para ver lo que hay allí.
+La sintaxis de Mongo es familiar, ya que utiliza una interfaz JavaScript. No vamos a hacer ningún tipo de manipulación de datos adicional en la consola de Mongo, pero podemos echar un vistazo de vez en cuando solo para ver lo que hay allí.
 
 ### Colecciones en el lado del cliente
 
@@ -124,7 +124,7 @@ Las colecciones son más interesantes en el lado del cliente. Cuando se declara 
 
 Es importante entender este punto, ya que es fundamental para comprender la forma en la que funciona Meteor. En general, una colección del lado del cliente consiste en un subconjunto de todos los documentos almacenados en la colección de Mongo (por lo general, nunca querremos enviar *toda nuestra base de datos* al cliente).
 
-En segundo lugar, los documentos se almacenan _en la memoria del navegador_, lo que significa que el acceso a ellos es prácticamente instantáneo. Así que, cuando se llama, por ejemplo, a `Posts.find()` desde el cliente, no hay caminos lentos hasta el servidor o a la base de datos, ya que los datos ya están pre-cargados.
+En segundo lugar, los documentos se almacenan _en la memoria del navegador_, lo que significa que el acceso a ellos es prácticamente instantáneo. Así que, cuando se llama, por ejemplo, a `Posts.find()` desde el cliente, no hay caminos lentos hasta el servidor o a la base de datos, ya que los datos ya están precargados.
 
 <% note do %>
 
@@ -195,7 +195,7 @@ Ver los posts en la consola del navegador no es muy útil. Vamos a aprender cóm
 
 ### Rellenando la base de datos
 
-Ver el contenido de nuestras colecciones en la consola del navegador es una cosa, pero lo que realmente nos gustaría es mostrar los datos y sus cambios en la pantalla. Cuando esto ocurra, habremos convertido nuestra sencilla *página* web que muestra muestra datos estáticos, en una *aplicación* web en tiempo real en la que los datos cambian de forma dinámica.
+Ver el contenido de nuestras colecciones en la consola del navegador es una cosa, pero lo que realmente nos gustaría es mostrar los datos y sus cambios en la pantalla. Cuando esto ocurra, habremos convertido nuestra sencilla *página* web que muestra datos estáticos, en una *aplicación* web en tiempo real en la que los datos cambian de forma dinámica.
 
 Lo primero que vamos a hacer es meter unos cuantos datos en la base de datos. Lo haremos mediante un archivo que carga un conjunto de datos estructurados en la colección de `Posts` cuando el servidor se inicia por primera vez.
 
@@ -245,7 +245,7 @@ Ahora ejecutamos nuevamente el servidor con `meteor`, y estos tres posts se carg
 
 ### Datos dinámicos
 
-Si abrimos una consola de navegador, veremos los tres mensajes cargados desde  MiniMongo:
+Si abrimos una consola de navegador, veremos los tres mensajes cargados desde MiniMongo:
 
 ~~~js
 ❯ Posts.find().fetch();
@@ -274,7 +274,7 @@ Template.postsList.helpers({
 
 ### Find & Fetch
 
-En Meteor, `find()` devuelve un cursor que es una [fuente de datos reactiva](http://docs.meteor.com/#find). Cuando queramos usar los contenidos a los que apunta el cursor, podemos usar `fetch()` sobre él para transformarlo en un array.
+En Meteor, `find()` devuelve un cursor que es una [fuente de datos reactiva](http://docs.meteor.com/#find). Cuando queramos usar los contenidos a los que apunta el cursor, podemos usar `fetch()` sobre él para trasformarlo en un array.
 
 Dentro de una aplicación, Meteor es lo suficientemente inteligente para saber cómo iterar sobre cursores sin tener que convertirlos de forma explícita en arrays. Por eso no veremos a menudo `fetch()` en el código Meteor (y por lo que no lo hemos usado en el ejemplo anterior).
 
@@ -307,13 +307,13 @@ Acabas de ver la reactividad en acción por primera vez. Cuando le pedimos a Spa
 
 ### Inspeccionando cambios en el DOM
 
-En este caso, el cambio más simple posible es añadir otro `<div class="post"> ... </div>`. Si queremos asegurarnos de que esto es realmente lo que ocurre, sólo tenemos que abrir el inspector DOM del navegador y seleccionar el `<div>` correspondiente a uno de los posts existentes.
+En este caso, el cambio más simple posible es añadir otro `<div class="post"> ... </div>`. Si queremos asegurarnos de que esto es realmente lo que ocurre, solo tenemos que abrir el inspector DOM del navegador y seleccionar el `<div>` correspondiente a uno de los posts existentes.
 
 Ahora, desde la consola, insertamos otro post. Cuando volvemos de nuevo al inspector, podremos ver un `<div>`, correspondiente al nuevo post, pero seguirás teniendo el mismo `<div>` seleccionado. Esta es una manera útil de saber cuándo han vuelto a ser renderizados los elementos y cuándo no.
 
 <% end %>
 
-### Conectando colecciones: Publicaciones y subscripciones
+### Conectando colecciones: Publicaciones y suscripciones
 
 Meteor tiene habilitado por defecto el paquete `autopublish`, algo que no es conveniente para aplicaciones en producción. Este paquete indica que las colecciones son compartidas en su totalidad con cada cliente conectado. Esto no es lo que realmente queremos, así que vamos a deshabilitarlo.
 
@@ -325,7 +325,7 @@ meteor remove autopublish
 
 Esto tiene un efecto instantáneo. Si miramos ahora el navegador, veremos que todos nuestros posts han desaparecido! Esto se debe a que confiábamos en `autopublish` para asegurarnos de que nuestra colección del lado del cliente era una réplica de todos los posts de la base de datos.
 
-Con el tiempo vamos a necesitar asegurarnos de que sólo transferimos los posts que el usuario realmente necesita ver (teniendo en cuenta cosas como la paginación). Pero, por ahora, lo vamos a configurar para que la colección `Posts` se publique en su totalidad (tal y como lo teníamos hasta ahora).
+Con el tiempo vamos a necesitar asegurarnos de que solo trasferimos los posts que el usuario realmente necesita ver (teniendo en cuenta cosas como la paginación). Pero, por ahora, lo vamos a configurar para que la colección `Posts` se publique en su totalidad (tal y como lo teníamos hasta ahora).
 
 Para ello, creamos una función `publish()` que devuelve un cursor que referencia a todos los posts:
 
