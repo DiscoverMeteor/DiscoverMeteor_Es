@@ -256,7 +256,7 @@ Para ver estos mensajes renderizados en HTML, podemos utilizar un ayudante de pl
 
 En el Capítulo 3 vimos cómo Meteor nos permite enlazar un *contexto de datos* a nuestras plantillas Spacebars para construir vistas HTML a partir de estructuras de datos simples. Bien, pues, de la misma forma vamos a enlazar los datos de nuestra colección. Simplemente reemplazamos el objeto JavaScript estático `postsData` por una colección dinámica.
 
-A propósito, no dudes en borrar el código de `postsData`. Así es cómo debe quedar `client/views/posts/posts_list.js`:
+A propósito, no dudes en borrar el código de `postsData`. Así es cómo debe quedar `client/templates/posts/posts_list.js`:
 
 ~~~js
 Template.postsList.helpers({
