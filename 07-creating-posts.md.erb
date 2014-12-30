@@ -166,9 +166,9 @@ Posts.allow({
 
 <%= commit "7-2", "Eliminado el paquete `insecure` y permitido añadir posts a usuarios registrados." %>
 
-Llamamos a `Posts.allow`, que le dice a Meteor que "se trata de un conjunto de circunstancias en las que a los clientes se les permite hacer cosas en la colección de `Posts`". En este caso, estamos diciendo: "a los clientes se les permite insertar posts siempre y cuando tengan un `userID`".
+Llamamos a `Posts.allow`, que le dice a Meteor que "se trata de un conjunto de circunstancias en las que a los clientes se les permite hacer cosas en la colección de `Posts`". En este caso, estamos diciendo: "a los clientes se les permite insertar posts siempre y cuando tengan un `userId`".
 
-El `userID` que realiza la modificación se pasa a las funciones `allow` y `deny` (o devuelve `null` si no hay ningún usuario conectado). Como las cuentas de usuario forman parte del núcleo de Meteor, podemos confiar en que el `userId` siempre será el correcto.
+El `userId` que realiza la modificación se pasa a las funciones `allow` y `deny` (o devuelve `null` si no hay ningún usuario conectado). Como las cuentas de usuario forman parte del núcleo de Meteor, podemos confiar en que el `userId` siempre será el correcto.
 
 Nos las hemos arreglado para asegurarnos de que un usuario tiene que estar registrado para crear un mensaje. Salimos de la sesión e intentamos crear un post para ver lo que sale por la consola del navegador:
 
