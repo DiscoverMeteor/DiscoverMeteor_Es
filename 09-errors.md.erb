@@ -388,7 +388,7 @@ Fíjate que estamos usando `return` para abortar la ejecución del ayudante si h
 
 Pensarás que no hemos terminado totalmente. Estamos validando la presencia de una URL y un título en el lado del cliente, ¿Pero que pasa con el servidor? Después de todo, alguien podría añadir una publicación llamando manualmente al método `postInsert` desde la consola del navegador.
 
-Aunque pienses que no necesitamos mostrar ningún mensaje de error en el servidor, podemos hacer uso de la función `validatePost`. Solo que esta vez lo llamaremos desde el método `postInsert` también, y no solo desde el ayudante d eventos:
+Aunque pienses que no necesitamos mostrar ningún mensaje de error en el servidor, podemos hacer uso de la función `validatePost`. Solo que esta vez lo llamaremos desde el método `postInsert` también, y no solo desde el ayudante de eventos:
 
 ~~~js
 Meteor.methods({
