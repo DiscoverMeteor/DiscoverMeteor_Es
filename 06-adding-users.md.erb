@@ -6,7 +6,7 @@ number: 6
 points: 5
 photoUrl: http://www.flickr.com/photos/kroqert/9687074783/
 photoAuthor: Bård Harald Krogen
-contents: "Conoceremos las cuentas de usuario en Meteor.|Añadiremos toda la autenticación necesaria para Microscope.|Usaremos el paquete accounts-ui para obtener una interfaz de usuario de forma instantánea."
+contents: Conoceremos cómo funcionan las cuentas de usuario en Meteor.|Añadiremos toda la autenticación necesaria para Microscope.|Usaremos el paquete accounts-ui para obtener una interfaz de usuario de forma instantánea.
 paragraphs: 27
 ---
 
@@ -38,7 +38,7 @@ Vamos a añadir los botones a nuestra cabecera. Y puesto que la cabecera está e
 <template name="layout">
   <div class="container">
     {{> header}}
-    <div id="main" class="row-fluid">
+    <div id="main">
       {{> yield}}
     </div>
   </div>
@@ -50,21 +50,19 @@ Vamos a añadir los botones a nuestra cabecera. Y puesto que la cabecera está e
 ~~~html
 <template name="header">
   <nav class="navbar navbar-default" role="navigation">
-    <div class="container-fluid">
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navigation">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="{{pathFor 'postsList'}}">Microscope</a>
-      </div>
-      <div class="collapse navbar-collapse" id="navigation">
-        <ul class="nav navbar-nav navbar-right">
-          {{> loginButtons}}
-        </ul>
-      </div>
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navigation">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="{{pathFor 'postsList'}}">Microscope</a>
+    </div>
+    <div class="collapse navbar-collapse" id="navigation">
+      <ul class="nav navbar-nav navbar-right">
+        {{> loginButtons}}
+      </ul>
     </div>
   </nav>
 </template>
@@ -127,37 +125,32 @@ Si pensamos de nuevo en el capítulo 4, recordarás que deshabilitamos la auto-p
 
 Sin embargo, no hemos creado ninguna clase de publicación para usuarios. Así que ¿cómo es que podemos ver esos datos?
 
-La respuesta es que el paquete `accounts`, autopublica los datos básicos de la cuenta de usuario y solo para el usuario actual, de forma que un usuario no pueda ver la cuenta de otro.
+La respuesta es que el paquete `accounts`, autopublica los datos básicos de la cuenta del usuario actual, de otra forma, el usuario no podría acceder nunca al sitio.
 
-Aunque el paquete `accounts` sólo publica el *actual* usuario. Esto explica porqué un usuario no puede ver los detalles de la cuenta de los otros usuarios.
+El hecho de que el paquete `accounts` sólo publica el usuario *actual* explica porqué un usuario no puede ver los detalles de la cuenta de los otros usuarios.
 
 Así que solo se publica un objeto de usuario por usuario conectado (y ninguno cuando no está autenticado).
 
 Es más, los documentos en el navegador no parecen contener los mismos campos que en el servidor. En Mongo, un usuario tiene un montón de datos. Para verlo, vuelve a la terminal de Mongo y escribe:
 
 ~~~bash
-> db.users.findOne()
+> db.users.find()
 {
-	"createdAt" : 1365649830922,
-	"_id" : "kYdBd9hr3fWPGPcii",
-	"services" : {
-		"password" : {
-			"srp" : {
-				"identity" : "qyFCnw4MmRbmGyBdN",
-				"salt" : "YcBjRa7ArXn5tdCdE",
-				"verifier" : "df2c001edadf4e475e703fa8cd093abd4b63afccbca48fad1d2a0986ff2bcfba920d3f122d358c4af0c287f8eaf9690a2c7e376d701ab2fe1acd53a5bc3e843905d5dcaf2f1c47c25bf5dd87764d1f58c8c01e4539872a9765d2b27c700dcdedadf5ac82521467356d3f91dbeaf9848158987c6d359c5423e6b9cabf34fa0b45"
-			}
-		},
-		"resume" : {
-			"loginTokens" : [
-				{
-					"token" : "BMHipQqjfLoPz7gru",
-					"when" : 1365649830922
-				}
-			]
-		}
-	},
-	"username" : "tmeasday"
+  "_id": "H5kKyxtbkLhmPgtqs",
+  "createdAt": ISODate("2015-02-10T08:26:48.196Z"),
+  "profile": {},
+  "services": {
+    "password": {
+      "bcrypt": "$2a$10$yGPywo3/53IHsdffdwe766roZviT03YBGltJ0UG"
+    },
+    "resume": {
+      "loginTokens": [{
+        "when": ISODate("2015-02-10T08:26:48.203Z"),
+        "hashedToken": "npxGH7Rmkuxcv098wzz+qR0/jHl0EAGWr0D9ZpOw="
+      }]
+    }
+  },
+  "username": "sacha"
 }
 ~~~
 <%= caption "Consola de Mongo" %>

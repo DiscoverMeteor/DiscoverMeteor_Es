@@ -6,13 +6,13 @@ number: 8
 points: 5
 photoUrl: http://www.flickr.com/photos/ikewinski/9473337133/
 photoAuthor: Mike Lewinski
-contents: "Añadiremos un formulario para editar posts.|Configuraremos los permisos de edición.|Restringiremos las propiedades que se pueden editar."
+contents: Añadiremos un formulario para editar posts.|Configuraremos los permisos de edición.|Restringiremos las propiedades que se pueden editar.
 paragraphs: 29
 ---
 
-Ahora que ya podemos crear posts, el siguiente paso es poder editarlos y borrarlos. Como el código la IU ha quedado bastante simple, este parece es un buen momento para hablar de cómo Meteor gestiona los permisos de usuario.
+Ahora que ya podemos crear posts, el siguiente paso es poder editarlos y borrarlos. Como el código de la IU ha quedado bastante simple, este parece es un buen momento para hablar de cómo se gestionan los permisos de usuario con Meteor.
 
-Primero vamos a enlazar nuestro router. Añadiremos una ruta para acceder a la página de edición y estableceremos su contexto de datos:
+Primero vamos a configurar nuestro router. Añadiremos una ruta para acceder a la página de edición y estableceremos su contexto de datos:
 
 ~~~js
 Router.configure({
@@ -60,7 +60,7 @@ Ahora ya nos podemos centrar en la plantilla. Nuestra plantilla `postEdit` tendr
 
 ~~~html
 <template name="postEdit">
-  <form class="main form">
+  <form class="main form page">
     <div class="form-group">
       <label class="control-label" for="url">URL</label>
       <div class="controls">
@@ -81,20 +81,20 @@ Ahora ya nos podemos centrar en la plantilla. Nuestra plantilla `postEdit` tendr
 ~~~
 <%= caption "client/templates/posts/post_edit.html" %>
 
-Y aquí está el fichero `post_edit.js` que va con ella:
+Y aquí tenemos el fichero `post_edit.js` que la acompaña:
 
 ~~~js
 Template.postEdit.events({
   'submit form': function(e) {
     e.preventDefault();
-
+    
     var currentPostId = this._id;
-
+    
     var postProperties = {
       url: $(e.target).find('[name=url]').val(),
       title: $(e.target).find('[name=title]').val()
     }
-
+    
     Posts.update(currentPostId, {$set: postProperties}, function(error) {
       if (error) {
         // display the error to the user
@@ -104,10 +104,10 @@ Template.postEdit.events({
       }
     });
   },
-
+  
   'click .delete': function(e) {
     e.preventDefault();
-
+    
     if (confirm("Delete this post?")) {
       var currentPostId = this._id;
       Posts.remove(currentPostId);
@@ -120,17 +120,17 @@ Template.postEdit.events({
 
 Como podemos ver, la mayoría de cosas ya nos son familiares.
 
-Después tenemos dos callbacks de eventos: uno para enviar el formulario `submit`, y `click .delete` para el evento click del enlace delete.
+Tenemos dos callbacks de eventos: uno para enviar el formulario `submit`, y `click .delete` para el evento click del enlace delete.
 
-El callback `delete` es muy simple: elimina el evento click por defecto y después pide confirmación. Si confirmamos, obtenemos el ID del post actual desde el contexto de datos de la plantilla, lo borramos y redirigimos al usuario a la página de inicio.
+El callback `delete` es muy simple: elimina el evento predeterminado y después pide confirmación. Si confirmamos, obtenemos el ID del post actual desde el contexto de datos de la plantilla, lo borramos y redirigimos al usuario a la página de inicio.
 
-El callback de actualización es un poco más largo, pero no mucho más complicado. Después de suprimir el evento predeterminado y conseguir el post actual, obtenemos los nuevos valores del formulario y los almacena en el objeto `postProperties`.
+El callback de actualización es un poco más largo, pero no mucho más complicado. Después de suprimir el evento predeterminado y conseguir el post actual, obtiene los nuevos valores del formulario y los almacena en el objeto `postProperties`.
 
-A continuación, pasamos este objeto al método Meteor `Collection.update()` usando el operador [`$set`](http://docs.mongodb.org/manual/reference/operator/update/set/) (que reemplaza un conjunto de atributos dejando los demás intactos), y usamos un callback para mostrar un error si falla la actualización o enviar al usuario a la página del post si la actualización se realiza correctamente.
+A continuación, pasa este objeto al método Meteor `Collection.update()` usando el operador [`$set`](http://docs.mongodb.org/manual/reference/operator/update/set/) (que reemplaza un conjunto de atributos dejando los demás intactos), y usa un callback para mostrar un error si falla la actualización o envía al usuario a la página del post si la actualización se realiza correctamente.
 
 ### Añadiendo enlaces
 
-Deberíamos añadir enlaces a la página de edición de nuestros posts:
+Deberíamos añadir enlaces a la página de edición de nuestros posts para que los usuarios puedan llegar a ella:
 
 ~~~html
 <template name="postItem">
@@ -149,7 +149,7 @@ Deberíamos añadir enlaces a la página de edición de nuestros posts:
 <%= caption "client/templates/posts/post_item.html" %>
 <%= highlight "5~8" %>
 
-Por supuesto, no queremos que se muestre el enlace para editar un post que no haya sido creado por el usuario. Aquí es donde entra el ayudante `ownPost`:
+Por supuesto, no queremos que se muestre el enlace para editar un post que no haya sido creado por ese usuario. Aquí es donde entra el ayudante `ownPost`:
 
 ~~~js
 Template.postItem.helpers({
@@ -235,7 +235,7 @@ Estamos cogiendo el array `fieldNames` que contiene la lista de los campos que q
 
 Si todo va bien, el array debe estar vacío y su longitud debe ser 0. Pero si alguien está tratando de enredar, la longitud del array será mayor que 0, y devolveremos `true` (denegando así la actualización).
 
-Te habrás dado cuenta de que en ningún sitio en nuestro código de editar post comprobamos si hay enlaces duplicados. Esto significa que un usuario podría enviar un enlace y después editarlo y cambiarlo su URL para saltarse la comprobación. La solución a este problema podría ser utilizar un método Meteor para tratar este formulario de edición, pero dejaremos esto como un ejercicio para el lector.
+Te habrás dado cuenta de que, en el código de edición del post, no comprobamos si hay enlaces duplicados. Esto significa que un usuario podría enviar un enlace y después editarlo y cambiar su URL para saltarse la comprobación. La solución a este problema podría ser utilizar un método Meteor para tratar este formulario de edición, pero dejaremos esto como un ejercicio para el lector.
 
 <% note do %>
 
@@ -249,7 +249,7 @@ Cuando las cosas son relativamente sencillas se pueden expresar las reglas a tra
 
 Sin embargo, tan pronto como empecemos a hacer cosas que deberían estar fuera del control del usuario (por ejemplo, el timestamp de un nuevo post o asignarlo al usuario correcto), será mejor que usemos métodos.
 
-Las llamadas a métodos son más apropiadas en algunos otros casos:
+Las llamadas a métodos también son apropiadas en algunos otros casos:
 
 - Cuando necesitamos conocer o devolver valores a través de un callback en lugar de esperar a que Meteor propague la sincronización.
 - Para consultas pesadas a la base de datos.

@@ -13,11 +13,11 @@ paragraphs: 15
 
 Denormalizar los datos significa no almacenar esos datos de una manera "normal". En otras palabras, significa tener múltiples copias de la misma porción de datos.
 
-En el capítulo anterior, denormalizamos la cantidad de comentarios dentro del objeto post para evitar tener que cargar todos los comentarios todo el tiempo. Teniendo en cuenta el modelado de datos esto es redundante, ya que en su lugar podríamos simplemente contar el número correcto de comentarios en cualquier momento para averiguar su valor (dejando de lado las consideraciones de rendimiento).
+En el capítulo anterior, denormalizamos la cantidad de comentarios dentro del objeto post para evitar tener que cargar todos los comentarios todo el tiempo. Teniendo en cuenta el modelado de datos, esto es redundante, ya que en su lugar podríamos simplemente contar el número correcto de comentarios en cualquier momento para averiguar su valor (dejando de lado las consideraciones de rendimiento).
 
-Denormalizar a menudo significa un trabajo extra para el desarrollador. En nuestro ejemplo, cada vez que agregamos o eliminamos un comentario además tenemos que acordarnos de actualizar el post en cuestión para asegurarnos que el campo `commentsCount` siga siendo correcto. Esto es exactamente la razón por la cual las bases de datos relacionales como MySQL desaprueban esta técnica.
+Denormalizar a menudo significa un trabajo extra para el desarrollador. En nuestro ejemplo, cada vez que agregamos o eliminamos un comentario además tenemos que acordarnos de actualizar el post en cuestión para asegurarnos de que el campo `commentsCount` siga siendo correcto. Esto es exactamente la razón por la cual las bases de datos relacionales como MySQL desaprueban esta técnica.
 
-De todas maneras, la técnica normal también tiene sus desventajas: sin una propiedad `commentsCount`, necesitaríamos enviar _todos_ los comentarios todo el tiempo solo para poder contarlos, que es lo que estábamos haciendo en un principio. Denormalizar permite evitar esto completamente.
+De todas maneras, la técnica normal también tiene sus desventajas: sin una propiedad `commentsCount`, necesitaríamos enviar _todos_ los comentarios todo el tiempo tan sólo para poder contarlos, que es lo que estábamos haciendo en un principio. Denormalizar permite evitar esto último.
 
 <% note do %>
 
@@ -40,9 +40,9 @@ Resulta que muchas de las herramientas que Meteor nos da, trabajan mucho mejor o
 1. El ayudante `{{#each}}` es muy eficiente cuando itera sobre un cursor (el resultado de `collection.find()`). Pero no lo hace cuando itera sobre un array de objetos dentro un documento más grande.
 2. `allow` y `deny` operan a nivel de documento, por consiguiente, facilita la tarea de asegurarse que cualquier modificación de un comentario individual es correcta. Esto sería mucho más complejo si operara a nivel de post.
 3. DDP opera a nivel de los atributos "top-level" de un documento. Esto significa que si `comments` fuese una propiedad de un `post`, cada vez que un comentario fuese creado en un post, el servidor debería enviar toda la lista de comentarios actualizada para ese post a cada uno de los clientes conectados.
-4. Publicaciones y suscripciones son mucho más fácil de controlar a nivel de documentos. Por ejemplo, si quisiéramos paginar comentarios en un post sería muy difícil a menos que los comentarios estuviesen en su propia colección.
+4. Publicaciones y suscripciones son mucho más fáciles de controlar a nivel de documentos. Por ejemplo, si quisiéramos paginar comentarios en un post sería muy difícil a menos que los comentarios estuviesen en su propia colección.
 
-Mongo sugiere incrustar documentos para reducir la cantidad de consultas costosas para buscar los documentos. De todos modos, esto es un problema mínimo cuando se toma en cuenta la arquitectura de Meteor: la mayor parte del tiempo estamos consultando comentarios en el *cliente*, donde el acceso a la base de datos prácticamente no tiene costo.
+Mongo sugiere incrustar documentos para reducir la cantidad de consultas  necesarias para buscar los documentos. De todos modos, esto es un problema mínimo cuando se tiene en cuenta la arquitectura de Meteor: la mayor parte del tiempo estamos consultando comentarios en el *cliente*, donde el acceso a la base de datos prácticamente no tiene coste.
 
 <% note do %>
 

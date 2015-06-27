@@ -6,13 +6,13 @@ number: 7
 points: 5
 photoUrl: http://www.flickr.com/photos/markezell/9688179085
 photoAuthor: Mark Ezell
-contents: "Aprenderemos a enviar posts.|Implementaremos un sencillo control de seguridad.|Restingiremos el acceso al formulario de envío.|Aprender a utilizar métodos de servidor para mejorar la seguridad."
+contents: Aprenderemos a enviar posts desde el la parte cliente.|Implementaremos un sencillo control de seguridad.|Restingiremos el acceso al formulario de envío.|Aprenderemos a utilizar métodos de servidor para mejorar la seguridad.
 paragraphs: 60
 ---
 
 Hemos visto lo fácil que es crear posts llamando a `Posts.insert` a través de la consola pero, no podemos esperar que nuestros usuarios hagan lo mismo.
 
-Vamos a necesitar construir algún tipo de interfaz de usuario para que los usuarios creen nuevas entradas en la aplicación.
+Necesitamos construir algún tipo de interfaz de usuario para que los usuarios creen nuevas entradas en la aplicación.
 
 ### Creando la página de envío
 
@@ -47,24 +47,22 @@ Con la ruta definida, ahora podemos añadir un enlace a la cabecera de nuestra p
 ~~~html
 <template name="header">
   <nav class="navbar navbar-default" role="navigation">
-    <div class="container-fluid">
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navigation">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="{{pathFor 'postsList'}}">Microscope</a>
-      </div>
-      <div class="collapse navbar-collapse" id="navigation">
-        <ul class="nav navbar-nav">
-          <li><a href="{{pathFor 'postSubmit'}}">Submit Post</a></li>
-        </ul>
-        <ul class="nav navbar-nav navbar-right">
-          {{> loginButtons}}
-        </ul>
-      </div>
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navigation">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="{{pathFor 'postsList'}}">Microscope</a>
+    </div>
+    <div class="collapse navbar-collapse" id="navigation">
+      <ul class="nav navbar-nav">
+        <li><a href="{{pathFor 'postSubmit'}}">Submit Post</a></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        {{> loginButtons}}
+      </ul>
     </div>
   </nav>
 </template>
@@ -76,7 +74,7 @@ Configurar una ruta implica que si un usuario navega a `/submit`, Meteor mostrar
 
 ~~~html
 <template name="postSubmit">
-  <form class="main form">
+  <form class="main form page">
     <div class="form-group">
       <label class="control-label" for="url">URL</label>
       <div class="controls">
@@ -95,15 +93,15 @@ Configurar una ruta implica que si un usuario navega a `/submit`, Meteor mostrar
 ~~~
 <%= caption "client/templates/posts/post_submit.html" %>
 
-Aquí hay un montón de markup, pero es solo porque usamos el CSS de Twitter Bootstrap. Aunque solo son esenciales los elementos del formulario, el marcado adicional ayudará a que nuestra aplicación se vea un poco mejor. Ahora debería tener un aspecto similar a este:
+Aquí hay un montón de markup, pero es solo porque usamos el CSS de Twitter Bootstrap. Aunque sólo son esenciales los elementos del formulario, el marcado adicional ayudará a que nuestra aplicación se vea un poco mejor. Ahora debería tener un aspecto similar a este:
 
 <%= screenshot "7-1", "El formulario de creación de posts" %>
 
-Es un simple formulario. No tenemos que preocuparnos de programar una acción para él porque interceptaremos su evento `submit` y actualizaremos los datos vía JavaScript. (No tiene sentido proporcionar un fallback no-JS si tenemos en cuenta que Meteor no funciona con JavaScript desactivado).
+Es un simple formulario. No tenemos que preocuparnos de programar una acción para él, porque interceptaremos su evento `submit` y actualizaremos los datos vía JavaScript. (No tiene sentido proporcionar un fallback no-JS si tenemos en cuenta que Meteor no funciona con JavaScript desactivado).
 
 ### Creando posts
 
-Vamos a enlazar un controlador de eventos al evento `submit` del formulario. Es mejor usar el evento submit (en lugar de un click en un botón), ya que cubrirá todas las posibles formas de envío (como por ejemplo pulsar intro).
+Vamos a enlazar un controlador de eventos al evento `submit` del formulario. Es mejor usar el evento `submit` (en lugar de un click en un botón), ya que cubrirá todas las posibles formas de envío (como por ejemplo pulsar intro).
 
 ~~~js
 Template.postSubmit.events({
@@ -149,7 +147,7 @@ Necesitamos escribir reglas explícitas para decirle a Meteor qué usuarios pued
 
 ### Permitir insertar posts
 
-Para empezar, vamos a mostrar cómo permitir posts del lado del cliente con el fin de que nuestro formulario funcione de nuevo. Como veremos, al final usaremos una técnica diferente, pero por ahora, lo pondremos todo a funcionar de una forma sencilla en `collections/posts.js`:
+Para que nuestro formulario funcione de nuevo, vamos a ver cómo permitir posts del lado del cliente. Como veremos, al final usaremos una técnica diferente, pero por ahora, lo pondremos todo a funcionar de nuevo, de una forma sencilla: en `collections/posts.js`:
 
 ~~~js
 Posts = new Mongo.Collection('posts');
@@ -186,7 +184,7 @@ Vamos a corregir estos problemas.
 
 Vamos a empezar por evitar que los usuarios no registrados puedan ver el formulario de envío de posts. Lo haremos a nivel de router, definiendo una acción (_hook_) del router.
 
-Una acción intercepta el proceso de enrutamiento y potencialmente, cambia la acción que lleva acabo el router. Puedes pensar en él como un guardia de seguridad que verifica sus credenciales antes de dejarte entrar.
+Una acción intercepta el proceso de enrutamiento y, potencialmente, cambia la acción que lleva acabo el router. Puedes pensar en él como en un guardia de seguridad que verifica tus credenciales antes de dejarte entrar.
 
 Lo que tenemos que hacer es comprobar si el usuario está conectado. Si no lo está, mostramos la plantilla `accessDenied` en lugar de la plantilla `postSubmit` (en este momento le diremos al router que no haga nada más). Así que vamos a modificar `router.js`:
 
@@ -225,7 +223,7 @@ Además, tenemos que crear una plantilla para la página de error:
 
 ~~~html
 <template name="accessDenied">
-  <div class="access-denied jumbotron">
+  <div class="access-denied page jumbotron">
     <h2>Access Denied</h2>
     <p>You can't get here! Please log in.</p>
   </div>
@@ -337,17 +335,17 @@ Template.postSubmit.events({
 
 La función `Meteor.call` llama a un método nombrado por su primer argumento. Se pueden proporcionar argumentos a la llamada (en este caso, pasamos el objeto `post` que hemos construido del formulario), y, finalmente, habilitamos un callback, que se ejecutará cuando el método del lado del servidor finalice.
 
-Las funciones de retorno de los métodos Meteor siempre tienen dos argumentos, `error` y `result`. Si por cualquier razón el argumento `error` existe, avisaremos al usuario (usando `return` para finalizar la función). Si todo ha funcionado como debería, redirigiremos al usuario a la página de discusión del post recién creado.
+Las funciones de retorno de los métodos Meteor siempre tienen dos argumentos, `error` y `result`. Si por cualquier razón el argumento `error` existe, avisaremos al usuario (usando `return` para finalizar la función). Si todo ha funcionado bien, redirigiremos al usuario a la página de discusión del post recién creado.
 
 ### Comprobaciones de seguridad
 
-Aprovecharemos esta oportunidad para añadir algo de seguridad a nuestros métodos usando el paquete [`audit-argument-checks`](http://docs.meteor.com/#auditargumentchecks).
+Aprovecharemos esta oportunidad para añadir algo de seguridad a nuestros métodos usando el paquete [`audit-argument-checks`](http://docs.meteor.com/#/full/auditargumentchecks).
 
 Este paquete nos permite realizar comprobaciones sobre un objeto JavaScript usando patrones predefinidos. En nuestro caso, lo usaremos para comprobar que el usuario que está invocando el método está correctamente autenticado (asegurándonos que `Meteor.userId()` es de tipo `String`), y que el objeto `postAttributes` pasado como argumento al método contiene las cadenas `title` y `url`, para no terminar insertando cualquier dato extraño en nuestra base de datos.
 
-Vamos a definir el método `postInsert` en nuestro fichero `collections/posts.js`. Eliminaremos el bloque `allow()` del fichero `posts.js` ya que desde los métodos Meteor no los evalúan.
+Vamos a definir el método `postInsert` en nuestro fichero `collections/posts.js`. Eliminaremos el bloque `allow()` del fichero `posts.js` porque usando métodos, Meteor no lo evalúa.
 
-Extenderemos (`extend`) el objeto `postAttributes` con tres propiedades más: el identificador del usuario `_id` y el `username`, además de la fecha `submitted`, antes de insertarlos en nuestra base de datos y devolver el `_id` al cliente (en otras palabras, a la función original que llamó este método) como un objeto JavaScript.
+Extenderemos (`extend`) el objeto `postAttributes` con tres propiedades más: el identificador del usuario `_id` y el `username`, además de la fecha y hora `submitted`, antes de insertarlos en nuestra base de datos y devolver el `_id` al cliente (en otras palabras, a la función original que llamó a este método) como un objeto JavaScript.
 
 ~~~js
 Posts = new Mongo.Collection('posts');
@@ -386,15 +384,15 @@ Fíjate que el método `_.extend()` forma parte de la librería [Underscore](htt
 
 ### Adiós Allow/Deny
 
-Los métodos Meteor son ejecutados en el servidor, por lo que Meteor supone que son de confianza. Por tanto, los métodos Meteor obvian las llamadas allow/deny.
+Los métodos Meteor son ejecutados en el servidor, por lo que Meteor supone que son de confianza. Por tanto, los métodos Meteor obvian las llamadas a `allow` y `deny`.
 
-Si quieres ejecutar algún código antes de cada operación de `insert`, `update`, o `remove` *incluso en el lado servidor*, le sugerimos echar un vistazo al paquete [collection-hooks](https://github.com/matb33/meteor-collection-hooks).
+Si quieres ejecutar algún código antes de cada operación de `insert`, `update`, o `remove` *incluso en el lado servidor*, te sugerimos echar un vistazo al paquete [collection-hooks](https://github.com/matb33/meteor-collection-hooks).
 
 <% end %>
 
 ### Evitando duplicidades
 
-Haremos una comprobación más antes de dar por bueno nuestro método. Si un post con la misma URL ya ha sido creado anteriormente, no queremos que se añada el enlace por segunda vez, si no que redirijamos al usuario a la publicación ya existente.
+Vamos a hacer una comprobación más antes de dar por bueno nuestro método. Si ya se ha tenemos un post con la misma URL, no vamos a permitir que se añada una segunda vez, por el contrario, redirijamos al usuario al post ya existente.
 
 ~~~js
 Meteor.methods({
@@ -428,14 +426,14 @@ Meteor.methods({
   }
 });
 ~~~
-<%= caption "collections/posts.js" %>
+<%= caption "lib/collections/posts.js" %>
 <%= highlight "9~15" %>
 
-Estamos buscando en nuestra base de datos por publicaciones con la misma URL. Si se encuentra alguna, devolvemos (`return`) el `_id` de la publicación junto con una marca `postExists: true` para informar al cliente sobre esta situación especial.
+Buscamos en nuestra base de datos las URLs duplicadas. Si se encuentra alguna, devolvemos (`return`) el `_id` del post junto con una marca `postExists: true` para informar al cliente sobre esta situación especial.
 
 Y como estamos lanzando una llamada `return`, el método se detiene en este punto sin llegar a ejecutar la sentencia `insert`, evitándonos elegantemente cualquier duplicidad.
 
-Todo lo que queda es usar esta nueva información `postExists` en nuestro ayudante de eventos en el lado del cliente para mostrarnos un mensaje de aviso:
+Sólo falta usar `postExists` en nuestro ayudante de eventos en el lado del cliente para mostrarnos un mensaje de aviso:
 
 ~~~js
 Template.postSubmit.events({
@@ -482,6 +480,6 @@ Template.postsList.helpers({
 
 <%= commit "7-8", "Posts ordenados por fecha de envío." %>
 
-Parece un poco trabajoso, pero ¡Finalmente tenemos una interfaz en la que los usuarios introducen posts de forma segura en nuestra aplicación!
+Ha costado, pero ¡Finalmente tenemos una interfaz en la que los usuarios introducen posts de forma segura en nuestra aplicación!
 
 Sin embargo, cualquier aplicación que permita a los usuarios crear contenido también debe permitir editarla o borrarla. Eso es de lo que hablaremos en el siguiente capítulo.

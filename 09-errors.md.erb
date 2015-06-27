@@ -6,13 +6,13 @@ number: 9
 points: 10
 photoUrl: http://www.flickr.com/photos/ikewinski/9413892879/
 photoAuthor: Mike Lewinski
-contents: Crearemos un mecanismo mejor para mostrar errores y mensajes.|Implementaremos validaciones mas estrictas|Mostraremos errores en línea para nuestros formularios.
+contents: Crearemos un mecanismo mejorado para mostrar errores y mensajes.|Implementaremos validaciones mas estrictas|Mostraremos errores en línea para los formularios.
 paragraphs: 31
 ---
 
-Usar simplemente un `alert()` del navegador para advertir al usuario cuando hay un problema es poco elegante. Podemos hacerlo mejor.
+Resulta poco elegante usar un `alert()` para advertir al usuario de que algo ha pasado. Hay que hacerlo mejor.
 
-En vez de eso, vamos a construir un mecanismo de presentación de errores más versátil, que va a hacer mejor el trabajo de decirle al usuario qué está pasando sin tener que romper su flujo de trabajo.
+Vamos a construir un mecanismo de presentación de errores más versátil y que va a hacer mejor el trabajo de informar al usuario sobre lo que está pasando sin tener que romper su flujo de trabajo.
 
 Vamos a implementar un simple sistema que muestre los nuevos errores en la parte de arriba a la derecha de la ventana, de forma similar a la popular aplicación [Growl](http://growl.info/) de MacOS.
 
@@ -20,7 +20,7 @@ Vamos a implementar un simple sistema que muestre los nuevos errores en la parte
 
 Para empezar, crearemos una colección para almacenar nuestros errores. Puesto que los errores solo son relevantes en la sesión actual y no necesitan ser persistentes, haremos algo nuevo, vamos a crear una *colección local*. Es decir, la colección `Errors` solo existirá *en el navegador*, y no se sincronizará con el servidor.
 
-Para conseguirlo, creamos la colección de errores dentro del directorio `client` (para hacer la colección solo disponible en la parte cliente), con el nombre de la colección establecido a `null` (ya que esta los datos nunca se almacenarán en la base de datos del servidor):
+Para conseguirlo, creamos la colección dentro del directorio `client` (para hacer la hacer que sólo esté disponible en la parte cliente), con el nombre de la colección establecido a `null` (ya que esta los datos nunca se almacenarán en la base de datos del servidor):
 
 ~~~js
 // Local (client-only) collection
@@ -28,7 +28,7 @@ Errors = new Mongo.Collection(null);
 ~~~
 <%= caption "client/helpers/errors.js" %>
 
-Ahora que hemos creado la colección, podemos agregar una función `throwError`, que usaremos para añadir errores. Al tratarse de una colección local, no tenemos que preocuparnos por definir `allow` o `deny` u otros mecanismos de seguridad, ya que esta colección es “local” al usuario actual.
+Ahora que hemos creado la colección, podemos agregar una función `throwError`, que usaremos para añadir errores. Al tratarse de una colección local, no tenemos que preocuparnos por definir `allow` o `deny` u otros mecanismos de seguridad, ya que esta colección es “local” para el usuario actual.
 
 ~~~js
 throwError = function(message) {
@@ -48,7 +48,7 @@ Mostraremos los errores en la parte de arriba de nuestro layout:
   <div class="container">
     {{> header}}
     {{> errors}}
-    <div id="main" class="row-fluid">
+    <div id="main">
       {{> yield}}
     </div>
   </div>
@@ -83,7 +83,7 @@ Ahora vamos a crear la plantilla de error en `errors.html`:
 
 Te habrás dado cuenta de que estamos definiendo dos plantillas en un solo archivo. Hasta ahora hemos tratado de mantener la regla "un archivo, una plantilla", pero con Meteor podemos poner todas las plantillas en un único fichero y también funcionaría (¡Aunque tendríamos un fichero `main.html` muy confuso!).
 
-En este caso, como ambas plantillas de error son muy pequeñas, haremos una excepción y las pondremos en el mismo fichero para que nuestro repositorio quede más limpio.
+En este caso, como las plantillas son muy pequeñas, haremos una excepción y las pondremos en el mismo fichero para que nuestro repositorio quede un poco más limpio.
 
 <% end %>
 
@@ -114,17 +114,17 @@ throwError("I'm an error!");
 
 Llegados a este punto es importante hacer distinción entre los errores a “nivel de aplicación” y los errores a “nivel de código”.
 
-Los errores a **nivel de aplicación** son generalmente lanzados por el usuario, y los usuarios son capaces de interactuar con ellos. Esto incluye cosas como los errores de validación, errores de permisos, errores de “no encontrado”, etc. Esta clase de error que queremos mostrar al usuario para ayudarle a arreglar el problema que hemos encontrado.
+Los errores a **nivel de aplicación** son, generalmente, generados por el usuario, y los usuarios pueden interactuar con ellos. Esto incluye cosas como los errores de validación, errores de permisos, errores de “no encontrado”, etc. Estos son la clase de errores que queremos mostrar al usuario para ayudarle a arreglar el problema que hemos encontrado.
 
-Los errores a **nivel de código**, en cambio, son elevados de forma inesperada por fallos en nuestro código, y que probablemente *no* queremos mostrarle al usuario directamente, si no que queremos registrarlo con alguna clase de sistema de registro de errores (como por ejemplo [Kadira](http://kadira.io)).
+Los errores a **nivel de código**, en cambio, se generan de forma inesperada por fallos en nuestro código, y que probablemente *no* queremos mostrarle al usuario directamente, si no que queremos registrarlo con alguna clase de sistema de registro de errores (como por ejemplo [Kadira](http://kadira.io)).
 
-En este capítulo, no centraremos en tratar con el primer tipo de error, no en capturar fallos.
+En este capítulo, nos centraremos en tratar con el primer tipo de error, no en capturar fallos.
 
 <% end %>
 
 ### Creando errores
 
-Ya sabemos cómo mostrar los errores, pero todavía tenemos que crearlos antes de poder verlos. Ya hemos implementado un buen escenario de errores: nuestro aviso de publicación duplicada. Sencillamente remplazaremos las llamadas a `alert` en el ayudante de eventos de `postSubmit` con la nueva función `throwError` que acabamos de crear:
+Ya sabemos cómo mostrar los errores, pero todavía tenemos que crearlos antes de poder verlos. Ya hemos implementado un buen escenario para mostrarlos: el aviso de post duplicado. Sencillamente remplazaremos las llamadas a `alert` en el ayudante de eventos de `postSubmit` con la nueva función `throwError` que acabamos de crear:
 
 ~~~js
 Template.postSubmit.events({
@@ -153,7 +153,7 @@ Template.postSubmit.events({
 <%= caption "client/templates/posts/post_submit.js" %>
 <%= highlight "13,17" %>
 
-Ya que estamos, haremos lo mismo con el ayudante de eventos de `postEdit`:
+Ya que estamos, hacemos lo mismo con el ayudante de `postEdit`:
 
 ~~~js
 Template.postEdit.events({
@@ -217,9 +217,9 @@ La animación se ejecuta durante 2700 milisegundos en total, usa la ecuación de
 
 ### Animaciones contra Animaciones
 
-Te estarás preguntando porqué estamos usando animaciones basadas en CSS (que son predeterminadas y fuera del control de nuestra aplicación), en lugar de animaciones controladas por el propio Meteor.
+Te estarás preguntando porqué estamos usando animaciones basadas en CSS (que son predeterminadas y están fuera del control de nuestra aplicación), en lugar de animaciones controladas por el propio Meteor.
 
-Si bien Meteor proporciona soporte para insertar animaciones, queríamos en este capítulo enfocarnos en los errores. Así que usaremos una “tonta” animación CSS por ahora y dejaremos esas cosas para el capítulo de las animaciones.
+Si bien Meteor proporciona soporte para insertar animaciones, queríamos en este capítulo enfocarnos en los errores. Así que, por ahora, usaremos una “simple” animación CSS y dejaremos esas cosas para el capítulo de las animaciones.
 
 <% end %>
 
@@ -227,7 +227,7 @@ Esto funciona, pero si lanzamos varios errores (enviando el mismo enlace tres ve
 
 <%= screenshot "9-3", "Stack overflow." %>
 
-Esto pasa porque mientras los elementos `.alert` están desapareciendo *visualmente*, todavía están presentes en el DOM. Necesitas corregir esto.
+Esto pasa porque mientras los elementos `.alert` están desapareciendo *visualmente*, todavía están presentes en el DOM. Necesitamos corregir esto.
 
 Esta es la clase de situaciones en las que Meteor reluce. Puesto que la colección `Errors` es reactiva, ¡Todo lo que necesitamos para deshacernos de estos antiguos errores es eliminarlos de la colección!
 
@@ -240,31 +240,31 @@ Template.errors.helpers({
   }
 });
 
-Template.error.rendered = function() {
+Template.error.onRendered(function() {
   var error = this.data;
   Meteor.setTimeout(function () {
     Errors.remove(error._id);
   }, 3000);
-};
+});
 ~~~
 <%= caption "client/templates/includes/errors.js" %>
 <%= highlight "7~12" %>
 
 <%= commit "9-3", "Limpiar errores después de 3 segundos." %>
 
-La llamada a [`rendered`](http://docs.meteor.com/#template_rendered) se lanza una vez que nuestra plantilla ha sido renderizada en el navegador. Dentro de esta llamada, `this` hace referencia a la actual instancia de la plantilla, y `this.data` nos da acceso a los datos del objeto que está siendo actualmente renderizado (en nuestro caso, un error).
+La llamada a [`onRendered`](http://docs.meteor.com/#template_onRendered) se lanza una vez que nuestra plantilla ha sido renderizada en el navegador. Dentro de esta llamada, `this` hace referencia a la instancia actual de la plantilla, y `this.data` da acceso a los datos del objeto que está siendo renderizado (en nuestro caso, un error).
 
 ### En busca de las validaciones
 
-Aún no hemos impuesto ninguna clase de validación en nuestro formulario. Al menos, queremos que los usuarios indiquen una URL y un título para la nueva publicación. Vamos a asegurarnos de esto.
+Aún no hemos impuesto ninguna clase de validación en nuestro formulario. Queremos que los usuarios indiquen una URL y un título para cada post. Vamos a asegurarnos de esto sea así.
 
-Haremos dos cosas para comprobar por campos ausentes: primero, añadiremos una clase css especial `has-error` al `div` padre de cualquier campo de formulario problemático. Segundo, mostraremos un útil mensaje de error justo debajo del campo.
+Haremos dos cosas para comprobar campos ausentes: primero, añadiremos una clase css especial `has-error` al `div` padre de cualquier campo de formulario. Segundo, mostraremos un mensaje de error justo debajo del campo.
 
 Para comenzar, vamos a preparar nuestra plantilla `postSubmit` para aceptar este nuevo tipo de ayudantes:
 
 ~~~html
 <template name="postSubmit">
-  <form class="main form">
+  <form class="main form page">
     <div class="form-group {{errorClass 'url'}}">
       <label class="control-label" for="url">URL</label>
       <div class="controls">
@@ -286,22 +286,22 @@ Para comenzar, vamos a preparar nuestra plantilla `postSubmit` para aceptar este
 <%= caption "client/templates/posts/post_submit.html" %>
 <%= highlight "3,7,10,14" %>
 
-Fíjate que estamos pasando parámetros (`url` y `title` respectivamente) a cada ayudante. Esto nos permite reutilizar el mismo ayudante ambas veces, modificando su comportamiento según el parámetro.
+Fíjate que estamos pasando parámetros (`url` y `title` respectivamente) a cada ayudante. Esto nos permite reutilizar el mismo ayudante, modificando su comportamiento según el parámetro.
 
-Ahora la parte divertida: hacer que estos ayudantes hagan algo realmente.
+Ahora la parte divertida: hacer que estos ayudantes hagan realmente algo.
 
-Usaremos la **Session** para almacenar un objeto `postSubmitErrors` que contendrá el potencial mensaje de error. Conforme el usuario interactúa con el formulario, este objeto irá cambiando, por lo que irá cambiando reactivamente el estilo y contenido del formulario.
+Usaremos la **Session** para almacenar un objeto `postSubmitErrors` que contendrá el potencial mensaje de error. Según el usuario interactúa con el formulario, este objeto irá cambiando, por lo que irá cambiando reactivamente el estilo y contenido del formulario.
 
-Primero, inicializaremos el objeto en donde la plantilla `postSubmit` sea creada. Esto nos asegura que el usuario no ve un mensaje de error antiguo que se haya quedado de una visita anterior a esta página.
+Primero, iniciamos el objeto donde se crea la plantilla `postSubmit`. Esto nos asegura que el usuario no ve un mensaje de error antiguo que se haya quedado de una visita anterior a esta página.
 
-Después definiremos dos ayudantes de plantilla. Ambos buscarán la propiedad `field` del objeto `Session.get('postSubmitErrors')` (donde `field`sería `url` o `title` dependiendo del ayudante desde que el que se llame).
+Después definimos dos ayudantes de plantilla. Ambos buscarán la propiedad `field` del objeto `Session.get('postSubmitErrors')` (donde `field` será `url` o `title` dependiendo del ayudante desde que el que se llame).
 
 Mientras que `errorMessage` solo devuelve el mensaje en sí mismo, `errorClass` comprueba la *presencia* de un mensaje y devuelve `has-error` en caso de que exista un mensaje.
 
 ~~~js
-Template.postSubmit.created = function() {
+Template.postSubmit.onCreated(function() {
   Session.set('postSubmitErrors', {});
-}
+});
 
 Template.postSubmit.helpers({
   errorMessage: function(field) {
@@ -311,8 +311,11 @@ Template.postSubmit.helpers({
     return !!Session.get('postSubmitErrors')[field] ? 'has-error' : '';
   }
 });
+
+//...
 ~~~
 <%= caption "client/templates/posts/post_submit.js" %>
+<%= highlight "1~12" %>
 
 Puedes comprobar que nuestros ayudantes están funcionando correctamente abriendo una consola en el navegador y escribiendo la siguiente línea de código:
 
@@ -325,7 +328,7 @@ Session.set('postSubmitErrors', {title: 'Warning! Intruder detected. Now releasi
 
 El próximo paso es enganchar el objeto de sesión `postSubmitErrors` al formulario.
 
-Antes de hacerlo, crearemos una nueva función `validatePost` en el fichero `posts.js` que mire en el objeto `post`, y devuelve un objeto `errors` con cualquier error relevante (ya sea que los campos `title` o `url` no están definidos):
+Antes de hacerlo, crearemos una nueva función `validatePost` en el fichero `posts.js` que mire en el objeto `post`, y devuelva un objeto `errors` con cualquier error relevante (que los campos `title` o `url` no están presentes):
 
 ~~~js
 //...
@@ -386,9 +389,9 @@ Fíjate que estamos usando `return` para abortar la ejecución del ayudante si h
 
 ### Validaciones en el lado servidor
 
-Pensarás que no hemos terminado totalmente. Estamos validando la presencia de una URL y un título en el lado del cliente, ¿Pero que pasa con el servidor? Después de todo, alguien podría añadir una publicación llamando manualmente al método `postInsert` desde la consola del navegador.
+¿Ya hemos terminado?. Estamos validando la presencia de una URL y un título en el lado del cliente, ¿Pero que pasa con el servidor? Después de todo, alguien podría añadir un post llamando manualmente al método `postInsert` desde la consola del navegador.
 
-Aunque pienses que no necesitamos mostrar ningún mensaje de error en el servidor, podemos hacer uso de la función `validatePost`. Solo que esta vez lo llamaremos desde el método `postInsert` también, y no solo desde el ayudante de eventos:
+Aunque pienses que no necesitamos mostrar ningún mensaje de error en el servidor, podemos hacer uso de la función `validatePost`. Solo que esta vez la llamaremos desde el método `postInsert` también, y no sólo desde el ayudante de eventos:
 
 ~~~js
 Meteor.methods({
@@ -431,7 +434,7 @@ Meteor.methods({
 
 De nuevo, los usuarios no deberían nunca ver este mensaje “You must set a title and URL for your post”. Sólo se mostrará si alguien quiere saltarse los controles que hemos dispuesto concienzudamente, y usa la consola del navegador.
 
-Para probarlo, abre una consola del navegador y prueba a enviar una publicación sin URL:
+Para probarlo, abre una consola del navegador y prueba a enviar un post sin URL:
 
 ~~~js
 Meteor.call('postInsert', {url: '', title: 'No URL here!'});
@@ -439,15 +442,15 @@ Meteor.call('postInsert', {url: '', title: 'No URL here!'});
 
 Si hemos hecho bien nuestro trabajo, obtendrás un montón de código extraño junto con un mensaje “You must set a title and URL for your post”.
 
-<%= commit "9-4", "Validar el contenido de la publicación al enviar." %>
+<%= commit "9-4", "Validar el contenido de la post al enviar." %>
 
 ### Validación al editar
 
-Pare redondear las cosas, aplicaremos la misma validación a nuestro formulario de *edición* de publicaciones. El código es muy similar. Primero, la plantilla:
+Pare redondear las cosas, aplicaremos la misma validación a nuestro formulario de *edición* de posts. El código es muy similar. Primero, la plantilla:
 
 ~~~html
 <template name="postEdit">
-  <form class="main form">
+  <form class="main form page">
     <div class="form-group {{errorClass 'url'}}">
       <label class="control-label" for="url">URL</label>
       <div class="controls">
@@ -474,9 +477,9 @@ Pare redondear las cosas, aplicaremos la misma validación a nuestro formulario 
 Luego los ayudantes de plantilla:
 
 ~~~js
-Template.postEdit.created = function() {
+Template.postEdit.onCreated(function() {
   Session.set('postEditErrors', {});
-}
+});
 
 Template.postEdit.helpers({
   errorMessage: function(field) {
@@ -490,18 +493,18 @@ Template.postEdit.helpers({
 Template.postEdit.events({
   'submit form': function(e) {
     e.preventDefault();
-
+    
     var currentPostId = this._id;
-
+    
     var postProperties = {
       url: $(e.target).find('[name=url]').val(),
       title: $(e.target).find('[name=title]').val()
     }
-
+    
     var errors = validatePost(postProperties);
     if (errors.title || errors.url)
       return Session.set('postEditErrors', errors);
-
+    
     Posts.update(currentPostId, {$set: postProperties}, function(error) {
       if (error) {
         // display the error to the user
@@ -511,10 +514,10 @@ Template.postEdit.events({
       }
     });
   },
-
+  
   'click .delete': function(e) {
     e.preventDefault();
-
+    
     if (confirm("Delete this post?")) {
       var currentPostId = this._id;
       Posts.remove(currentPostId);
@@ -526,7 +529,7 @@ Template.postEdit.events({
 <%= caption "client/templates/posts/post_edit.js" %>
 <%= highlight "1~12,25~27,32" %>
 
-Tal y como hicimos en el formulario de envío de publicaciones, queremos validar nuestras publicaciones en el servidor. Excepto que recordarás que no estamos usando un método para editar las publicaciones, si no una llamada `update` directamente desde el lado cliente.
+Tal y como hicimos en el formulario de envío de posts, queremos validar nuestros posts en el servidor. Excepto que recordarás que no estamos usando un método para editar los posts, si no una llamada `update` directamente desde el lado cliente.
 
 Esto significa que tenemos que añadir una nueva regla `deny`:
 
@@ -545,10 +548,10 @@ Posts.deny({
 <%= caption "lib/collections/posts.js" %>
 <%= highlight "3~8" %>
 
-Fíjate que el argumento `post` se refiere a la publicación *existente*. En este caso, queremos validar la *actualización*, que es por lo que estamos llamando a `validatePost` con el contenido del modificador de la propiedad `$set` (como en `Posts.update({$set: {title: ..., url: ...}})`).
+Fíjate que el argumento `post` se refiere al post *existente*. En este caso, queremos validar la *actualización*, que es por lo que estamos llamando a `validatePost` con el contenido del modificador de la propiedad `$set` (como en `Posts.update({$set: {title: ..., url: ...}})`).
 
 Esto funciona porque `modifier.$set` contiene las mismas dos propiedades `title` y `url` que el objeto `post`. Por supuesto, esto quiere decir que cualquier actualización parcial que afecte solo a `title` o `url` fallará, pero en la práctica no debería ser una complicación.
 
 Te habrás dado cuenta de que esta es nuestra segunda llamada `deny`. Cuando añadimos múltiples llamadas `deny`, la operación fallará si uno de ellos devuelve `true`. En este caso, esto significa que el `update` solo será satisfactorio si estamos modificando el `title` y la `url`, y ninguna de ellas esté vacía.
 
-<%= commit "9-5", "Validar el contenido de la publicación al editar." %>
+<%= commit "9-5", "Validar el contenido del post al editar." %>

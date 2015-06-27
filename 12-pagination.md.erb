@@ -6,12 +6,12 @@ number: 12
 points: 10
 photoUrl: http://www.flickr.com/photos/ikewinski/8625379401/
 photoAuthor: Mike Lewinski
-contents: "Aprenderemos más sobre las suscripciones y cómo usarlas para controlar los datos.|Implementaremos la paginación de estilo infinito|Usaremos el paquete iron-router-progress para implementar una bonita barra de progreso al estilo iOS.|Crearemos una suscripción especial para tratar con los enlaces a las páginas de posts."
+contents: Aprenderemos más sobre las suscripciones y cómo usarlas para controlar los datos.|Implementaremos la paginación de estilo infinito|Usaremos el paquete iron-router-progress para implementar una bonita barra de progreso al estilo iOS.|Crearemos una suscripción especial para tratar con los enlaces a las páginas de posts.
 paragraphs: 67
 ---
 
 
-Nuestra aplicación va tomando forma y podemos esperar un gran éxito cuando salga al mercado.
+Nuestra aplicación va tomando forma y podemos esperar un gran éxito cuando todo el mundo la ventaja.
 
 Así que quizás debamos pensar un poco sobre cómo afectará al rendimiento el gran número de nuevos posts que vamos a recibir.
 
@@ -191,7 +191,9 @@ Router.route('/:postsLimit?', {
 <%= caption "lib/router.js" %>
 <%= highlight "9~14" %>
 
-Ahora que hemos establecido el contexto de datos a nivel de router podemos deshacernos del ayudante de plantilla `posts` del archivo `posts_list.js`. Y como hemos llamado `posts` al contexto de datos (igual que en el ayudante), ¡ni siquiera necesitamos tocar la plantilla `postsList`!
+Ahora que hemos establecido el contexto de datos a nivel de router podemos deshacernos del ayudante de plantilla `posts` del archivo `posts_list.js` borrando el contenido de este archivo.
+
+Y como hemos llamado `posts` al contexto de datos (igual que en el ayudante), ¡ni siquiera necesitamos tocar la plantilla `postsList`!
 
 Recapitulemos. Así es como ha quedado nuestro `router.js`:
 
@@ -321,11 +323,11 @@ Router.route('/:postsLimit?', {
 
 Vamos a verlo paso a paso. En primer lugar, creamos nuestro controlador extendiendo `RouteController`. A continuación, establecemos la propiedad `template` tal y como hicimos antes, y luego una nueva propiedad `increment`.
 
-A continuación, definimos una nueva función `limit` que devolverá el límite actual, y una función `findOptions` que devolverá un objeto con las opciones. Esto puede parecer un paso extra, pero vamos a hacer uso de él en el futuro.
+A continuación, definimos una nueva función `postsLimit` que devolverá el límite actual, y una función `findOptions` que devolverá un objeto con las opciones. Esto puede parecer un paso extra, pero vamos a hacer uso de él en el futuro.
 
 A continuación, definimos nuestras funciones `waitOn` y de `data` igual que antes, excepto que ahora usan la nueva función `findOptions`.
 
-Como nuestro controlador se llama `PostsListController` y nuestra ruta se llama `postsList`, Iron Router usará el controlador automáticamente. Así que solo necesitamos eliminar `waitOn` y `data` de la definicíon de la ruta (ya que es el controldor quien los gestiona ahora). Si necesitáramos utilizar un controlador con un nombre diferente, lo podemos hacer usando la opción `controller` (veremos un ejemplo de esto en el siguiente capítulo).
+Como nuestro controlador se llama `PostsListController` y nuestra ruta se llama `postsList`, Iron Router usará el controlador automáticamente. Así que sólo necesitamos eliminar `waitOn` y `data` de la definicíon de la ruta (ya que es el controldor quien los gestiona ahora). Si necesitáramos utilizar un controlador con un nombre diferente, lo podemos hacer usando la opción `controller` (veremos un ejemplo de esto en el siguiente capítulo).
 
 <%= commit "12-3", "postLists refactorizado en un controlador de rutas" %>
 
@@ -372,7 +374,7 @@ PostsListController = RouteController.extend({
 
 Echemos un vistazo en profundidad a este pequeño truco de magia que hemos puesto en el router. Recuerda que la ruta `postsList` (que se hereda del controlador `PostsListController` con el que estamos trabajando) toma un parámetro `postsLimit`.
 
-Cuando alimentamos `{postsLimit: this.limit() + this.increment}` a `this.route.path()`, le estamos diciendo a la ruta `postsList` que construya su propio path utilizando ese objeto JavaScript como contexto de datos.
+Cuando alimentamos `{postsLimit: this.postsLimit() + this.increment}` a `this.route.path()`, le estamos diciendo a la ruta `postsList` que construya su propio path utilizando ese objeto JavaScript como contexto de datos.
 
 En otras palabras, es exactamente lo mismo que usar el ayudante Spacebars `{{pathFor 'postsList'}}`, salvo que reemplazamos el `this` implícito por nuestro propio contexto de datos a medida.
 
@@ -384,7 +386,7 @@ Por otro lado, `this.posts` se refiere al cursor actual, de modo que `this.posts
 
 Así que lo que estamos diciendo es que si pedimos `n` posts y obtenemos `n`, seguiremos mostrando el botón "Load more". Pero si pedimos `n` y tenemos _menos_ de `n`, significa que hemos llegado al límite y deberíamos dejar de mostrarlo.
 
-Con todo esto, nuestro sistema falla en un caso: cuando el número de posts en nuestra base de datos es _exactamente_ `n`. Si eso ocurre, el cliente pedirá `n` posts y obtendrá `n` por lo que seguirá mostrando el botón "Load mores", sin darse cuenta de que ya no quedan más elementos.
+Con todo esto, nuestro sistema falla en un caso: cuando el número de posts en nuestra base de datos es _exactamente_ `n`. Si eso ocurre, el cliente pedirá `n` posts y obtendrá `n` por lo que seguirá mostrando el botón "Load more", sin darse cuenta de que ya no quedan más elementos.
 
 Lamentablemente, no hay soluciones sencillas para este problema, así que por ahora vamos a tener que conformarnos con esto.
 
@@ -418,7 +420,7 @@ La paginación funciona correctamente, pero tiene una peculiaridad algo molesta:
 
 Así que primero, tenemos que decirle a Iron Router que no espere (`waitOn`) la suscripción. En su lugar, definiremos nuestras suscripciones en el hook `subscriptions`.
 
-También estamos pasando una variable `ready` que hace referencia a `this.postsSub.ready` como parte de nuestro contexto de datos. Esto le dirá a la plantilla cuando la suscripción de los posts ha terminado de cargar.
+También estamos pasando una variable `ready` que hace referencia a `this.postsSub.ready` como parte de nuestro contexto de datos, que informará a la plantilla cuando se haya terminado de cargar la suscripción a los posts.
 
 ~~~js
 //...

@@ -6,7 +6,7 @@ number: 13
 points: 10
 photoUrl: http://www.flickr.com/photos/ikewinski/8561920811/
 photoAuthor: Mike Lewinski
-contents: "Construiremos un sistema que permita a los usuarios votar los posts.|Crearemos una nueva página con los más votados.|Aprenderemos cómo escribir un ayudante tipo Spacebars más general.|Aprenderemos un poco más sobre la seguridad de los datos en Meteor.|Cubriremos algunas consideraciones importantes acerca del rendimiento de MongoDB."
+contents: Construiremos un sistema que permita a los usuarios votar los posts.|Crearemos una nueva página con los más votados.|Aprenderemos cómo escribir un ayudante Spacebars más general.|Aprenderemos un poco más sobre la seguridad de los datos en Meteor.|Cubriremos algunas consideraciones importantes acerca del rendimiento de MongoDB.
 paragraphs: 49
 ---
 
@@ -280,7 +280,7 @@ Creamos el ayudante `upvotedClass` para cambiar la clase `.upvote` por `.upvotab
 Ahora nos damos cuenta que los posts con un solo voto están etiquetados como "1 votes", por lo que vamos a pararnos a pluralizar las etiquetas correctamente. La pluralización puede ser un proceso complicado, pero por ahora vamos a hacerlo de una manera bastante simple. Crearemos un nuevo ayudante Spacebars que podemos utilizar desde cualquier lugar:
 
 ~~~js
-UI.registerHelper('pluralize', function(n, thing) {
+Template.registerHelper('pluralize', function(n, thing) {
   // fairly stupid pluralizer
   if (n === 1) {
     return '1 ' + thing;
@@ -291,7 +291,7 @@ UI.registerHelper('pluralize', function(n, thing) {
 ~~~
 <%= caption "client/helpers/spacebars.js" %>
 
-Los ayudantes que hemos creado con anterioridad siempre han estado relacionados con la plantilla a la que se aplican. Pero usando `UI.registerHelper`, hemos creado un ayudante *global* que se puede utilizar dentro de cualquier plantilla:
+Los ayudantes que hemos creado con anterioridad siempre han estado relacionados con la plantilla a la que se aplican. Pero usando `Template.registerHelper`, hemos creado un ayudante *global* que se puede utilizar dentro de cualquier plantilla:
 
 ~~~html
 <template name="postItem">
@@ -471,37 +471,35 @@ Vamos a añadir los enlaces en la cabecera:
 ~~~html
 <template name="header">
   <nav class="navbar navbar-default" role="navigation">
-    <div class="container-fluid">
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navigation">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="{{pathFor 'home'}}">Microscope</a>
-      </div>
-      <div class="collapse navbar-collapse" id="navigation">
-        <ul class="nav navbar-nav">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navigation">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="{{pathFor 'home'}}">Microscope</a>
+    </div>
+    <div class="collapse navbar-collapse" id="navigation">
+      <ul class="nav navbar-nav">
+        <li>
+          <a href="{{pathFor 'newPosts'}}">New</a>
+        </li>
+        <li>
+          <a href="{{pathFor 'bestPosts'}}">Best</a>
+        </li>
+        {{#if currentUser}}
           <li>
-            <a href="{{pathFor 'newPosts'}}">New</a>
+            <a href="{{pathFor 'postSubmit'}}">Submit Post</a>
           </li>
-          <li>
-            <a href="{{pathFor 'bestPosts'}}">Best</a>
+          <li class="dropdown">
+            {{> notifications}}
           </li>
-          {{#if currentUser}}
-            <li>
-              <a href="{{pathFor 'postSubmit'}}">Submit Post</a>
-            </li>
-            <li class="dropdown">
-              {{> notifications}}
-            </li>
-          {{/if}}
-        </ul>
-        <ul class="nav navbar-nav navbar-right">
-          {{> loginButtons}}
-        </ul>
-      </div>
+        {{/if}}
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        {{> loginButtons}}
+      </ul>
     </div>
   </nav>
 </template>
@@ -522,7 +520,7 @@ Finalmente, también necesitamos actualizar el controlador de eventos para borra
     }
   }
 ~~~
-<%= caption "client/templates/posts_edit.js" %>
+<%= caption "client/templates/posts/posts_edit.js" %>
 <%= highlight "7" %>
 
 Con todo listo, ahora obtenemos lista de posts mejorada:
@@ -540,37 +538,35 @@ La razón por la que queremos permitir varias rutas es que tanto la ruta `home` 
 ~~~html
 <template name="header">
   <nav class="navbar navbar-default" role="navigation">
-    <div class="container-fluid">
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navigation">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="{{pathFor 'home'}}">Microscope</a>
-      </div>
-      <div class="collapse navbar-collapse" id="navigation">
-        <ul class="nav navbar-nav">
-          <li class="{{activeRouteClass 'home' 'newPosts'}}">
-            <a href="{{pathFor 'newPosts'}}">New</a>
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navigation">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="{{pathFor 'home'}}">Microscope</a>
+    </div>
+    <div class="collapse navbar-collapse" id="navigation">
+      <ul class="nav navbar-nav">
+        <li class="{{activeRouteClass 'home' 'newPosts'}}">
+          <a href="{{pathFor 'newPosts'}}">New</a>
+        </li>
+        <li class="{{activeRouteClass  'bestPosts'}}">
+          <a href="{{pathFor 'bestPosts'}}">Best</a>
+        </li>
+        {{#if currentUser}}
+          <li class="{{activeRouteClass 'postSubmit'}}">
+            <a href="{{pathFor 'postSubmit'}}">Submit Post</a>
           </li>
-          <li class="{{activeRouteClass  'bestPosts'}}">
-            <a href="{{pathFor 'bestPosts'}}">Best</a>
+          <li class="dropdown">
+            {{> notifications}}
           </li>
-          {{#if currentUser}}
-            <li class="{{activeRouteClass 'postSubmit'}}">
-              <a href="{{pathFor 'postSubmit'}}">Submit Post</a>
-            </li>
-            <li class="dropdown">
-              {{> notifications}}
-            </li>
-          {{/if}}
-        </ul>
-        <ul class="nav navbar-nav navbar-right">
-          {{> loginButtons}}
-        </ul>
-      </div>
+        {{/if}}
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        {{> loginButtons}}
+      </ul>
     </div>
   </nav>
 </template>

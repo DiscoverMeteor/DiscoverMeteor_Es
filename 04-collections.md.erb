@@ -6,7 +6,7 @@ number: 4
 points: 5
 photoUrl: http://www.flickr.com/photos/73449134@N04/8270793784/
 photoAuthor: Mike Lewinski
-contents: "Conoceremos la característica central de Meteor: las colecciones.|Comprenderemos cómo funciona la sincronización de datos en Meteor.|Integraremos las colecciones con las plantillas.|Convertiremos nuestro prototipo en una aplicación en tiempo real completamente funcional."
+contents: Conoceremos la característica central de Meteor: las colecciones.|Comprenderemos cómo funciona la sincronización de datos en Meteor.|Integraremos las colecciones con las plantillas.|Convertiremos nuestro prototipo en una aplicación en tiempo real completamente funcional!.
 paragraphs: 72
 ---
 
@@ -14,11 +14,11 @@ En el Capítulo uno hablamos sobre la característica central de Meteor: la sinc
 
 En este capítulo miraremos más de cerca todo esto y observaremos cómo funciona la tecnología que lo hace posible, las **Colecciones** Meteor.
 
-Una colección es una estructura de datos especial que se encarga de almacenar los datos de forma permanente, en una base de datos MongoDB en el servidor, y de la sincronización de datos con el navegador de cada usuario conectado en tiempo real.
+Una colección es una estructura de datos especial que se encarga de almacenar los datos de forma permanente, en una base de datos MongoDB en el servidor, y de la sincronización de datos en tiempo real con el navegador de cada usuario conectado.
 
-Queremos que nuestras publicaciones sean permanentes y compartidas entre los usuarios, así que vamos a empezar creando una colección llamada `Posts` para almacenarlas.
+Queremos que nuestros posts sean permanentes y los podamos compartir con otros usuarios, así que vamos a empezar creando una colección llamada `Posts` para podel almacenarlos.
 
-Las colecciones son el eje central de cualquier aplicación, así que nos aseguraremos de definirlas al principio por lo que las pondremos en el directorio `lib`. Si todavía no lo has hecho, crea un directorio llamado `collections/` dentro de `lib`, y crea un archivo llamado `posts.js`. Añade lo siguiente:
+Las colecciones son el eje central de cualquier aplicación, así que para asegurarnos de que se definen primero, las pondremos en el directorio `lib`. Si todavía no lo has hecho, crea un directorio llamado `collections/` dentro de `lib`, crea un archivo llamado `posts.js` y añade lo siguiente:
 
 ~~~js
 Posts = new Mongo.Collection('posts');
@@ -41,7 +41,7 @@ Las aplicaciones web tienen a su disposición básicamente tres formas de almace
 
 - **La memoria del navegador:** cosas como las variables JavaScript son almacenadas en la memoria del navegador, lo que implica que no son *permanentes*: son datos locales a la pestaña del navegador y desaparecerán tan pronto como la cierres.
 - **El almacén del navegador:** los navegadores también pueden almacenar datos de forma permanente usando cookies o [Local Storage](http://diveintohtml5.info/storage.html). Aunque estos datos sean permanentes de una sesión a otra, son *locales* al usuario actual (pero disponible entre las pestañas) y no se puede compartir de forma sencilla con otros usuarios.
-- **La base de datos del servidor:** el mejor lugar para los datos permanentes y que puedan estar disponibles para más de un usuario son las buenas y viejas bases de datos (Siendo MongoDB la solución por defecto para las aplicaciones Meteor).
+- **La base de datos del servidor:** el mejor lugar para almacenar datos de forma permanente para que puedan estar disponibles para más de un usuario es una base de datos (Siendo MongoDB la solución por defecto para las aplicaciones Meteor).
 
 Meteor hace uso de estas tres formas, y a veces sincroniza los datos de un lugar a otro (como veremos pronto). Dicho esto, la base de datos permanece como la fuente de datos “canónica“ que contiene la copia maestra de los datos.
 
@@ -51,13 +51,13 @@ El código dentro de las carpetas que no sean `client/` ni `server/` se ejecutar
 
 En el servidor, la colección tiene la tarea de hablar con la base de datos MongoDB y leer y escribir cualquier cambio. En este sentido, se puede comparar con una librería de base de datos estándar.
 
-En el cliente sin embargo, la colección es una copia de un *subconjunto* de la colección canónica real. La colección del lado del cliente se mantiene actualizada, de forma constante y (normalmente) trasparente con ese subconjunto de datos en tiempo real.
+En el cliente sin embargo, la colección es una copia de un *subconjunto* de la colección canónica. La colección del lado del cliente se mantiene actualizada, de forma constante y (normalmente) trasparente con ese subconjunto de datos en tiempo real.
 
 <% note do %>
 
 ### Consola vs. Consola vs. Consola
 
-En este capítulo hemos empezado a usar la **consola del navegador**, que no debemos confundir con la **terminal** o con la **shell de mongo**. A continuación, explicamos brevemente cada una de ellas.
+En este capítulo hemos empezado a usar la **consola del navegador**, que no debemos confundir con la **terminal**, con la **Shell de Meteor** o con la **Shell de Mongo**. A continuación, explicamos brevemente cada una de ellas.
 
 #### Terminal
 
@@ -77,9 +77,17 @@ En este capítulo hemos empezado a usar la **consola del navegador**, que no deb
 - Prompt: `❯`.
 - También se conoce como: JavaScript Console, DevTools Console
 
-#### Shell de Mongo
+#### La consola de Meteor
 
-<%= screenshot "mongo-shell", "La shell de Mongo" %>
+<%= screenshot "meteor-shell", "La consola de Meteor" %>
+
+- Se abre desde la Terminal con `meteor shell`.
+- Te da acceso directo al código de la parte del servidor de tu aplicación.
+- Prompt: `>`.
+
+#### La consola de Mongo
+
+<%= screenshot "mongo-shell", "La consola de Mongo" %>
 
 - Se abre desde la Terminal con `meteor mongo`.
 - Te da acceso directo a la base de datos de tu aplicación.
@@ -116,7 +124,7 @@ Y ya que estamos, también podemos obtener los logs de nuestra aplicación escri
 
 <% end %>
 
-La sintaxis de Mongo es familiar, ya que utiliza una interfaz JavaScript. No vamos a hacer ningún tipo de manipulación de datos adicional en la consola de Mongo, pero podemos echar un vistazo de vez en cuando solo para ver lo que hay allí.
+La sintaxis de Mongo es familiar, ya que utiliza una interfaz JavaScript. No vamos a hacer ningún tipo de manipulación de datos adicional en la consola de Mongo, pero podemos echar un vistazo de vez en cuando solo para ver lo que pasa por ahí.
 
 ### Colecciones en el lado del cliente
 
@@ -142,7 +150,7 @@ Mejor que explicarlo en detalle, vamos a verlo.
 
 Empezaremos abriendo dos ventanas del navegador, y accediendo a la consola en cada uno de ellos. A continuación, abrimos la consola de Mongo en la línea de comandos.
 
-En este punto, deberíamos ser capaces de encontrar el único documento que hemos creado antes en los tres contextos (Ten en cuenta que el *interfaz* de nuestra aplicación estará mostrando todavía los tres posts de prueba anteriores. Ignóralos por ahora).
+En este punto, deberíamos ser capaces de encontrar el único documento que hemos creado antes desde la consola de Mongo (ten en cuenta que el *interfaz* de nuestra aplicación estará mostrando todavía los tres posts de prueba anteriores. Ignóralos por ahora).
 
 ~~~bash
 > db.posts.find();
@@ -276,7 +284,7 @@ Template.postsList.helpers({
 
 En Meteor, `find()` devuelve un cursor que es una [fuente de datos reactiva](http://docs.meteor.com/#find). Cuando queramos usar los contenidos a los que apunta el cursor, podemos usar `fetch()` sobre él para trasformarlo en un array.
 
-Dentro de una aplicación, Meteor es lo suficientemente inteligente para saber cómo iterar sobre cursores sin tener que convertirlos de forma explícita en arrays. Por eso no veremos a menudo `fetch()` en el código Meteor (y por lo que no lo hemos usado en el ejemplo anterior).
+Dentro de una aplicación, Meteor es lo suficientemente inteligente para saber cómo iterar sobre cursores sin tener que convertirlos de forma explícita en arrays. Por eso no veremos a menudo `fetch()` en el código Meteor (y por eso no lo hemos usado en el ejemplo anterior).
 
 <% end %>
 
@@ -336,7 +344,7 @@ Meteor.publish('posts', function() {
 ~~~
 <%= caption "server/publications.js" %>
 
-En el cliente, hay que suscribirse a la publicación. Añadimos la siguiente línea a `main.js`:
+En el cliente, hay que *suscribirse* a la publicación. Añadimos la siguiente línea a `main.js`:
 
 ~~~js
 Meteor.subscribe('posts');

@@ -6,31 +6,35 @@ number: 14
 points: 10
 photoUrl: http://www.flickr.com/photos/ikewinski/8377615133/
 photoAuthor: Mike Lewinski
-contents: "Veremos lo que pasa entre bastidores cuando Meteor cambia un elemento del DOM.|Aprenderemos a animar la reordenación de posts.|Aprenderemos a animar la inserción de nuevos posts."
+contents: Veremos lo que pasa entre bastidores cuando Meteor intercambia dos elementos del DOM.|Aprenderemos a animar la reordenación de posts.|Aprenderemos a animar la inserción y borrado de posts|Aprenderemos a animar la transición entre dos páginas.
 paragraphs: 58
 ---
 
-<% note do %>
+Aunque contamos un sistema de votación en tiempo real, no tenemos una gran experiencia de usuario viendo la forma en la que los posts se mueven en la página principal. Usaremos animaciones para suavizar este problema.
 
-### ¿Obsoleto?
+### Introduciendo a los `_uihooks`
 
-Con las últimas mejoras introducidas en Meteor, tenemos que confesar este capítulo se ha quedado un poco obsoleto.
+Los `_uihooks` son una característica de Blaze relativamente nueva y poco documentada. Como su propio nombre indica, nos da acceso a acciones que podemos ejecutar cuando se insertan, eliminan o animan elementos.
 
-Estamos pensando en reescribirlo, una vez que las APIs se hayan estabilizado con la versión 1.0 de Meteor, por lo que entendemos que prefieras esperar hasta entonces.
+La lista completa de acciones es esta:
 
-<% end %>
+- `insertElement`: se llama cuando se inserta un elemento.
+- `moveElement`: se llama cuando un elemento cambia su posición.
+- `removeElement`: se llama cuando se elimina un elemento.
 
-Aunque tenemos un sistema de votación en tiempo real, no tenemos una gran experiencia de usuario en la forma en la que los posts se mueven en la página principal. Usaremos animaciones para suavizar este problema.
+Una vez definidas, estas acciones *reemplazarán* el comportamiento que Meteor tiene por defecto. En otras palabras, en vez de insertar, mover o eliminar elementos, Meteor usará el comportamiento que hayamos definido – ¡y será cosa nuestra que ese comportamiento sea correcto!
 
 ### Meteor y el DOM
 
 Antes de poder empezar con la parte divertida (hacer que se muevan las cosas), tenemos que entender cómo interactúa Meteor con el DOM (Document Object Model - la colección de elementos HTML que componen el contenido de una página).
 
-El punto crucial a tener en cuenta es que los elementos del DOM realmente no se pueden "mover". Sin embargo, pueden ser borrados y creados (esto es una limitación del propio DOM, no de Meteor). Así que para crear la ilusión de que los elementos A y B se intercambian, Meteor tendrá que eliminar B e insertar una nueva copia (B') antes del elemento A.
+Lo más importante que hay que tener en cuenta es que los elementos del DOM realmente no se pueden "mover". Sólo se pueden añadir y eliminar (esto es una limitación del propio DOM, no de Meteor). Así que para crear la ilusión de que los elementos A y B se intercambian, Meteor tendrá que eliminar B e insertar una nueva copia (B') antes del elemento A.
 
-Esto hace de la animación algo complicado ya que no podemos, simplemente mover B a una nueva posición, porque B habrá desaparecido tan pronto como Meteor redibuje de nuevo la página (que, como sabemos, sucede instantáneamente gracias a la reactividad). Pero no te preocupes, encontraremos una forma de hacerlo.
+Esto hace de la animación algo complicado ya que, no podemos simplemente mover B a una nueva posición, porque B habrá desaparecido tan pronto como Meteor redibuje de nuevo la página (que, como sabemos, sucede instantáneamente gracias a la reactividad). Pero no te preocupes, encontraremos la manera de hacerlo.
 
 ### El corredor ruso
+
+Pero, primero, una historia.
 
 En 1980, en pleno apogeo de la guerra fría, los Juegos Olímpicos se celebraban en Moscú, y los soviéticos estaban decididos a ganar la carrera de 100 metros a cualquier precio. Así que un grupo de brillantes científicos soviéticos equiparon a uno de sus atletas con un teletransportador, y en cuanto sonó el disparo de salida, el corredor fue trasladado de inmediato a la línea de meta.
 
@@ -42,7 +46,7 @@ Mis fuentes históricas no son muy fiables, por lo que debes tomar esa historia 
 
 Cuando Meteor recibe una actualización y modifica reactivamente el DOM, nuestro post se teletransporta inmediatamente a su posición final, al igual que el corredor soviético. Pero como en los Juegos Olímpicos, en nuestra aplicación, podemos tener alrededor cosas que no se teletransportan. Así que tendremos que teletransportarlo a la "casilla de salida" y hacerlo "correr" (en otras palabras, animarlo) de nuevo hasta la línea de meta.
 
-Para cambiar A y B (situado en las posiciones p1 y p2, respectivamente), tendremos que seguir los siguientes pasos:
+Para intercambiar los elementos A y B (situados en las posiciones p1 y p2, respectivamente), tendremos que seguir los siguientes pasos:
 
 1. Borrar B
 2. Crear B' antes de A en el DOM
@@ -57,23 +61,7 @@ El siguiente diagrama explica estos pasos con más detalle:
 
 De nuevo, en los pasos 3 y 4 no estamos *animando* A y B' hasta sus posiciones sino que las "teletransportamos" allí al instante. Dado que el cambio es instantáneo, parecerá que B no se ha borrado, pero ya tenemos posicionados correctamente los elementos para que puedan ser animados hasta su nueva posición.
 
-Afortunadamente, Meteor se ocupa de los pasos 1 y 2, así que solo tendremos que preocuparnos de los pasos 3 al 6.
-
-Por otra parte, en los pasos 5 y 6 todo lo que estamos haciendo es moviendo los elementos a su lugar correcto. Así que la única parte que realmente necesita de nuestra atención son los pasos 3 y 4, es decir, el envío de los elementos al punto de inicio de la animación.
-
-### Control del tiempo
-
-Hasta ahora hemos hablado de cómo animar nuestros posts, pero no de cuándo hay que animarlos.
-
-Para los pasos 3 y 4, la respuesta será: cuándo cambie la propiedad `_rank` del post (de la que depende la ordenación).
-
-Los pasos 5 y 6 son un poco más complicados. Míralo así: si le dices a un robot muy inteligente que se mueva al norte durante 5 minutos, y luego al sur otros 5, probablemente sabrá deducir que va a terminar en el mismo sitio, y que puede ahorrar energía y hacer bien el trabajo sin moverse.
-
-Así que si quieres que el robot ande durante 10 minutos, tienes que esperar hasta que recorra los 5 primeros y, a continuación, decirle que vuelva.
-
-El navegador funciona de una manera similar: si le damos dos instrucciones a la vez, las nuevas coordenadas reemplazarán las viejas y no pasaría nada. En otras palabras, el navegador debe registrar los cambios de posición como puntos separados en el tiempo, de lo contrario no será capaz de animarlos.
-
-Meteor no dispone de un callback para manejar esto pero lo podemos simular utilizando `Meteor.setTimeout()`, que simplemente toma una función y aplaza su ejecución unos cuantos milisegundos.
+Afortunadamente, Meteor se ocupa de los pasos 1 y 2 y re-implementarlos será una tarea fácil. En los pasos 5 y 6, lo único que hacemos es mover los elementos al lugar adecuado. Así que, sólo tenemos que preocuparnos de los pasos 3 y 4, enviar los elementos al punto de arranque de la animación.
 
 ### Posicionamiento CSS
 
@@ -85,235 +73,289 @@ Por otra parte, el posicionamiento **relativo**, implica que el elemento está f
 
 El posicionamiento **absoluto** va un paso más allá y permite dar coordenadas x/y a un elemento en relación al **documento** o **al primer elemento "padre" posicionado de forma absoluta o relativa**.
 
-Nosotros vamos a usar posicionamiento relativo para animar los posts. Ya disponemos del CSS necesario en `client/stylesheets/style.css`, pero si necesitas añadirlo, este es el código para la hoja de estilo:
+Nosotros vamos a usar posicionamiento relativo en nuestras animaciones. Ya disponemos del CSS necesario en `client/stylesheets/style.css`, pero si necesitas añadirlo, este es el código para la hoja de estilo:
 
 ~~~css
 .post{
   position:relative;
+}
+.post.animate{
   transition:all 300ms 0ms ease-in;
 }
 ~~~
 <%= caption "client/stylesheets/style.css" %>
 
+Ten en cuenta que sólo animamos los posts con la clase CSS `.animate`. De esta forma, podemos añadir y quitar esa clase para controlar cuándo deben producirse o no las animaciones.
+
 Esto facilita muchos los pasos 5 y 6: todo lo que necesitamos hacer es configurar la parte `top` a `0px` (su valor predeterminado) y nuestros posts se deslizarán de nuevo a su posición "normal".
 
-Esto significa que nuestro único problema es averiguar desde dónde animar los posts (pasos 3 y 4) con respecto a su nueva posición. En otras palabras, en qué posición hay que ponerlo. Pero, esto no es tan difícil: el desplazamiento correcto es la posición anterior restada a la nueva.
+Esto significa que nuestro único problema es averiguar desde dónde animar los posts (pasos 3 y 4) con respecto a su nueva posición. En otras palabras, en qué posición hay que ponerlo. Pero, esto no es tan difícil: el desplazamiento correcto (offset) es la posición anterior restada a la nueva.
 
-<% note do %>
+### implementando los _uihooks`
 
-### Position:absolute
+Ahora que entendemos los diferentes factores entran en juego en la animación de una lista de elementos, estamos listos para empezar a aplicar la animación. Lo primero que necesitaremos para envolver nuestra lista de posts en un nuevo contenedor `.wrapper`:
 
-Podríamos usar `position:absolute` para posicionar los elementos en relación a un elemento padre. Sin embargo, nos encontraremos con una gran desventaja puesto que los elementos con posición absoluta se eliminarán completamente de la página, causando el colapso de su contenedor padre como si este estuviera vacío.
-
-Esto a su vez significa que necesitaríamos establecer la altura del contenedor desde JavaScript, en vez de dejar que el navegador mueva los elementos de forma natural. En consecuencia, siempre que sea posible es mejor usar posicionamiento relativo.
-
-<% end %>
-
-### Desafío total
-
-Todavía queda un problema por resolver. Mientras que el elemento A persiste en el DOM y de este modo puede "recordar" su posición anterior, el elemento B experimenta una reencarnación y vuelve a la vida como B', mientras se limpia de la memoria.
-
-Así que lo que vamos a hacer es averiguar la posición actual de un post, y luego guardar esa posición en una **colección local**. Una colección local funciona igual que una colección normal, excepo que *sólo* existe en la memoria del navegador (no en el servidor). De esta forma, aun cuando se haya eliminado un post y recreado de nuevo, todavía seremos capaces de saber desde dónde se supone que debemos animarlo.
-
-### Clasificando posts
-
-Hemos estado hablando de clasificar posts, pero esta "clasificación" en realidad no existe como una propiedad en los posts, ya que es solo una consecuencia del orden en el que se enumeran los posts en nuestra colección. Si queremos ser capaces de animar los mensajes según su clasificación, vamos a necesitar invocarla de alguna manera.
-
-Ten en cuenta que no podemos meter la propiedad `rank` (clasificación) en la propia base de datos, ya que es una propiedad que depende de cómo se ordenan los posts (es decir, un post puede ser el primero al ordenar por fecha, pero el tercero al ordenar por puntos).
-
-De forma ideal nos gustaría poner esta propiedad en las colecciones `newPosts` y `topPosts`, pero Meteor no ofrece un mecanismo conveniente para hacerlo todavía.
-
-Así que, en vez de eso, insertaremos `rank` en el último paso posible, el gestor de plantillas `postList`:
-
-~~~js
-Template.postsList.helpers({
-  postsWithRank: function() {
-    return this.posts.map(function(post, index, cursor) {
-      post._rank = index;
-      return post;
-    });
-  }
-});
-~~~
-<%= caption "/client/templates/posts/posts_list.js" %>
-<%= highlight "2~8" %>
-
-En vez de devolver el cursor `Posts.find({}, {sort: {submitted: -1}, limit: postsHandle.limit()})` como en los otros ayudantes, `postsWithRank` coge el cursor y le añade la propiedad `_rank` a cada uno de sus documentos.
-
-No olvidemos actualizar también la plantilla `postsList`:
-
-~~~html
+```html
 <template name="postsList">
-  <div class="posts">
-    {{#each postsWithRank}}
-      {{> postItem}}
-    {{/each}}
-
+  <div class="posts page">
+    <div class="wrapper">
+      {{#each posts}}
+        {{> postItem}}
+      {{/each}}
+    </div>
+    
     {{#if nextPath}}
       <a class="load-more" href="{{nextPath}}">Load more</a>
+    {{else}}
+      {{#unless ready}}
+        {{> spinner}}
+      {{/unless}}
     {{/if}}
   </div>
 </template>
-~~~
-<%= caption "/client/templates/posts/posts_list.html" %>
-
-<%= highlight "3" %>
-
-### Uniéndolo todo
-
-Dado que nuestra animación tendrá efecto en las clases y atributos CSS del DOM, añadiremos el ayudante dinámico `{{attributes}}` a la plantilla `postItem`:
-
-```html
-<template name="postItem">
-  <div class="post" {{attributes}}>
-
-  //..
-
-</template>
 ```
-<%= caption "/client/templates/posts/post_item.html" %>
-<%= highlight "2" %>
+<%= caption "client/templates/posts/posts_list.html" %>
+<%= highlight "3,7" %>
 
-Usando el ayudante `{{attributes}}` de esta manera, habilitamos además una característica escondida de Spacebars: cualquier propiedad devuelta por los atributos del objeto se mapea en los atributos HTML del elemento del DOM (como `class`, `style`, etc.)
+Antes de continuar, vamos a revisar cuál es el comportamiento actual *sin* animaciones:
 
-Vamos a ponerlo todo junto creando el ayudante `attributes`:
+<%= gifscreenshot "14-1", "La lista de posts no-animada." %>
 
-~~~js
-var POST_HEIGHT = 80;
-var Positions = new Mongo.Collection(null);
+Vamos a por los `_uihooks`. Dentro del callback `onRendered` de la plantilla, seleccionamos el div `.wrapper` , y definimos la acción `moveElement`. 
 
-Template.postItem.helpers({
-
-  //..
-
-  },
-  attributes: function() {
-    var post = _.extend({}, Positions.findOne({postId: this._id}), this);
-    var newPosition = post._rank * POST_HEIGHT;
-    var attributes = {};
-
-    if (! _.isUndefined(post.position)) {
-      var offset = post.position - newPosition;
-      attributes.style = "top: " + offset + "px";
-      if (offset === 0)
-        attributes.class = "post animate"
+```js
+Template.postsList.onRendered(function () {
+  this.find('.wrapper')._uihooks = {
+    moveElement: function (node, next) {
+      // do nothing for now
     }
-
-    Meteor.setTimeout(function() {
-      Positions.upsert({postId: post._id}, {$set: {position: newPosition}})
-    });
-
-    return attributes;
   }
 });
+```
+<%= caption "client/templates/posts/posts_list.js" %>
+<%= highlight "1~7" %>
 
-//..
-~~~
-<%= caption "/client/templates/posts/post_item.js" %>
-<%= highlight "1~2, 8~26" %>
+Cada vez que cambie la posición de un elemento, *en vez de* obtener el comportamiento predeterminado de Blaze, Meteor llamará a la función `moveElement`. Y, dado que la función está vacía, *no va a pasar nada*.
 
-Primero establecemos la altura de cada elemento del DOM, en otras palabras, nuestros divs `.post`. Esto presenta el inconveniente obvio de que cualquier cambio en esta altura (por ejemplo, un título de una entrada que ocupe dos líneas) romperá toda nuestra lógica de animación. Pero por el bien de mantener las cosas simples, por ahora, vamos a suponer que todos los posts tendrán exactamente 80 píxeles de alto.
+Adelante, probemos: abre la vista de los “Mejores“ posts y vota unos cuantos: el orden no cambiará hasta que no fuerces un re-render (ya sea volviendo a cargar la página o moviéndote entre distintas rutas).
 
-A continuación, declaramos una colección local llamada `Positions`. Ten en cuenta que pasar `null` como argumento permite a Meteor saber que se trata de una local (en otras palabras, solo para el cliente).
+<%= gifscreenshot "14-2", "Un callback moveElement vacío: no ocurre nada" %>
 
-Ahora estamos listos para construir nuestro ayudante `attributes`.
+Hemos comprobado que los `_uihooks` funcionan. ¡Ahora vamos a hacer que animen los posts!
+
+### Animando los posts a través del reordenamiento
+
+La acción `moveElement` toma dos argumentos: `node` y `next`. 
+
+- `node` es el elemento que se está moviendo a una nueva posición en el DOM. 
+- `next` es el elemento que hay justo *después* de la nueva posición a la que estamos moviendo `node`.
+
+Sabiendo esto, podemos definir el proceso de animación (si necesitas refrescar la memoria, no dudes en volver al ejemplo del "Corredor Ruso"). Cuando detectamos un nuevo cambio en la posición de un elemento, tendremos que hacer lo siguiente:
+
+1. Insertar `node` antes de `next` (en otras palabras, establecer el comportamieento por defecto, como si no hubiéramos definido la acción `moveElement`).
+2. Mover `node` a su posición original.
+3. MOveremos todos los elementos que hay entre `node` y `next` para hacer sitio a `node`.
+4. Animaremos todos los elementos hasta su posición original.
+
+Para hacer todos esto usaremos la magia de [jQuery](http://jquery.com), de lejos, la mejor librería de manipulación del DOM que existe. jQuery está fuera del alcance de este libro, pero vamos a ver rápidamente los métodos que vamos a usar:
+
+- Con [`$()`](http://api.jquery.com/jQuery/) convertimos cualquier elemento del DOM en un objeto jQuery.
+- [`offset()`](http://api.jquery.com/offset/) recupera la posición de un elemento en relación *al documento*, y devuelve un objeto que contiene las propiedades `top` y `left`.
+- Con [`outerHeight()`](http://api.jquery.com/outerHeight/) obtenemos la altura “exterior” (incluyendo el padding y, opcionalmente, el margin) de un elemento.
+- Con [`nextUntil(selector)`](http://api.jquery.com/nextUntil/) obtenemos todos los elementos que hay después del elemento seleccionado con el `selector`, excepto éste último.
+- Con [`insertBefore(selector)`](http://api.jquery.com/insertBefore/) insertamos un elemento antes del que seleccionamos con el `selector`. 
+- Con [`removeClass(class)`](http://api.jquery.com/removeClass/) eliminamos la clase CSS `class`, si está presente en el elemento.
+- Con [`css(propertyName, propertyValue)`](http://api.jquery.com/css/) establecemos el valor `propertyValue` para la la propiedad `propertyName`.
+- Con [`height()`](http://api.jquery.com/height/) obtenemos la altura de un elemento. 
+- Con [`addClass(class)`](http://api.jquery.com/addClass/) añadimos la clase `class` a un elemento.
+
+```js
+Template.postsList.onRendered(function () {
+  this.find('.wrapper')._uihooks = {
+    moveElement: function (node, next) {
+      var $node = $(node), $next = $(next);
+      var oldTop = $node.offset().top;
+      var height = $node.outerHeight(true);
+      
+      // find all the elements between next and node
+      var $inBetween = $next.nextUntil(node);
+      if ($inBetween.length === 0)
+        $inBetween = $node.nextUntil(next);
+      
+      // now put node in place
+      $node.insertBefore(next);
+      
+      // measure new top
+      var newTop = $node.offset().top;
+      
+      // move node *back* to where it was before
+      $node
+        .removeClass('animate')
+        .css('top', oldTop - newTop);
+      
+      // push every other element down (or up) to put them back
+      $inBetween
+        .removeClass('animate')
+        .css('top', oldTop < newTop ? height : -1 * height)
+        
+      
+      // force a redraw
+      $node.offset();
+      
+      // reset everything to 0, animated
+      $node.addClass('animate').css('top', 0);
+      $inBetween.addClass('animate').css('top', 0);
+    }
+  }
+});
+```
+<%= caption "client/templates/posts/posts_list.js" %>
+
+Algunas notas:
+
+- Calculamos la altura de `$node` para saber cuánto debemos mover los elementos `$inBetween`. Y usamos `outerHeight(true)` para incluir margen y padding en el cálculo.
+- No sabemos si `next` va antes o después de `node` así que comprobamos las dos configuraciones cuando definimos `$inBetween`.
+- Para cambiar los elementos de “teletransportados” a “animados”, simplemente añadimos o quitamos la clase `animate` (la animación definida en el código CSS de la aplicación). 
+- Dado que usamos posicionamiento relativo, siempre podemos poner a 0 la propiedad `top` del elemento para devolverlo a la posición dónde se supone que tiene que ir. 
 
 <% note do %>
 
-### La lista de ejecuciones
+### Forzando el redibujado
 
-A menudo, puede ser difícil saber cuándo se ejecuta un trozo de código reactivo. Así que echemos una mirada más profunda al ayudante `attributes`.
+Te estarás preguntando para qué es la línea `$node.offset()`. ¿Para qué obtenemos la posición de `$node` is no vamos a hacer nada con ella?
 
-Como cada ayudante, se ejecutará una vez cuando la plantilla se representa por primera vez. Debido a su dependencia de la propiedad `_rank`, se ejecutará también cada vez que cambie la clasificación de un post. Y, por último, su dependencia de la colección `Positions` significa que también va a ejecutarse cada vez que el elemento en cuestión se modifica.
+Míralo así: si le dices a un robot muy inteligente que se mueva al norte 5 kilómetros, y luego al sur otros 5, probablemente sabrá deducir que va a terminar en el mismo sitio, y que puede ahorrar energía y hacer bien el trabajo sin moverse.
 
-Esto significa que el ayudante se ejecutará dos o tres veces si cambian varias cosas. Esto puede parecer un desperdicio en un primer momento, pero así funciona la reactividad. Una vez que te acostumbras, acaba convirtiéndose en otra forma de pensar en el código.
+Así que si quieres que el robot ande 10 kilómetros, le diremos que mida sus coordenadas a los 5 kilómetros, antes de que de la vuelta.
+
+El navegador funciona de una manera similar: si le damos las instrucciones `css('top', oldTop - newTop)` y `css('top', 0)` a la vez, las nuevas coordenadas reemplazarán las viejas y no pasará nada. Si queremos ver la animación, debemos forzar al navegador a redibujar el elemento después de moverlo la primera vez.
+
+Una forma sencilla de hacerlo es pedirle al navegador el `offset` del elemento.
 
 <% end %>
 
-### El ayudante `attributes`
+Vamos a probar de nuevo. Volvamos a la vista “Best” y votemos unos posts: ¡Deberías verlos moviéndose suavemente hacia arriba y hacia abajo como en un ballet!
 
-En primer lugar, buscamos la posición de nuestro post en la colección `Positions` y extendemos `this` (que en este ayudante se corresponde con el post actual) con el resultado de nuestra consulta. A continuación, utilizamos la propiedad `_rank` para averiguar la nueva posición del elemento en el DOM con respecto a la parte superior de la página.
+<%= gifscreenshot "14-3", "Animated reordering" %>
 
-Ahora tenemos que gestionar dos casos distintos: o el ayudante está corriendo porque la plantilla se está representando (caso A), o se está ejecutando de forma reactiva porque ha cambiado una propiedad (caso B).
+<%= commit "14-1", "Added post reordering animation." %>
 
-Sólo queremos animar el elemento en el caso B, por lo que nos aseguramos de que `post.position` está definido (en breve veremos *cómo* está definido).
+### Aparecer y desaparecer
 
-Además, el caso B incluye dos subcasos, B1 y B2: o estamos *teletransportando* el elemento del DOM de nuevo a los "tacos de salida" (su posición anterior), o estamos *animándolo* desde su posición anterior a su nueva posición.
+Ahora que ya tenemos resuelta la, más complicada reordenación, animar las inserciones y eliminaciones va ser muy sencillo.
 
-Aquí es donde entra en juego la variable `offset`. Dado que estamos utilizando posicionamiento *relativo*, vamos a querer averiguar dónde enviar el elemento *en relación* a su posición actual. Esto significa restar la nueva posición de la anterior.
+Primero, haremos aparecer nuevos posts (esta vez, por simplicidad, usaremos animaciones JavaScript):
 
-Para saber si nos encontramos en el caso B1 o en el B2, podemos mirar el `offset `: si el `offset` es diferente a 0, significa que estamos *moviendo* el elemento *desde* su origen. Por otro lado, si el `offset` es igual a 0, significa que estamos *animando* el elemento *de nuevo* hasta su origen de coordenadas, y podemos añadir la clase `animate` al elemento, aplicando así la transición.
-
-### El tiempo de espera
-
-Las tres situaciones (A, B1, y B2) se activan de forma reactiva cuando cambian ciertas propiedades. En este caso, la función `setTimeout` desencadena la reevaluación del contexto reactivo mediante la modificación de la colección `Positions`.
-
-Así que cuando un usuario carga la página por primera vez, todo el flujo de reactividad es algo como esto:
-
-- El ayudante `attributes` se ejecuta por primera vez.
-- `post.position` no está definido **(A)**.
-- Se ejecuta `setTimeout` definiendo `post.position`.
-- El ayudante `attributes` se ejecuta de nuevo de manera reactiva.
-- No ha habido ningún movimiento, por lo el `offset` va de 0 a 0 (sin animación visible) **(B2)**.
-
-Y esto es lo que sucede cuando se detecta un upvote:
-
-- Se modifica `_rank`, lo que provoca una reevaluación del ayudante `attributes`.
-- Se define `post.position` **(B)**.
-- El `offset` no es igual a 0, por lo que no hay animación **(B1)**
-- Se ejecuta `setTimeout`, redefiniendo `post.position`.
-- El ayudante `attributes` se ejecuta de manera reactiva.
-- El `offset` vuelve a 0 (con animación) **(B2)**.
-
-Ahora abre el sitio y empieza a votar. ¡Deberías ver mensajes moviéndose suavemente hacia arriba y hacia abajo elegantemente como en un ballet!
-
-<%= commit "14-1", "Añadida la animación de los posts al reordenarse." %>
-
-### Animando los nuevos posts
-
-Nuestros posts se reordenan bien, pero todavía no tenemos una animación para los "nuevos posts". En lugar de que simplemente aparezcan en la parte superior de la lista, vamos a hacer que se introduzcan suavemente.
-
-~~~js
-//..
-
-attributes: function() {
-  var post = _.extend({}, Positions.findOne({postId: this._id}), this);
-  var newPosition = post._rank * POST_HEIGHT;
-  var attributes = {};
-
-  if (_.isUndefined(post.position)) {
-    attributes.class = 'post invisible';
-  } else {
-    var delta = post.position - newPosition;
-    attributes.style = "top: " + delta + "px";
-    if (delta === 0)
-      attributes.class = "post animate"
+```js
+Template.postsList.onRendered(function () {
+  this.find('.wrapper')._uihooks = {
+    insertElement: function (node, next) {
+      $(node)
+        .hide()
+        .insertBefore(next)
+        .fadeIn();
+    },
+    moveElement: function (node, next) {
+      //...
+    }
   }
+});
+```
+<%= caption "client/templates/posts/posts_list.js" %>
+<%= highlight "3~7" %>
 
-  Meteor.setTimeout(function() {
-    Positions.upsert({postId: post._id}, {$set: {position: newPosition}})
-  });
+Para ver el resultado, podemos probar a insertar un post vía consola:
 
-  return attributes;
+```js
+Meteor.call('postInsert', {url: 'http://apple.com', title: 'Testing Animations'})
+```
+
+<%= gifscreenshot "14-4", "Fading in new posts" %>
+
+Y ahora, haremos desaparecer los posts eliminados:
+
+```js
+Template.postsList.onRendered(function () {
+  this.find('.wrapper')._uihooks = {
+    insertElement: function (node, next) {
+      $(node)
+        .hide()
+        .insertBefore(next)
+        .fadeIn();
+    },
+    moveElement: function (node, next) {
+      //...
+    },
+    removeElement: function(node) {
+      $(node).fadeOut(function() {
+        $(this).remove();
+      });
+    }
+  }
+});
+```
+<%= caption "client/templates/posts/posts_list.js" %>
+<%= highlight "12~16" %>
+
+De nuevo, para ver el efecto, prueba a eliminar algún post desde la consola (`Posts.remove('algunPostId')`).
+
+<%= gifscreenshot "14-5", "Fading out deleted posts" %>
+
+<%= commit "14-2", "Fade items in when they are drawn." %>
+
+### Transiciones entre páginas
+
+Hemos creado animaciones para elementos *dentro* de una página. Pero, ¿qué pasa si queremos animar las transiciones entre páginas?
+
+Las transiciones entre páginas son trabajo del Iron Router. Haces click en un enlace y se reemplaza el contenido del ayudante `{{> yield}}` en `layout.html`
+
+Ocurre que, como cuando reemplazamos el comportamiento de Blaze para la lista de posts, ¡podemos hacer los mismo para el elemento `{{> yield}}` y añadirle un efecto de transición entre rutas!
+
+Si queremos animar la entrada y salida entre dos páginas, debemos asegurarnos de que se muestran una por encima de la otra. Lo hacemos usando la propiedad `position:absolute` en el contenedor `.page` que envuelve a todas las plantillas de páginas.
+
+Piensa que no queremos que las páginas estén posicionadas de forma absoluta, porque de esta forma, se solaparían con la cabecera de la app. Así que establecemos la propiedad `position:relative` en el div `#main` que las contiene, de forma que el `position:absolute` de `.page` tome su origen desde `#main`.
+
+Para ahorrar tiempo, hemos añadido el código necesario a `style.css`:
+
+```css
+//...
+
+#main{
+  position: relative;
+}
+.page{
+  position: absolute;
+  top: 0px;
+  width: 100%;
 }
 
-//..
-~~~
-<%= caption "/client/templates/posts/post_item.js" %>
-<%= highlight "8~10" %>
+//...
+```
+<%= caption "client/stylesheets/style.css" %>
 
-Lo que estamos haciendo aquí es aislar el caso **(A)** y añadir la clase CSS `invisible` para el elemento. Cuando se vuelvan a ejecutar los ayudantes de forma reactiva y el elemento obtenga la clase `animate` en su lugar, se animará la diferencia en la opacidad y hará aparecer suavemente el elemento.
+Es el momento de añadir el código para la transiciones entre páginas. Nos debe resultar familiar, puesto que es exactamente el mismo que para las inserciones y eliminaciones de posts:
 
-<%= commit "14-2", "Hacer aparecer los posts cuando se introducen." %>
+```js
+Template.layout.onRendered(function() {
+  this.find('#main')._uihooks = {
+    insertElement: function(node, next) {
+      $(node)
+        .hide()
+        .insertBefore(next)
+        .fadeIn();
+    },
+    removeElement: function(node) {
+      $(node).fadeOut(function() {
+        $(this).remove();
+      });
+    }
+  }
+});
+```
+<%= caption "client/templates/application/layout.js" %>
 
-<% note do %>
+<%= gifscreenshot "14-6", "Transitioning in-between pages with a fade" %>
 
-### CSS y JavaScript
+<%= commit "14-3", "Transition between pages by fading." %>
 
-Te habrás dado cuenta de que estamos usando la clase CSS `.invisible` para activar la animación en lugar de animar la propiedad de `opacity` directamente como hicimos para `top`. Esto se debe a que para `top`, necesitábamos animar la propiedad a un valor específico que depende de los datos de la instancia actual.
-
-Pero aquí solo queremos mostrar y ocultar un elemento independiente de sus datos. Y como es una buena idea mantener el CSS fuera de JavaScript en la medida de lo posible, aquí solo agregamos y eliminamos la clase, y especificamos los detalles de la animación en nuestra hoja de estilos.
-
-<% end %>
-
-Por fin deberíamos tener el comportamiento que buscábamos. Carga la aplicación y ¡juega con ella!. También merece la pena jugar con la clase `.post.animated` para ver si se pueden aplicar otras transiciones. Sugerencia: [las funciones de aceleración CSS](http://matthewlein.com/ceaser/) ¡son un buen lugar para empezar!
+Hemos visto unos pocos patrones para animar elementos en nuestra aplicación Meteor. Aunque no es una lista exhaustiva, con suerte, nos aportará una base sobre la que construir transiciones más elaboradas.

@@ -6,17 +6,19 @@ number: 2
 points: 1
 photoUrl: http://www.flickr.com/photos/ikewinski/9511230392/
 photoAuthor: Mike Lewinski
-contents: "Instalaremos Meteor y Meteorite.|Conoceremos los 5 tipos de paquetes que maneja Meteor.|Estableceremos la estructura de ficheros de nuestra aplicación."
+contents: "Instalaremos Meteor.|Conoceremos los 5 tipos de paquetes que maneja Meteor.|Estableceremos la estructura de ficheros de nuestra aplicación."
 paragraphs: 49
 ---
 
 Las primeras impresiones son las que cuentan. La instalación de Meteor debería ser muy sencilla y, en la mayoría de los casos, sólo cuesta 5 minutos ponerlo en marcha.
 
-Podemos empezar instalando Meteor de la forma más sencilla con el siguiente comando desde la consola:
+Para empezar, si estamos usando Mac OS o GNU/Linux, podemos instalar Meteor con el siguiente comando desde la consola:
 
 ~~~bash
 curl https://install.meteor.com | sh
 ~~~
+
+Si estás usando Windows, echa un vistazo a la guia oficial de instalación: [install instructions](https://www.meteor.com/install) en la web de Meteor. 
 
 Se instalará el ejecutable `meteor` en nuestro sistema y lo dejará listo para empezar a usar Meteor.
 
@@ -24,9 +26,9 @@ Se instalará el ejecutable `meteor` en nuestro sistema y lo dejará listo para 
 
 ### *Sin* instalar Meteor
 
-Si no podemos (o no queremos) instalar Meteor localmente, recomendamos usar [Nitrous.io](http://nitrous.io/).
+Si no podemos (o no queremos) instalar Meteor de forma local, recomendamos usar [Nitrous.io](http://nitrous.io/).
 
-Nitrous.io es un servicio que te permite ejecutar aplicaciones y editar el código directamente en tu navegador, nosotros hemos escrito una breve guía para ayudarte a ponerte en marcha.
+Nitrous.io es un servicio que te permite ejecutar aplicaciones y editar el código directamente en tu navegador, y hemos escrito una breve guía para ayudarte a ponerte en marcha.
 
 Sólo tienes que seguir [esta guía](https://www.discovermeteor.com/blog/meteor-nitrous) hasta completar la sección "Installing Meteor", y luego seguir con este capítulo a partir de la sección "Crear y ejecutar una aplicación".
 
@@ -40,7 +42,7 @@ Ahora que tenemos instalado Meteor, vamos a crear nuestra aplicación. Para ello
 meteor create microscope
 ~~~
 
-Este comando descarga Meteor (si no está instalado), y crea un proyecto básico listo para usar. Cuando termina, deberíamos tener un directorio `microscope/`, que contiene lo siguiente:
+Este comando crea un proyecto básico listo para usar. Cuando termina, deberíamos ver un directorio llamado `microscope/`, que contiene lo siguiente:
 
 ~~~bash
 .meteor
@@ -49,7 +51,7 @@ microscope.html
 microscope.js
 ~~~
 
-La aplicación que se ha creado es una aplicación básica que demuestra sólo algunas pautas simples.
+La aplicación que se ha creado es una aplicación básica que demuestra sólo algunas sencillas pautas.
 
 A pesar de que nuestra aplicación no hace casi nada, ya podemos ejecutarla. Para hacerlo, volvemos al terminal y escribimos:
 
@@ -66,7 +68,7 @@ Ahora abrimos `http://localhost:3000/` (o su equivalente `http://0.0.0.0:3000/`)
 
 ¡Enhorabuena! ya tenemos nuestra primera aplicación Meteor funcionando. Por cierto, para parar la aplicación, todo lo que hay que hacer es abrir la pestaña terminal donde se ejecuta y pulsar `ctrl+c`.
 
-Si estás utilizando Git, este sería un buen momento para inicializar el repositorio con `git init`.
+Si estás utilizando Git, este sería un buen momento para iniciar el repositorio con `git init`.
 
 <% note do %>
 
@@ -82,14 +84,16 @@ Así que si encuentras referencias a `mrt` de de Meteorite a lo largo de este li
 
 Ahora vamos a usar el sistema paquetes de Meteor para incluir el framework [Bootstrap](http://twitter.github.com/bootstrap/) en nuestro proyecto:
 
-Esto no es distinto de añadir Bootstrap de la forma habitual incluyendo manualmente los ficheros CSS y JavaScript, excepto por que confiamos en el miembro de la comunidad [Andrew Mao](https://github.com/mizzao) (“mizzao” en el identificador `mizzao:bootstrap-3` es el nombre de usuario de autor del paquete) para que mantenga el paquete actualizado por nosotros.
+Esto no es distinto de añadir Bootstrap de la forma habitual, incluyendo manualmente los ficheros CSS y JavaScript, excepto en que confiamos en el mantenedor del paquete para que lo mantenga actualizado por nosotros.
 
 Ya que estamos, añadiremos también el paquete [Underscore](http://underscorejs.org/). Underscore es una librería de utilidades JavaScript, y es muy útil cuando necesitemos manipular estructuras de datos.
 
-En el momento de escribir esto, el paquete `underscore` forma parte todavía de los paquetes "oficiales" de Meteor, lo que quiere decir que no tenemos que incluir el nombre del autor:
+El paquete `bootstrap` lo mantiene el usuario `twbs`, por lo que el nombre completo del paquete es `twbs:bootstrap`.
+
+El paquete `underscore` forma parte de los paquetes "oficiales" incluidos en Meteor, lo que quiere decir que no hay que incluir el nombre del autor:
 
 ~~~bash
-meteor add mizzao:bootstrap-3
+meteor add twbs:bootstrap
 meteor add underscore
 ~~~
 
@@ -101,13 +105,13 @@ Tan pronto como agregues el paquete Bootstrap, deberías notar un cambio en el a
 
 <%= screenshot "2-1b", "Con Boostrap." %>
 
-Al contrario de la forma “tradicional” en la que incluimos recursos externos, no tenemos que agregar enlaces a ningún fichero CSS o JavaScript, ¡porque Meteor se preocupa de eso por nosotros! Esta es sólo una de las muchas ventajas de los paquetes Meteor.
+Al contrario de la forma “tradicional” en la que incluimos recursos externos, no tenemos que agregar enlaces a ningún fichero CSS o JavaScript, ¡porque Meteor lo hace por nosotros! Esta es sólo una de las muchas ventajas de los paquetes Meteor.
 
 <% note do %>
 
 ### Una nota sobre los paquetes
 
-Al hablar acerca de los paquetes en el contexto de Meteor, vale la pena ser específico. Meteor puede usar cinco tipos de paquetes distintos:
+Al hablar acerca de los paquetes en el contexto de Meteor, vale la pena ser específico. Meteor puede usar cinco tipos básicos de paquetes:
 
 - El mismo núcleo de Meteor está dividido en diferentes **paquetes de la plataforma Meteor**. Están incluidos en cada app y probablemente nunca tengas que preocuparte por ellos.
 - Los paquetes ordinarios se conocen como "**isopacks**", o paquetes isomórficos (paquetes que funcionan en los dos lados, cliente y servidor). Los paquetes **First-party**, como `accounts-ui` o `appcache`, están mantenidos por los desarrolladores de Meteor y [vienen incluidos en Meteor](http://docs.meteor.com/#packages).
@@ -132,7 +136,7 @@ Debemos mencionar que algunos de los directorios que hemos creado son especiales
 - Todo lo demás se ejecuta en las dos partes, cliente y servidor.
 - Las cosas estáticas (fuentes, imágenes, etc.) van en el directorio `/public`.
 
-Y tambien es útil saber como Meteor decide en que orden cargan los ficheros:
+Y también es útil saber como Meteor decide en que orden cargan los ficheros:
 
 - Los archivos de `/lib` se cargan antes que nada.
 - Los archivos con nombre `main.*` se cargan *después* que todos los demás.
@@ -179,10 +183,6 @@ Meteor carga el CSS minimizado y de forma automática, por lo que, a diferencia 
 ~~~css
 .grid-block, .main, .post, .comments li, .comment-form {
   background: #fff;
-  -webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  -ms-border-radius: 3px;
-  -o-border-radius: 3px;
   border-radius: 3px;
   padding: 10px;
   margin-bottom: 10px;
@@ -194,14 +194,19 @@ body {
   background: #eee;
   color: #666666; }
 
+#main {
+  position: relative;
+}
+.page {
+  position: absolute;
+  top: 0px;
+  width: 100%;
+}
+
 .navbar {
   margin-bottom: 10px; }
   /* line 32, ../sass/style.scss */
   .navbar .navbar-inner {
-    -webkit-border-radius: 0px 0px 3px 3px;
-    -moz-border-radius: 0px 0px 3px 3px;
-    -ms-border-radius: 0px 0px 3px 3px;
-    -o-border-radius: 0px 0px 3px 3px;
     border-radius: 0px 0px 3px 3px; }
 
 #spinner {
@@ -226,7 +231,7 @@ body {
     -o-transition: none;
     transition: none; }
   .post.animate{
-    -webkit-transition: all 300ms 0ms ease-in;
+    -webkit-transition: all 300ms 0ms;
     -moz-transition: all 300ms 0ms ease-in;
     -o-transition: all 300ms 0ms ease-in;
     transition: all 300ms 0ms ease-in; }
@@ -279,10 +284,6 @@ body {
 
 .load-more {
   display: block;
-  -webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  -ms-border-radius: 3px;
-  -o-border-radius: 3px;
   border-radius: 3px;
   background: rgba(0, 0, 0, 0.05);
   text-align: center;

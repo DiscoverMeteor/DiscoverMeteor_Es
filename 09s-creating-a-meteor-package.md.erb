@@ -7,13 +7,13 @@ points: 10
 sidebar: true
 photoUrl: http://www.flickr.com/photos/rxb/7779426142/
 photoAuthor: Richard
-contents: Escribiremos un paquete de Meteor para nuestra aplicación de forma local.|Escribiremos tests para nuestro paquete.|Publicaremos el paquete en el repositorio Atmosphere.
+contents: Escribiremos un paquete Meteor para nuestra aplicación de forma local.|Escribiremos tests para nuestro paquete.|Publicaremos el paquete en el repositorio Atmosphere.
 paragraphs: 22
 ---
 
 Durante nuestro trabajo en los errores, hemos construido un modelo reutilizable, ¿por qué no ponerlo dentro de un paquete y compartirlo con el resto de la comunidad Meteor?
 
-Para empezar, tenemos que asegurarnos de que tenemos una cuenta de desarrollador Meteor. Puedes hacerte una en [meteor.com](meteor.com), pero es muy probable que ya lo hayas hecho ¡cuando te registarte para el libro! En cualquier caso, deberías saber cuál es tu nombre de usuario, el cual utilizaremos bastante durante este capítulo.
+Para empezar, tenemos que asegurarnos de que tenemos una cuenta de desarrollador Meteor. Puedes hacerte una en [meteor.com](meteor.com), pero es muy probable que ya lo hayas hecho ¡cuando te registarte para el libro! En cualquier caso, deberías saber cuál es tu nombre de usuario, porque lo utilizaremos bastante durante este capítulo.
 
 En este capítulo usaremos `tmeasday` como usuario -- puedes cambiarlo por el tuyo.
 
@@ -39,7 +39,7 @@ Package.onUse(function (api, where) {
 ~~~
 <%= caption "packages/tmeasday:errors/package.js" %>
 
-Cuando desarrollamos un paquete para su uso en el mundo-real, es una buena práctica rellenar la sección `Package.describe` con la URL del repositorio Git (como por ejemplo, `https://github.com/tmeasday/meteor-errors.git`). De esta manera, los usuarios pueden acceder al código fuente, y (si usas GitHub) ver el readme del paquete en Atmosphere.
+Cuando desarrollamos un paquete para su uso en el mundo-real, es una buena práctica rellenar la sección `Package.describe` con la URL del repositorio Git (como por ejemplo, `https://github.com/tmeasday/meteor-errors.git`). De esta manera, los usuarios pueden acceder al código fuente, y (si usas GitHub) ver el README del paquete en Atmosphere.
 
 Vamos a añadir al paquete los tres archivos que se pasan en la llamada a `add_files`. Podemos usar los mismos que tenemos para Microscope, haciendo solo, unos pequeños cambios para los espacios de nombres y para dejar la API un poco más limpia:
 
@@ -91,7 +91,7 @@ Template.meteorError.rendered = function() {
 
 ### Probando el paquete con Microscope
 
-Vamos a probar el paquete localmente con Microscope para asegurarnos de que nuestros cambios funcionan. Para enlazar el paquete en nuestro proyecto, ejecutaremos `meteor add errors`. A continuación, debemos eliminar los archivos a los que reemplaza el nuevo paquete:
+Vamos a probar el paquete localmente con Microscope para asegurarnos de que nuestros cambios funcionan. Para enlazar el paquete en nuestro proyecto, ejecutaremos `meteor add tmeasday:errors`. A continuación, debemos eliminar los archivos a los que reemplaza el nuevo paquete:
 
 ~~~bash
 rm client/helpers/errors.js
@@ -100,7 +100,7 @@ rm client/templates/includes/errors.js
 ~~~
 <%= caption "Eliminando los archivos antiguos" %>
 
-Otra cosa que debemos hacer es efectuar algunos pequeños cambios en el código de la aplicación para que use la API correcta:
+Otra cosa que debemos hacer son algunos pequeños cambios en el código de la aplicación para que use la API correcta:
 
 ~~~html
   {{> header}}
@@ -122,14 +122,19 @@ Posts.update(currentPostId, {$set: postProperties}, function(error) {
   if (error) {
     // display the error to the user
     Errors.throw(error.reason);
+    
+  // show this result but route anyway
+  if (result.postExists)
+    Errors.throw('This link has already been posted');
 ~~~
 <%= caption "client/templates/posts/post_edit.js" %>
+<%= highlight "4,8" %>
 
 <%= scommit "9-5-1", "Creado y enlazado un paquete básico." %>
 
 Una vez hechos estos cambios, deberíamos ver el mismo comportamiento que teníamos con el código sin empaquetar.
 
-### Escribiendo tests
+### Escribiendo Tests
 
 El primer paso en el desarrollo de un paquete es probarlo contra una aplicación, pero el siguiente es escribir un conjunto de tests que evalúen adecuadamente el comportamiento del paquete. Meteor incluye Tinytest, que permite ejecutar este tipo de pruebas de forma fácil y, de esta forma, tener la conciencia tranquila cuando compartimos el paquete con los demás.
 
@@ -185,7 +190,7 @@ meteor test-packages tmeasday:errors
 ~~~
 <%= caption "Terminal" %>
 
-<%= screenshot "s7-1", "Pasados todos los tests" %>
+<%= screenshot "s7-1", "Pasando todos los tests" %>
 
 ### Publicando el paquete
 
@@ -210,3 +215,5 @@ meteor add tmeasday:errors
 <%= scommit "9-5-4", "Paquete eliminado del árbol de desarrollo." %>
 
 Ahora debemos ver a Meteor descargar nuestro paquete por primera vez. ¡Bien hecho!
+
+Como de costumbre, asegúrate de deshacer los cambios antes de continuar (o mantenerlos, teniéndolos en cuenta en el resto del libro).

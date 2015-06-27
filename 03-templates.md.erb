@@ -6,11 +6,11 @@ number: 3
 points: 1
 photoUrl: http://www.flickr.com/photos/73449134@N04/8194499092/
 photoAuthor: Mike Lewinski
-contents: "Aprenderemos a usar Spacebars, el sistema de plantillas de Meteor.|Crearemos nuestras primeras tres plantillas.|Aprenderemos cómo funcionan los gestores de plantilla.|Obtendremos un prototipo básico funcional con datos estáticos."
+contents: Aprenderemos a usar Spacebars, el sistema de plantillas de Meteor.|Crearemos nuestras primeras tres plantillas.|Aprenderemos cómo funcionan los gestores de plantilla.|Obtendremos un prototipo básico funcional con datos estáticos.
 paragraphs: 46
 ---
 
-Para aprender a desarrollar con Meteor adoptaremos un enfoque de afuera hacia adentro, es decir, primero construiremos el envoltorio exterior y luego lo conectaremos al funcionamiento interno de la aplicación.
+Para introducirnos de manera sencilla en el desarrollo con Meteor, adoptaremos un enfoque de afuera hacia adentro, es decir, primero construiremos el envoltorio exterior y luego lo conectaremos al funcionamiento interno de la aplicación.
 
 Esto implica que, en este capítulo, solo utilizaremos el directorio `/client`.
 
@@ -22,12 +22,12 @@ Si todavía no lo has hecho, crea un nuevo archivo `main.html` dentro del direct
 </head>
 <body>
   <div class="container">
-    <header class="navbar navbar-default" role="navigation">
+    <header class="navbar navbar-default" role="navigation"> 
       <div class="navbar-header">
         <a class="navbar-brand" href="/">Microscope</a>
       </div>
     </header>
-    <div id="main" class="row-fluid">
+    <div id="main">
       {{> postsList}}
     </div>
   </div>
@@ -35,7 +35,7 @@ Si todavía no lo has hecho, crea un nuevo archivo `main.html` dentro del direct
 ~~~
 <%= caption "client/main.html" %>
 
-Esta será la plantilla principal de la aplicación. Como se puede ver, todo es HTML excepto la etiqueta `{{> postsList}}`, que es un punto de inserción de la plantilla `postsList`. Por ahora, vamos a crear un par de plantillas más.
+Esta será la plantilla principal de la aplicación. Como se puede ver, todo es HTML excepto la etiqueta `{{> postsList}}`, que es un punto de inserción de la plantilla `postsList`. Ahora, vamos a crear un par de plantillas más.
 
 ### Las plantillas en Meteor
 
@@ -85,9 +85,9 @@ Es el momento de introducir **Spacebars** el sistema de plantillas de Meteor. Sp
 
 Las *inclusiones* usan la sintaxis `{{> templateName}}` y simplemente le dicen a Meteor que reemplace la inclusión por la plantilla del mismo nombre (en nuestro caso `postItem`).
 
-Las *expresiones* como `{{title}}` pueden, o bien llamar a una propiedad del objeto actual o bien, al valor de retorno de un ayudante (*helper*) como el que definiremos para nuestro gestor de plantilla más adelante.
+Las *expresiones* como `{{title}}` pueden, o bien llamar a una propiedad del objeto actual o bien, al valor de retorno de un ayudante (*helper*) como el que definiremos más adelante en nuestro gestor de plantilla.
 
-Los *bloques de ayuda* son tags especiales para mantener el control del flujo de la plantilla, por ejemplo `{{#each}}...{{/each}}` o `{{#if}}...{{/if}}`.
+Los *bloques de ayuda* son tags especiales para mantener el control del flujo de la plantilla, por ejemplo `{{#each}}…{{/each}}` o `{{#if}}…{{/if}}`.
 
 <% note do %>
 
@@ -97,11 +97,11 @@ Si quieres saber más sobre Spacebars puedes consultar la [documentación oficia
 
 <% end %>
 
-Armados con este conocimiento, ya podemos entender cómo van a funcionar nuestras plantillas:
+Con estos conocimientos, ya podemos entender cómo van a funcionar nuestras plantillas:
 
-Primero, en la plantilla `postsList` iteramos sobre un objeto `posts`, y para cada iteración, incluimos la plantilla `postItem`.
+Primero, en la plantilla `postsList` iteramos sobre un objeto `posts` usando un bloque `{{#each}}…{{/each}}`, y para cada iteración, incluimos la plantilla `postItem`.
 
-Pero, ¿de dónde viene el objeto `posts`?. Buena pregunta. Es un **ayudante de plantilla**, y puedes pensar en ellos como un cajón o hueco para nuestros valores dinámicos.
+Pero, ¿de dónde viene el objeto `posts`?. Buena pregunta. Es un **ayudante de plantilla**, y puedes pensar en ellos como un cajón o hueco para valores dinámicos.
 
 La plantilla `postItem` es bastante sencilla. Solo usa tres expresiones: `{{url}}` y `{{title}}` devuelven propiedades, y `{{domain}}` llama a un ayudante.
 
@@ -109,21 +109,21 @@ La plantilla `postItem` es bastante sencilla. Solo usa tres expresiones: `{{url}
 
 Hasta ahora hemos estado tratando con Spacebars, que es poco más que HTML con algunas etiquetas extra. A diferencia de otros lenguajes como PHP (o páginas HTML con JavaScript), Meteor mantiene las plantillas y su lógica separadas, de forma que nuestras plantillas por sí mismas no hacen casi nada.
 
-Para que una plantilla tenga vida necesita **ayudantes**. Puedes pensar en estos ayudantes como los cocineros que toman los ingredientes (tus datos) y los preparan, antes de entregar el plato terminado (las plantillas) al camarero, que los entregan.
+Para que una plantilla tenga vida, necesita **ayudantes**. Puedes pensar en ellos como los cocineros que toman los ingredientes (tus datos) y los preparan, antes de entregar el plato terminado (las plantillas) al camarero, que, fianlmente, los entrega.
 
-En otras palabras, mientras la función de las plantillas está limitada a mostrar o iterar sobre variables, los ayudantes son los que actualmente hacen el trabajo pesado asignando un valor a cada variable.
+En otras palabras, mientras la función de las plantillas es mostrar o iterar sobre variables, los ayudantes son los que hacen el trabajo pesado asignando un valor a cada variable.
 
 <% note do %>
 
 ### ¿Controladores?
 
-Podría ser tentador pensar en los ficheros que contienen todos estos ayudantes de plantillas como un tipo de controlador. Pero eso puede ser ambiguo, ya que los controladores (al menos en el sentido de controladores MVC) normalmente tienen un papel un poco diferente.
+Puede ser tentador pensar que los ficheros que contienen estos ayudantes son una especie de "controlador". Pero eso sería ambiguo, ya que los controladores (al menos en el sentido de controladores MVC) normalmente tienen un papel diferente.
 
 Así que hemos decido apartarnos de esa terminología, y simplemente nos referimos a “ayudantes de plantillas“ o “lógica de plantilla” cuando hablamos del código JavaScript que acompaña a las plantillas.
 
 <% end %>
 
-Para mantener las cosas ordenadas, adoptaremos la convención de nombrar al fichero que contiene la plantilla con el mismo nombre, pero con la extensión **.js**. Así que vamos a crear un fichero `posts_list.js` dentro de `/client/templates/posts` para construir nuestro primer gestor:
+Para mantener las cosas ordenadas, adoptaremos la convención de nombrar al fichero que contiene la plantilla con el mismo nombre, pero con la extensión **.js**. Así que vamos a crear un fichero `posts_list.js` dentro de `/client/templates/posts` para construir nuestro primer ayudante:
 
 ~~~js
 var postsData = [
@@ -152,13 +152,13 @@ Si todo está bien, ya se pueden ver los datos en el navegador:
 
 Estamos haciendo dos cosas. Primero, creamos algunos datos prototipo en `postsData`. Normalmente, estos datos vienen de la base de datos, pero como no hemos visto cómo hacerlo todavía (espera al siguiente capítulo), hacemos trampa mediante el uso de datos estáticos.
 
-Segundo, usamos la función `Template.postsList.helpers()` para definir un ayudante de plantilla llamado `posts` que sencillamente devuelve nuestros datos creados en `postsData`.
+Segundo, usamos la función `Template.postsList.helpers()` para definir un ayudante de plantilla llamado `posts` que, sencillamente devuelve nuestros datos creados en `postsData`.
 
 Y si recuerdas, estamos usando el ayudante `posts` en nuestra plantilla `postsList`:
 
 ~~~html
 <template name="postsList">
-  <div class="posts">
+  <div class="posts page">
     {{#each posts}}
       {{> postItem}}
     {{/each}}
@@ -167,7 +167,7 @@ Y si recuerdas, estamos usando el ayudante `posts` en nuestra plantilla `postsLi
 ~~~
 <%= caption "client/templates/posts/posts_list.html" %>
 
-Definiendo el ayudante `posts` lo que conseguimos es que ahora esté disponible para usarlo en nuestra plantilla, así que nuestra plantilla será capaz de recorrer el array `postData` y pasar cada objeto dentro a la plantilla `postItem`.
+Al definir el ayudante `posts`, conseguimos es que esté disponible para usarlo en la plantilla, así que nuestra plantilla será capaz de recorrer el array `postData` y pasar cada objeto la plantilla `postItem`.
 
 <%= commit "3-1", "Añadimos una plantilla básica para recorrer los posts y datos estáticos." %>
 

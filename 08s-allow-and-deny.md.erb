@@ -7,13 +7,13 @@ points: 10
 sidebar: true
 photoUrl: http://www.flickr.com/photos/ikewinski/9475104376/
 photoAuthor: Mike Lewinski
-contents: Aprenderemos cómo funcionan los callbacks Allow y Deny.|Comprenderemos el orden en el que se los llama.
+contents: Aprenderemos cómo funcionan los callbacks Allow y Deny.|Analizaremos el orden en el que se los llama.
 paragraphs: 16
 ---
 
 El sistema de seguridad de Meteor nos permite controlar los cambios en la base de datos sin tener que definir los métodos necesarios para hacerlo.
 
-Nosotros hemos necesitado definir un método específico para `post` porque necesitamos hacer tareas adicionales, tales como decorar el post con propiedades adicionales y tomar medidas si la URL del post existe.
+Nosotros hemos tenido que definir un método `post` específico porque necesitamos hacer tareas adicionales, tales como decorar el post con propiedades adicionales y tomar medidas si la URL del post ya existe.
 
 Por otro lado, tampoco hemos tenido que crear métodos para actualizar y eliminar posts. Solo necesitábamos comprobar si el usuario tenía permiso para hacer la acción, y ha sido muy fácil usando los callbacks `allow` y `deny`.
 
@@ -21,9 +21,9 @@ Usar estos callbacks nos ha permitido ser más declarativos con las modificacion
 
 ### Múltiples callbacks
 
-Podemos definir todos los callbacks `allow` que queramos. Solo es necesario que, _al menos uno_ de ellos devuelva `true`, para el cambio actual. De esta forma, cuando se llama a `Posts.insert` desde un navegador (no importa si es desde el código cliente de nuestra aplicación o desde la consola), el servidor llamará a todos los `insert`-permitidos que pueda hasta que encuentre uno que devuelva true. Si no encuentra ninguno, no permite la inserción, y devuelve un error `403` al cliente.
+Podemos definir todos los callbacks `allow` que queramos. Solo es necesario que, _al menos uno_ de ellos devuelva `true`, para el cambio actual. De esta forma, cuando se llama a `Posts.insert` desde un navegador (no importa si es desde el código cliente de nuestra aplicación o desde la consola), el servidor llamará a todos los `insert`-permitidos que pueda hasta que encuentre uno que devuelva true. Si no encuentra ninguno, no permite la inserción, y se devuelve al cliente un error `403`.
 
-Del mismo modo, podemos definir una o varios callbacks `deny`. Si _cualquier_ de ellos devuelve `true`, el cambio se cancela y se devuelve un `403`. La lógica de todo esto implica que para que un `insert` tenga éxito, se ejecutarán uno o varios callbacks `allow` así como _todos_ los `deny`.
+Del mismo modo, podemos definir uno o varios callbacks `deny`. Si _cualquiera_ de ellos devuelve `true`, el cambio se cancela y se devuelve un `403`. La lógica de todo esto implica que, para que un `insert` tenga éxito, se ejecutarán uno o varios callbacks `allow` así como _todos_ los `deny`.
 
 <%= diagram "allow_deny", "Nota: n/e significa No Ejecutado" %>
 
@@ -33,7 +33,7 @@ Un ejemplo práctico de este patrón podría ser, por ejemplo, tener dos callbac
 
 ### Compensación de la latencia
 
-Recuerda que los métodos que provocan cambios en la base de datos (como `.update()`) compensan la latencia, igual que cualquier otro método. Así, por ejemplo, si, desde la consola del navegador, intentas eliminar un post que no te pertenece, verás que, por un momento, el post desaparece porque la colección local pierde el documento, pero luego vuelve a aparecer cuando el servidor nos dice que, no, que el documento no se ha eliminado.
+Recuerda que los métodos que provocan cambios en la base de datos (como `.update()`) compensan la latencia, igual que cualquier otro método. Así, por ejemplo, si desde la consola del navegador, intentas eliminar un post que no te pertenece, verás que, por un momento, el post desaparece, porque la colección local pierde el documento, pero luego vuelve a aparecer cuando el servidor nos dice que no, que el documento no ha sido eliminado.
 
 Por supuesto, este comportamiento no es un problema cuando se activa desde la consola (después de todo, si los usuarios juegan con los datos desde la consola, no es problema nuestro lo que ocurra en _sus_ navegadores). Sin embargo, necesitas asegurarte de que esto no sucede desde la interfaz de usuario. Por ejemplo, necesitas tomarte la molestia de asegurar que no muestras a los usuarios botones para eliminar documentos que no están autorizados a borrar.
 

@@ -7,11 +7,11 @@ number: 10
 points: 10
 photoUrl: http://www.flickr.com/photos/ikewinski/9414222270/
 photoAuthor: Mike Lewinski
-contents: "Mostraremos los comentarios existentes.|Añadiremos un formulario para enviar comentarios.|Aprenderemos cómo cargar solo los comentarios del post actual.|Añadiremos una propiedad contador de comentarios a los posts."
+contents: Mostraremos los comentarios existentes.|Añadiremos un formulario para enviar comentarios.|Aprenderemos cómo cargar solo los comentarios del post actual.|Añadiremos una propiedad contador de comentarios a los posts.
 paragraphs: 34
 ---
 
-El objetivo de un sitio de noticias es crear una comunidad de usuarios, y será difícil hacerlo sin que estos puedan a hablar unos con otros. En este capítulo, vamos a agregar los comentarios.
+El objetivo de un sitio de noticias es crear una comunidad de usuarios, y será difícil hacerlo sin que puedan a hablar unos con otros. En este capítulo, vamos a agregar los comentarios.
 
 Empezaremos creando una nueva colección para almacenar los comentarios.
 
@@ -109,23 +109,25 @@ Router.configure({
 
 Ten en cuenta que para que se carguen los nuevos datos de prueba, es necesario ejecutar `meteor reset`. Después de la restauración, ¡no olvides crear una nueva cuenta y volver a entrar!
 
-En primer lugar, hemos creado un par de usuarios (inventados), insertándolos en la base de datos y el usando `ids` para seleccionarlos después de la base de datos. Luego añadimos un comentario de cada usuario al primer post, enlazando el comentario al post (con `postId`), y el usuario (con userId). Además, añadimos la fecha y el cuerpo de cada comentario, junto un campo denormalizado denominado `author`.
+En primer lugar, hemos creado un par de usuarios (inventados), insertándolos en la base de datos y el usando `ids` para seleccionarlos después en la base de datos. Luego añadimos un comentario de cada usuario al primer post, enlazando el comentario al post (con `postId`), y el usuario (con userId). Además, añadimos la fecha y el cuerpo de cada comentario, junto un campo denormalizado denominado `author`.
 
 Además, hemos extendido nuestro router para que espere a un array que contiene las dos colecciones, comentarios y posts.
 
 ### Mostrando comentarios
 
-Está bien tener comentarios en la base de datos, pero tendremos que mostrarlos en la página de discusión. Este proceso ya nos debe ser familiar:
+Está bien tener comentarios en la base de datos, pero habrá que mostrarlos en la página de discusión. Este proceso ya nos debe ser familiar:
 
 ~~~html
 <template name="postPage">
-  {{> postItem}}
+  <div class="post-page page">
+    {{> postItem}}
 
-  <ul class="comments">
-    {{#each comments}}
-      {{> commentItem}}
-    {{/each}}
-  </ul>
+    <ul class="comments">
+      {{#each comments}}
+        {{> commentItem}}
+      {{/each}}
+    </ul>
+  </div>
 </template>
 ~~~
 <%= caption "client/templates/posts/post_page.html" %>
@@ -143,7 +145,7 @@ Template.postPage.helpers({
 
 Ponemos el bloque `{{#each comments}}` dentro de la plantilla del post, por lo que `this` es un post para el ayudante `comments`. Para encontrar los comentarios adecuados, buscamos los que están vinculados a ese post a través de `postId`.
 
-Con todo lo que hemos aprendido acerca de ayudantes y Spacebars, sabemos que mostrar un comentario es bastante sencillo. Vamos a crear un nuevo directorio `comments` dentro de `templates` para almacenar toda la información acerca de los comentarios, y una nueva plantilla `commentItem` dentro:
+Con todo lo que hemos aprendido acerca de ayudantes y plantillas, sabemos que mostrar un comentario es bastante sencillo. Vamos a crear un nuevo directorio `comments` dentro de `templates` para almacenar toda la información acerca de los comentarios, y una nueva plantilla `commentItem` dentro:
 
 ~~~html
 <template name="commentItem">
@@ -223,19 +225,21 @@ Empezaremos añadiendo un área de envío en la parte inferior de cada post:
 
 ~~~html
 <template name="postPage">
-  {{> postItem}}
+  <div class="post-page page">
+    {{> postItem}}
 
-  <ul class="comments">
-    {{#each comments}}
-      {{> commentItem}}
-    {{/each}}
-  </ul>
+    <ul class="comments">
+      {{#each comments}}
+        {{> commentItem}}
+      {{/each}}
+    </ul>
 
-  {{#if currentUser}}
-    {{> commentSubmit}}
-  {{else}}
-    <p>Please log in to leave a comment.</p>
-  {{/if}}
+    {{#if currentUser}}
+      {{> commentSubmit}}
+    {{else}}
+      <p>Please log in to leave a comment.</p>
+    {{/if}}
+  </div>
 </template>
 ~~~
 <%= caption "client/templates/posts/post_page.html" %>
@@ -262,9 +266,9 @@ Y a continuación, crear la plantilla del formulario para los comentarios:
 Para enviar comentarios, llamaremos a un método `comment` en el fichero `comment_submit.js` que funciona de forma similar a lo que hicimos para al enviar posts:
 
 ~~~js
-Template.commentSubmit.created = function() {
+Template.commentSubmit.onCreated(function() {
   Session.set('commentSubmitErrors', {});
-}
+});
 
 Template.commentSubmit.helpers({
   errorMessage: function(field) {
@@ -495,7 +499,7 @@ var postId = Posts.insert(post);
 
 //...
 ~~~
-<%= caption "collections/posts.js" %>
+<%= caption "lib/collections/posts.js" %>
 <%= highlight "6,7" %>
 
 Y entonces actualizamos `commentsCount` cuando hacemos un nuevo comentario usando el operador `$inc` de Mongo (que incrementa campos numéricos):
@@ -516,7 +520,7 @@ return Comments.insert(comment);
 
 //...
 ~~~
-<%= caption "collections/comments.js "%>
+<%= caption "lib/collections/comments.js "%>
 <%= highlight "9,10" %>
 
 Finalmente, tenemos que eliminar el ayudante `commentsCount` de `client/templates/posts/post_item.js`, ya que el campo está disponible directamente en el post.

@@ -7,7 +7,7 @@ points: 5
 sidebar: true
 photoUrl: http://www.flickr.com/photos/ikewinski/9473352049/
 photoAuthor: Mike Lewinski
-contents: "Comprenderemos qué es la compensación de latencia.|Bajaremos la velocidad de la aplicación para ver qué es lo que pasa.|Veremos cómo se llaman los métodos entre sí en Meteor."
+contents: Comprenderemos qué es la compensación de latencia.|Bajaremos la velocidad de la aplicación para ver qué ocurre.|Veremos cómo se llaman los métodos entre sí en Meteor.
 paragraphs: 28
 ---
 
@@ -36,7 +36,7 @@ Cuando se hace una llamada a un método, el cliente no solo envía la llamada al
 - *+0ms:* El usuario hace clic en un botón de envío y el navegador lanza una llamada al método.
 - *+0ms:* El cliente simula la acción en su propia colección y cambia la interfaz de usuario para reflejar los cambios.
 - *+200ms:* El servidor realiza cambios en la base de datos Mongo..
-- *+500ms:* El cliente recibe esos cambios deshaciendo los que ha simulado y reemplazándolos con los del servidor (que, generalmente son los mismos) y la interfaz de usuario cambia reflejarlos.
+- *+500ms:* El cliente recibe esos cambios deshaciendo los que ha simulado y reemplazándolos con los del servidor (que, generalmente son los mismos) y la interfaz de usuario los refleja.
 
 Esto se traduce en que el usuario ve los cambios instantáneamente. Cuando llega la respuesta del servidor unos momentos más tarde, puede haber o no cambios notables. Por tanto, una cosa que tenemos que aprender es que debemos tratar de asegurar de que, en la medida de lo posible, los documentos simulados sean muy parecidos a los reales.
 
@@ -74,16 +74,16 @@ Meteor.methods({
         _id: postWithSameLink._id
       }
     }
-
+    
     var user = Meteor.user();
     var post = _.extend(postAttributes, {
-      userId: user._id,
-      author: user.username,
+      userId: user._id, 
+      author: user.username, 
       submitted: new Date()
     });
-
+    
     var postId = Posts.insert(post);
-
+    
     return {
       _id: postId
     };
@@ -91,32 +91,32 @@ Meteor.methods({
 });
 ~~~
 <%= caption "collections/posts.js" %>
-<%= highlight "9~15" %>
+<%= highlight "11~17" %>
 
-Si nos detuviéramos aquí, la demostración no sería muy concluyente. En este punto, solo parece que el envío del formulario está siendo pausado por cinco segundos antes de redirigirte a la lista principal de publicaciones, y nada más está pasando.
+Si nos detuviéramos aquí, la demostración no sería muy concluyente. En este punto, solo parece que el envío del formulario está siendo pausado por cinco segundos antes de redirigirte a la lista principal de posts, y nada más.
 
-Para entender porqué, volvamos al ayudante de eventos del envío de publicaciones:
+Para entender porqué, volvamos a ver el ayudante de envío:
 
 ~~~js
 Template.postSubmit.events({
   'submit form': function(e) {
     e.preventDefault();
-
+    
     var post = {
       url: $(e.target).find('[name=url]').val(),
       title: $(e.target).find('[name=title]').val()
     };
-
+    
     Meteor.call('postInsert', post, function(error, result) {
       // display the error to the user and abort
       if (error)
         return alert(error.reason);
-
+      
       // show this result but route anyway
       if (result.postExists)
         alert('This link has already been posted');
-
-      Router.go('postPage', {_id: result._id});
+    
+      Router.go('postPage', {_id: result._id});  
     });
   }
 });
@@ -125,31 +125,31 @@ Template.postSubmit.events({
 
 Hemos colocado nuestra llamada de enrutamiento `Router.go()` dentro de la función de retorno de la llamada. Lo que significa que el formulario está esperando a que la llamada al método concluya antes de redirigir.
 
-Normalmente, esto es el cauce normal de la acción. Después de todo, no podemos redirigir al usuario antes de saber si su publicación ha sido válida o no, ya que sería extremadamente confuso ser redirigido una vez, y después ser redirigido de vuelta hacia el formulario de envío original para corregir los datos todo en cuestión de segundos.
+Normalmente, esto es el cauce normal de la acción. Después de todo, no podemos redirigir al usuario antes de saber si el post es válido o no, ya que sería extremadamente confuso redirigir, y, al momento, redirir, de nuevo hacia el formulario de envío original para corregir los datos, todo en cuestión de segundos.
 
-Pero para el propósito de este ejemplo, queremos ver el resultado de nuestras acciones inmediatamente. Por lo que cambiaremos la llamada de enrutamento para redirigir a la ruta `postsList` (no podemos redirigir al post porque no sabemos su identificador fuera del método), lo sacaremos fuera de la llamada de retorno, y veremos que pasa:
+Pero para el propósito de este ejemplo, queremos ver el resultado de nuestras acciones inmediatamente. Por lo que cambiaremos la llamada a Router para redirigir a la ruta `postsList` (no podemos redirigir al post porque no sabemos su identificador fuera del método). Lo sacaremos fuera de la llamada, y veremos que pasa:
 
 ~~~js
 Template.postSubmit.events({
   'submit form': function(e) {
     e.preventDefault();
-
+    
     var post = {
       url: $(e.target).find('[name=url]').val(),
       title: $(e.target).find('[name=title]').val()
     };
-
+    
     Meteor.call('postInsert', post, function(error, result) {
       // display the error to the user and abort
       if (error)
         return alert(error.reason);
-
+      
       // show this result but route anyway
       if (result.postExists)
         alert('This link has already been posted');
     });
 
-    Router.go('postsList');
+    Router.go('postsList');  
 
   }
 });
@@ -169,19 +169,19 @@ Cinco segundos más tarde, se reemplaza con el documento real insertado por el s
 
 ### Métodos en el lado del cliente
 
-Después de todo esto, quizás pienses que los métodos son complicados, pero en realidad pueden ser bastante simples. De hecho, ya hemos visto tres métodos muy sencillos: los métodos `insert`, `update` y `remove` de una colección.
+Después de todo esto, puedes pensar que todo esto de los métodos, es complicado, pero en realidad pueden ser bastante simples. De hecho, ya hemos visto tres métodos muy sencillos: los métodos `insert`, `update` y `remove` de una colección.
 
 Cuando se define una colección `'posts'`, se están definiendo implícitamente tres métodos:`posts/insert`, `posts/update` y `posts/delete`. En otras palabras, cuando se llama `Posts.insert()` desde el cliente, se llama a un método compensado en latencia que hace dos cosas:
 
 1. Comprueba si podemos hacer el cambio llamando a los callbacks `allow` y `deny` (sin embargo, esto no tiene porque ser así en la simulación).
-2. Efectúa de verdad el cambio en el almacén de datos subyacente.
+2. Efectúa, de verdad, el cambio en el almacén de datos subyacente.
 
 ### Métodos que llaman a métodos
 
-Si has estado atento, te podrías haber dado cuenta de que el método `Post` llama a su vez a otro método (`posts/insert`) cada vez que insertamos un nuevo post. ¿Cómo es que esto funciona?
+Si has estado atento, te habrás dado cuenta de que el método `post` llama a su vez a otro método (`posts/insert`) cada vez que insertamos un nuevo post. ¿Y, cómo es que esto funciona?
 
-Mientras se está ejecutando la simulación (la versión del método en el cliente), ejecutamos un `insert` simulado (lo insertamos en nuestra colección cliente), pero realmente *no* llamamos al `insert` del servidor, porque esperamos que sea la versión de `Post` que hay en el servidor la que lo haga.
+Mientras se está ejecutando la simulación (la versión del método en el cliente), ejecutamos un `insert` simulado (lo insertamos en nuestra colección cliente), pero realmente *no* llamamos al `insert` del servidor, porque esperamos que sea la versión de `post` que hay en el servidor la que lo haga.
 
 En consecuencia, cuando el método `post` del servidor llama a `insert` no tiene necesidad de preocuparse por la simulación, y la inserción se realiza sin problemas.
 
-Como antes, no te olvides de deshacer los cambios antes de avanzar al siguiente capítulo.
+Como anteriormente, no olvides deshacer los cambios antes de avanzar al siguiente capítulo.

@@ -6,7 +6,7 @@ number: 5
 points: 5
 photoUrl: http://www.flickr.com/photos/ikewinski/9517814403/
 photoAuthor: Mike Lewinski
-contents: "Conoceremos cómo se gestionan las rutas en Meteor.|Crearemos páginas de discusión para los posts con URLs únicas.|Aprenderemos a enlazar apropiadamente esas URLs."
+contents: Conoceremos cómo se gestionan las rutas en Meteor.|Crearemos páginas de discusión para los posts con URLs únicas.|Aprenderemos a enlazar apropiadamente esas URLs.
 paragraphs: 72
 ---
 
@@ -54,7 +54,7 @@ Para obtener más información acerca de Iron Router, echa un vistazo a la [docu
 
 Hasta ahora, hemos construido nuestro diseño usando una plantilla fija (como `{{> postsList}}`). Así que, aunque el contenido de nuestra aplicación puede cambiar, la estructura básica de la página es siempre la misma: una cabecera, con una lista de posts debajo de ella.
 
-Iron Router nos permite romper este molde al tomar el control de lo que se muestra en el interior de la etiqueta HTML `<body>`. Por eso no vamos a definir el contenido, como lo haríamos con una página HTML normal. En vez de eso, vamos a indicar al router que apunte a una plantilla especial que contiene un ayudante `{{> yield}}`.
+Iron Router nos permite romper este molde al tomar el control de lo que se muestra en el interior de la etiqueta HTML `<body>`. Por eso no vamos a definir el contenido como lo haríamos con una página HTML normal. En vez de eso, vamos a indicar al router que apunte a una plantilla especial que contiene un ayudante `{{> yield}}`.
 
 El ayudante `{{> yield}}` definirá una zona dinámica especial que mostrará automáticamente lo que corresponde a la ruta actual (a modo de convención, llamaremos a esta plantilla especial "route template" o "plantilla de ruta"):
 
@@ -81,7 +81,7 @@ Mientras que el nuevo fichero `layout.html`, contendrá ahora el diseño exterio
         <a class="navbar-brand" href="/">Microscope</a>
       </div>
     </header>
-    <div id="main" class="row-fluid">
+    <div id="main">
       {{> yield}}
     </div>
   </div>
@@ -91,7 +91,7 @@ Mientras que el nuevo fichero `layout.html`, contendrá ahora el diseño exterio
 
 Te habrás dado cuenta de que hemos cambiado la inclusión de la plantilla `postsList` con una llamada al ayudante `yield`.
 
-Después de este cambio, nuestra pestaña del navegador se quedará en blanco y se mostrará un error por la consola. Esto es debido a que no le hemos dicho al router qué debe hacer con la URL `/`, por lo que simplemente sirve una plantilla vacía.
+Después de este cambio, nuestra pestaña del navegador mostrará la página de ayuda de Iron Router. Esto es debido a que no le hemos dicho al router qué debe hacer con la URL `/`, por lo que simplemente sirve una plantilla vacía.
 
 Para comenzar, podemos recuperar el comportamiento anterior mapeando la URL raíz `/` a la plantilla `postsList`. Vamos a crear un nuevo fichero `router.js` dentro del directorio `/lib` en la raíz de nuestro proyecto:
 
@@ -165,7 +165,7 @@ Router.route('/', {name: 'postsList'});
 
 Lo que estamos diciendo aquí es que para *cualquier* ruta del sitio (ahora mismo solo tenemos una, ¡pero pronto vendrán más!), queremos suscribirnos a la subscripción `posts`.
 
-La diferencia clave entre esto y lo que teníamos antes (cuando la suscripción estaba en `main.js`, que ahora debería estar vacío y lo podemos eliminar), es que ahora Iron Router sabe cuando la ruta está "preparada" ("ready") -- esto es, cuando la ruta tiene los datos que necesita para renderizarse.
+La diferencia clave entre esto y lo que teníamos antes (cuando la suscripción estaba en `main.js`, que **ahora debería estar vacío y lo podemos eliminar**), es que ahora Iron Router sabe cuando la ruta está "preparada" ("ready") -- esto es, cuando la ruta tiene los datos que necesita para renderizarse.
 
 ### Cargando cosas
 
@@ -222,7 +222,9 @@ Para empezar, vamos a crear una nueva plantilla `post_page.html` que simplemente
 
 ~~~html
 <template name="postPage">
-  {{> postItem}}
+  <div class="post-page page">
+    {{> postItem}}
+  </div>
 </template>
 ~~~
 <%= caption "client/templates/posts/post_page.html" %>
@@ -312,7 +314,7 @@ Para una exploración con profundidad sobre los contextos de datos sugerimos [le
 
 ### Usando nuestro enrutador dinámico
 
-Por último, crearemos un nuevo botón “Discuss” que enlazará a nuestra página invidual de la publicación. De nuevo, podríamos hacer algo como `<a href="/posts/{{_id}}">`, pero es mucho más fiable utilizar un ayudante de ruta.
+Por último, crearemos un nuevo botón “Discuss” que enlazará a nuestra página invidual del post. De nuevo, podríamos hacer algo como `<a href="/posts/{{_id}}">`, pero es mucho más fiable utilizar un ayudante de ruta.
 
 Hemos llamado a la ruta al post `postPage`, así que podemos usar el ayudante `{{pathFor 'postpage'}}`:
 
@@ -364,7 +366,7 @@ Primero, crearemos una plantilla que muestre un simple error 404:
 
 ~~~html
 <template name="notFound">
-  <div class="not-found jumbotron">
+  <div class="not-found page jumbotron">
     <h2>404</h2>
     <p>Sorry, we couldn't find a page at this address.</p>
   </div>
