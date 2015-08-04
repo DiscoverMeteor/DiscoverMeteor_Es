@@ -109,7 +109,7 @@ La plantilla `postItem` es bastante sencilla. Solo usa tres expresiones: `{{url}
 
 Hasta ahora hemos estado tratando con Spacebars, que es poco más que HTML con algunas etiquetas extra. A diferencia de otros lenguajes como PHP (o páginas HTML con JavaScript), Meteor mantiene las plantillas y su lógica separadas, de forma que nuestras plantillas por sí mismas no hacen casi nada.
 
-Para que una plantilla tenga vida, necesita **ayudantes**. Puedes pensar en ellos como los cocineros que toman los ingredientes (tus datos) y los preparan, antes de entregar el plato terminado (las plantillas) al camarero, que, fianlmente, los entrega.
+Para que una plantilla tenga vida, necesita **ayudantes**. Puedes pensar en ellos como los cocineros que toman los ingredientes (tus datos) y los preparan, antes de entregar el plato terminado (las plantillas) al camarero, que, finalmente, los entrega.
 
 En otras palabras, mientras la función de las plantillas es mostrar o iterar sobre variables, los ayudantes son los que hacen el trabajo pesado asignando un valor a cada variable.
 
@@ -167,7 +167,7 @@ Y si recuerdas, estamos usando el ayudante `posts` en nuestra plantilla `postsLi
 ~~~
 <%= caption "client/templates/posts/posts_list.html" %>
 
-Al definir el ayudante `posts`, conseguimos es que esté disponible para usarlo en la plantilla, así que nuestra plantilla será capaz de recorrer el array `postData` y pasar cada objeto la plantilla `postItem`.
+Al definir el ayudante `posts`, conseguimos que esté disponible para usarlo en la plantilla, así que nuestra plantilla será capaz de recorrer el array `postData` pasando la plantilla `postItem` para cada uno de sus elementos.
 
 <%= commit "3-1", "Añadimos una plantilla básica para recorrer los posts y datos estáticos." %>
 
