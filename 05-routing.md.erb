@@ -161,7 +161,7 @@ Router.configure({
 Router.route('/', {name: 'postsList'});
 ~~~
 <%= caption "lib/router.js" %>
-<%= highlight "3" %>
+<%= highlight "2,3" %>
 
 Lo que estamos diciendo aquí es que para *cualquier* ruta del sitio (ahora mismo solo tenemos una, ¡pero pronto vendrán más!), queremos suscribirnos a la subscripción `posts`.
 
@@ -274,7 +274,7 @@ Router.route('/posts/:_id', {
 });
 ~~~
 <%= caption "lib/router.js" %>
-<%= highlight "10" %>
+<%= highlight "9,10" %>
 
 De esta forma, cada vez que un usuario accede a esta ruta, encontraremos el post adecuado y lo pasaremos a la plantilla. Recuerda que `findOne` devuelve un solo post, el que coincide con la consulta, y que proporcionar solo un `id` como argumento es una abreviatura de `{_id: id}`.
 
@@ -316,7 +316,7 @@ Para una exploración con profundidad sobre los contextos de datos sugerimos [le
 
 Por último, crearemos un nuevo botón “Discuss” que enlazará a nuestra página invidual del post. De nuevo, podríamos hacer algo como `<a href="/posts/{{_id}}">`, pero es mucho más fiable utilizar un ayudante de ruta.
 
-Hemos llamado a la ruta al post `postPage`, así que podemos usar el ayudante `{{pathFor 'postpage'}}`:
+Hemos llamado a la ruta al post `postPage`, así que podemos usar el ayudante `{{pathFor 'postPage'}}`:
 
 ~~~html
 <template name="postItem">
