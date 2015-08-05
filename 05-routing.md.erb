@@ -274,7 +274,7 @@ Router.route('/posts/:_id', {
 });
 ~~~
 <%= caption "lib/router.js" %>
-<%= highlight "10" %>
+<%= highlight "9,10" %>
 
 De esta forma, cada vez que un usuario accede a esta ruta, encontraremos el post adecuado y lo pasaremos a la plantilla. Recuerda que `findOne` devuelve un solo post, el que coincide con la consulta, y que proporcionar solo un `id` como argumento es una abreviatura de `{_id: id}`.
 
