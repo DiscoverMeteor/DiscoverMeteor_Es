@@ -52,7 +52,7 @@ En tal caso, tendrás que usar callbacks `observe()` para conseguir que el mapa 
 
 Meteor nos proporciona una forma fácil de hacer todo esto: la reactividad, que, en esencia es un enfoque **declarativo**. De esta forma, podemos definir la relación entre los objetos una sola vez y podemos estar seguros de que se mantendrán siempre sincronizados, en vez de tener que especificar el comportamiento de cada uno de los posibles cambios.
 
-Este es un concepto realmente poderoso, ya que, en un sistema de tiempo real puede haber muchas entradas y todas pueden cambiar de forma impredecible. Con "declarativo", queremos decir que, cuando se renderiza HTML basado en una o varias fuentes de datos reactivos, Meteor se hace cargo de la tarea sincronizar las fuentes y, de forma trasparente, asumir el trabajo sucio de mantener la interfaz de usuario actualizada.
+Este es un concepto realmente poderoso, ya que, en un sistema de tiempo real puede haber muchas entradas y todas pueden cambiar de forma impredecible. Con "declarativo", queremos decir que, cuando se renderiza HTML basado en una o varias fuentes de datos reactivos, Meteor se hace cargo de la tarea de sincronizar las fuentes y, de forma trasparente, asumir el trabajo sucio de mantener la interfaz de usuario actualizada.
 
 Y todo esto, sólo para acabar diciendo que, en lugar de tener que pensar en callbacks tipo `observe`, Meteor nos permite escribir:
 
