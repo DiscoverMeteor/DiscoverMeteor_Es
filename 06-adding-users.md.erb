@@ -32,7 +32,7 @@ meteor add accounts-password
 
 Estos dos comandos hacen accesibles las plantillas para cuentas de forma que podemos incluirlas en nuestro sitio usando el ayudante `{{> loginButtons}}`. Un consejo muy útil: se puede controlar en qué lado aparece el desplegable de inicio de sesión con el atributo `align` (por ejemplo: `{{> loginButtons align="right"}})`.
 
-Vamos a añadir los botones a nuestra cabecera. Y puesto que la cabecera está empezando a crecer, vamos a darle más espacio en su propia plantilla (la pondremos en el `client/templates/includes/`). Estamos utilizando código y clases [como se indica en Bootstrap](http://getbootstrap.com/components/#navbar) para que todo se vea mejor:
+Vamos a añadir los botones a nuestra cabecera. Y puesto que la cabecera está empezando a crecer, vamos a darle más espacio en su propia plantilla (la pondremos en el directorio `client/templates/includes/`). Estamos utilizando código y clases [como se indica en Bootstrap](http://getbootstrap.com/components/#navbar) para que todo se vea mejor:
 
 ~~~html
 <template name="layout">
@@ -88,7 +88,7 @@ Accounts.ui.config({
 
 ### Creando nuestro primer usuario
 
-Adelante, regístrate para obtener una cuenta: el botón "Sign In" cambiará para mostrar el nombre de usuario. Esto confirma has creado una cuenta. Pero, ¿de dónde vienen los datos de la cuenta?
+Adelante, regístrate para obtener una cuenta: el botón "Sign In" cambiará para mostrar el nombre de usuario. Esto confirma que has creado una cuenta. Pero, ¿de dónde vienen los datos de la cuenta?
 
 Cuando añadimos el paquete `accounts`, Meteor crea una nueva colección, que se puede acceder desde `Meteor.users`. Para verlo, abre la consola del navegador y escribe:
 
