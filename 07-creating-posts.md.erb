@@ -6,7 +6,7 @@ number: 7
 points: 5
 photoUrl: http://www.flickr.com/photos/markezell/9688179085
 photoAuthor: Mark Ezell
-contents: Aprenderemos a enviar posts desde el la parte cliente.|Implementaremos un sencillo control de seguridad.|Restingiremos el acceso al formulario de envío.|Aprenderemos a utilizar métodos de servidor para mejorar la seguridad.
+contents: Aprenderemos a enviar posts desde el cliente.|Implementaremos un sencillo control de seguridad.|Restringiremos el acceso al formulario de envío.|Aprenderemos a utilizar métodos de servidor para mejorar la seguridad.
 paragraphs: 60
 ---
 
@@ -68,7 +68,7 @@ Con la ruta definida, ahora podemos añadir un enlace a la cabecera de nuestra p
 </template>
 ~~~
 <%= caption "client/templates/includes/header.html" %>
-<%= highlight "14~16" %>
+<%= highlight "13~15" %>
 
 Configurar una ruta implica que si un usuario navega a `/submit`, Meteor mostrará la plantilla `postSubmit`. Así que vamos a escribir esa plantilla:
 
@@ -266,7 +266,7 @@ Router.onBeforeAction('dataNotFound', {only: 'postPage'});
 Router.onBeforeAction(requireLogin, {only: 'postSubmit'});
 ~~~
 <%= caption "lib/router.js" %>
-<%= highlight "5~10" %>
+<%= highlight "5~9" %>
 
 <%= commit "7-4", "Mostrar la pantalla de carga mientras esperamos al login." %>
 
@@ -392,7 +392,7 @@ Si quieres ejecutar algún código antes de cada operación de `insert`, `update
 
 ### Evitando duplicidades
 
-Vamos a hacer una comprobación más antes de dar por bueno nuestro método. Si ya se ha tenemos un post con la misma URL, no vamos a permitir que se añada una segunda vez, por el contrario, redirijamos al usuario al post ya existente.
+Vamos a hacer una comprobación más antes de dar por bueno nuestro método. Si ya tenemos un post con la misma URL, no vamos a permitir que se añada una segunda vez, por el contrario, redirijamos al usuario al post ya existente.
 
 ~~~js
 Meteor.methods({
