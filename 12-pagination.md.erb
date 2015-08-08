@@ -327,7 +327,7 @@ A continuación, definimos una nueva función `postsLimit` que devolverá el lí
 
 A continuación, definimos nuestras funciones `waitOn` y de `data` igual que antes, excepto que ahora usan la nueva función `findOptions`.
 
-Como nuestro controlador se llama `PostsListController` y nuestra ruta se llama `postsList`, Iron Router usará el controlador automáticamente. Así que sólo necesitamos eliminar `waitOn` y `data` de la definicíon de la ruta (ya que es el controldor quien los gestiona ahora). Si necesitáramos utilizar un controlador con un nombre diferente, lo podemos hacer usando la opción `controller` (veremos un ejemplo de esto en el siguiente capítulo).
+Como nuestro controlador se llama `PostsListController` y nuestra ruta se llama `postsList`, Iron Router usará el controlador automáticamente. Así que sólo necesitamos eliminar `waitOn` y `data` de la definicíon de la ruta (ya que es el controlador quien los gestiona ahora). Si necesitáramos utilizar un controlador con un nombre diferente, lo podemos hacer usando la opción `controller` (veremos un ejemplo de esto en el siguiente capítulo).
 
 <%= commit "12-3", "postLists refactorizado en un controlador de rutas" %>
 
@@ -406,7 +406,7 @@ Todo lo que queda por hacer es añadir el botón "Load more" en la parte inferio
 </template>
 ~~~
 <%= caption "client/templates/posts/posts_list.html" %>
-<%= highlight "7~10" %>
+<%= highlight "7~9" %>
 
 Así es como se debería ver la lista ahora:
 
