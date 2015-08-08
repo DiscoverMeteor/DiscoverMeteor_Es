@@ -416,7 +416,7 @@ Así es como se debería ver la lista ahora:
 
 ### Mejorando la experiencia de usuario
 
-La paginación funciona correctamente, pero tiene una peculiaridad algo molesta: cada vez que se hace clic en "Load more" y el router pide más posts, nos envía a plantilla de la carga mientras esperamos los nuevos datos. El resultado es que cada vez, nos envía a la parte superior de la página y tenemos que desplazarnos hasta el final para reanudar la navegación.
+La paginación funciona correctamente, pero tiene una peculiaridad algo molesta: cada vez que se hace clic en "Load more" y el router pide más posts, nos envía a la plantilla de la carga mientras esperamos los nuevos datos. El resultado es que cada vez, nos envía a la parte superior de la página y tenemos que desplazarnos hasta el final para reanudar la navegación.
 
 Así que primero, tenemos que decirle a Iron Router que no espere (`waitOn`) la suscripción. En su lugar, definiremos nuestras suscripciones en el hook `subscriptions`.
 
@@ -476,7 +476,7 @@ Comprobaremos esta variable `ready` en la plantilla para mostrar un spinner al f
 </template>
 ~~~
 <%= caption "client/templates/posts/posts_list.html" %>
-<%= highlight "10~12" %>
+<%= highlight "9~12" %>
 
 <%= commit "12-5", "Añadir un spinner para hacer la pagición mas atractiva." %>
 
@@ -505,7 +505,7 @@ Meteor.publish('singlePost', function(id) {
 //...
 ~~~
 <%= caption "server/publications.js" %>
-<%= highlight "5~7" %>
+<%= highlight "5~8" %>
 
 Ahora, vamos a suscribirnos a los posts correctos en el lado del cliente. Ya estamos suscritos a la publicación `comments` en la función `waitOn` de la ruta `postPage`, por lo que simplemente podemos añadir ahí la suscripción a `singlePost`. Sin olvidarnos de añadir la suscripción a la ruta `postEdit`, que también necesita los mismos datos:
 
