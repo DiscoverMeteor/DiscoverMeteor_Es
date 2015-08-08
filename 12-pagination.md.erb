@@ -65,7 +65,7 @@ Vamos a implementar una paginación de estilo "infinito". Lo que queremos decir 
 
 Vamos a necesitar entonces una forma de pasar este parámetro al servidor para que sepa la cantidad de mensajes que debe enviar al cliente. Se da la circunstancia de que ya estamos suscritos a la publicación `posts` en el router, así que vamos a aprovecharlo y a dejar que el router maneje también la paginación.
 
-La forma más fácil de configurar esto es hacer que el parámetro límite forme de la ruta, quedando las URL de la forma `http://localhost:3000/25`. Una ventaja añadida de utilizar la URL en vez de otros métodos es que si estamos viendo 25 posts y resulta que se recarga la página por error, todavía seguiremos viendo 25 posts.
+La forma más fácil de configurar esto es hacer que el parámetro límite forme parte de la ruta, quedando las URL de la forma `http://localhost:3000/25`. Una ventaja añadida de utilizar la URL en vez de otros métodos es que si estamos viendo 25 posts y resulta que se recarga la página por error, todavía seguiremos viendo 25 posts.
 
 Para hacer esto correctamente, tenemos que cambiar la forma en que nos suscribimos a los posts. Al igual que hicimos en el capítulo _Comentarios_, tendremos que mover nuestro código de suscripción desde el nivel de router al nivel de ruta.
 
