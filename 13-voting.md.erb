@@ -111,7 +111,7 @@ if (Posts.find().count() === 0) {
 }
 ~~~
 <%= caption "server/fixtures.js" %>
-<%= highlight "22,23,49,50,60,61,72,73" %>
+<%= highlight "21~23,48~50,59~61,71~73" %>
 
 Como de costumbre, ejecutamos `meteor reset` y creamos una nueva cuenta de usuario. Ahora nos aseguraremos que inicializamos las dos nuevas propiedades cuando se crean los posts:
 
@@ -145,7 +145,7 @@ return {
 //...
 ~~~
 <%= caption "collections/posts.js" %>
-<%= highlight "17~18" %>
+<%= highlight "16~18" %>
 
 ### Plantillas de voto
 
@@ -219,7 +219,7 @@ Meteor.methods({
 //...
 ~~~
 <%= caption "lib/collections/posts.js" %>
-<%= highlight "8~25" %>
+<%= highlight "6,8~25" %>
 
 <%= commit "13-1", "Algoritmo básico de voto." %>
 
