@@ -109,7 +109,7 @@ Router.configure({
 
 Ten en cuenta que para que se carguen los nuevos datos de prueba, es necesario ejecutar `meteor reset`. Después de la restauración, ¡no olvides crear una nueva cuenta y volver a entrar!
 
-En primer lugar, hemos creado un par de usuarios (inventados), insertándolos en la base de datos y el usando `ids` para seleccionarlos después en la base de datos. Luego añadimos un comentario de cada usuario al primer post, enlazando el comentario al post (con `postId`), y el usuario (con userId). Además, añadimos la fecha y el cuerpo de cada comentario, junto un campo denormalizado denominado `author`.
+En primer lugar, hemos creado un par de usuarios (inventados), insertándolos en la base de datos y usando los `ids` para seleccionarlos después en la base de datos. Luego añadimos un comentario de cada usuario al primer post, enlazando el comentario al post (con `postId`), y el usuario (con `userId`). Además, añadimos la fecha y el cuerpo de cada comentario, junto un campo denormalizado denominado `author`.
 
 Además, hemos extendido nuestro router para que espere a un array que contiene las dos colecciones, comentarios y posts.
 
@@ -121,7 +121,6 @@ Está bien tener comentarios en la base de datos, pero habrá que mostrarlos en 
 <template name="postPage">
   <div class="post-page page">
     {{> postItem}}
-
     <ul class="comments">
       {{#each comments}}
         {{> commentItem}}
@@ -131,7 +130,7 @@ Está bien tener comentarios en la base de datos, pero habrá que mostrarlos en 
 </template>
 ~~~
 <%= caption "client/templates/posts/post_page.html" %>
-<%= highlight "3~7" %>
+<%= highlight "4~8" %>
 
 ~~~js
 Template.postPage.helpers({
@@ -141,7 +140,6 @@ Template.postPage.helpers({
 });
 ~~~
 <%= caption "client/templates/posts/post_page.js" %>
-<%= highlight "2~4" %>
 
 Ponemos el bloque `{{#each comments}}` dentro de la plantilla del post, por lo que `this` es un post para el ayudante `comments`. Para encontrar los comentarios adecuados, buscamos los que están vinculados a ese post a través de `postId`.
 
@@ -227,13 +225,11 @@ Empezaremos añadiendo un área de envío en la parte inferior de cada post:
 <template name="postPage">
   <div class="post-page page">
     {{> postItem}}
-
     <ul class="comments">
       {{#each comments}}
         {{> commentItem}}
       {{/each}}
     </ul>
-
     {{#if currentUser}}
       {{> commentSubmit}}
     {{else}}
@@ -243,7 +239,7 @@ Empezaremos añadiendo un área de envío en la parte inferior de cada post:
 </template>
 ~~~
 <%= caption "client/templates/posts/post_page.html" %>
-<%= highlight "10~14" %>
+<%= highlight "9~13" %>
 
 Y a continuación, crear la plantilla del formulario para los comentarios:
 
@@ -370,7 +366,7 @@ Router.configure({
 });
 ~~~
 <%= caption "lib/router.js" %>
-<%= highlight "5" %>
+<%= highlight "6" %>
 
 Y añadiremos una nueva función `waitOn` a nivel de *ruta* en la ruta `postPage`:
 
