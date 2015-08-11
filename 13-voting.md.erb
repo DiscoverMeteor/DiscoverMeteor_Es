@@ -111,7 +111,7 @@ if (Posts.find().count() === 0) {
 }
 ~~~
 <%= caption "server/fixtures.js" %>
-<%= highlight "22,23,49,50,60,61,72,73" %>
+<%= highlight "21~23,48~50,59~61,71~73" %>
 
 Como de costumbre, ejecutamos `meteor reset` y creamos una nueva cuenta de usuario. Ahora nos aseguraremos que inicializamos las dos nuevas propiedades cuando se crean los posts:
 
@@ -145,7 +145,7 @@ return {
 //...
 ~~~
 <%= caption "collections/posts.js" %>
-<%= highlight "17~18" %>
+<%= highlight "16~18" %>
 
 ### Plantillas de voto
 
@@ -219,7 +219,7 @@ Meteor.methods({
 //...
 ~~~
 <%= caption "lib/collections/posts.js" %>
-<%= highlight "8~25" %>
+<%= highlight "6,8~25" %>
 
 <%= commit "13-1", "Algoritmo básico de voto." %>
 
@@ -269,7 +269,7 @@ Template.postItem.events({
 });
 ~~~
 <%= caption "client/templates/posts/post_item.js" %>
-<%= highlight "8~15, 19" %>
+<%= highlight "7~14, 19" %>
 
 Creamos el ayudante `upvotedClass` para cambiar la clase `.upvote` por `.upvotable`, así que no podemos olvidar hacerlo también en el controlador de eventos. `client/views/posts/post_item.js`:
 
@@ -455,7 +455,7 @@ Router.route('/best/:postsLimit?', {name: 'bestPosts'});
 
 Ten en cuenta que ahora que tenemos más de una ruta, sacamos la lógica para `nextPath` de `PostsListController` y la ponemos en `NewPostsController` y `BestPostsController`, ya que el path será diferente en uno y otro caso.
 
-Además, cuando ordenemos por votos, establecemos un segundo orden por fecha y por `_id` para garantizar que el orden está completamente especificado.
+Además, cuando ordenamos por votos, establecemos un segundo orden por fecha y por `_id` para garantizar que el orden está completamente especificado.
 
 Una vez listos los nuevos controladores podemos deshacernos de la ruta anterior a `postsList`. Simplemente eliminamos el siguiente código:
 
@@ -531,7 +531,7 @@ Con todo listo, ahora obtenemos lista de posts mejorada:
 
 ### Mejorando la cabecera
 
-Ahora que tenemos dos listas, puede resultar difícil saber cuál de ellas estamos viendo. Así que vamos a revisar nuestra cabecera para que sea más evidente. Vamos a crear el gestor `header.js` y una ayudante auxiliar que use la ruta actual y una o más rutas con nombre para activar una clase en nuestros elementos de navegación:
+Ahora que tenemos dos listas, puede resultar difícil saber cuál de ellas estamos viendo. Así que vamos a revisar nuestra cabecera para que sea más evidente. Vamos a crear el gestor `header.js` y un ayudante auxiliar que use la ruta actual y una o más rutas con nombre para activar una clase en nuestros elementos de navegación:
 
 La razón por la que queremos permitir varias rutas es que tanto la ruta `home` como la ruta `newPosts` (que se corresponden con las nuevas URLs `/` y `/new`) devuelven la misma plantilla, lo que significa que nuestro `activeRouteClass` debe ser lo suficientemente inteligente como para activar la etiqueta `<li>` en ambos casos.
 
@@ -572,7 +572,7 @@ La razón por la que queremos permitir varias rutas es que tanto la ruta `home` 
 </template>
 ~~~
 <%= caption "client/templates/includes/header.html" %>
-<%= highlight "15,18,22" %>
+<%= highlight "14,17,21" %>
 
 ~~~js
 Template.header.helpers({
