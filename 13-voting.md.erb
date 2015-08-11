@@ -455,7 +455,7 @@ Router.route('/best/:postsLimit?', {name: 'bestPosts'});
 
 Ten en cuenta que ahora que tenemos más de una ruta, sacamos la lógica para `nextPath` de `PostsListController` y la ponemos en `NewPostsController` y `BestPostsController`, ya que el path será diferente en uno y otro caso.
 
-Además, cuando ordenemos por votos, establecemos un segundo orden por fecha y por `_id` para garantizar que el orden está completamente especificado.
+Además, cuando ordenamos por votos, establecemos un segundo orden por fecha y por `_id` para garantizar que el orden está completamente especificado.
 
 Una vez listos los nuevos controladores podemos deshacernos de la ruta anterior a `postsList`. Simplemente eliminamos el siguiente código:
 
@@ -505,7 +505,7 @@ Vamos a añadir los enlaces en la cabecera:
 </template>
 ~~~
 <%= caption "client/templates/includes/header.html" %>
-<%= highlight "10, 14~19" %>
+<%= highlight "11, 15~20" %>
 
 Finalmente, también necesitamos actualizar el controlador de eventos para borrar posts:
 
@@ -531,7 +531,7 @@ Con todo listo, ahora obtenemos lista de posts mejorada:
 
 ### Mejorando la cabecera
 
-Ahora que tenemos dos listas, puede resultar difícil saber cuál de ellas estamos viendo. Así que vamos a revisar nuestra cabecera para que sea más evidente. Vamos a crear el gestor `header.js` y una ayudante auxiliar que use la ruta actual y una o más rutas con nombre para activar una clase en nuestros elementos de navegación:
+Ahora que tenemos dos listas, puede resultar difícil saber cuál de ellas estamos viendo. Así que vamos a revisar nuestra cabecera para que sea más evidente. Vamos a crear el gestor `header.js` y un ayudante auxiliar que use la ruta actual y una o más rutas con nombre para activar una clase en nuestros elementos de navegación:
 
 La razón por la que queremos permitir varias rutas es que tanto la ruta `home` como la ruta `newPosts` (que se corresponden con las nuevas URLs `/` y `/new`) devuelven la misma plantilla, lo que significa que nuestro `activeRouteClass` debe ser lo suficientemente inteligente como para activar la etiqueta `<li>` en ambos casos.
 
