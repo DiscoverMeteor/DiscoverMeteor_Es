@@ -37,7 +37,7 @@ Si tienes experiencia con Mongo, podrás haberte sorprendido al ver que hemos cr
 
 Resulta que muchas de las herramientas que Meteor nos da, trabajan mucho mejor operando a un nivel de colección. Por ejemplo:
 
-1. El ayudante `{{#each}}` es muy eficiente cuando itera sobre un cursor (el resultado de `collection.find()`). Pero no lo hace cuando itera sobre un array de objetos dentro un documento más grande.
+1. El ayudante `{{#each}}` es muy eficiente cuando itera sobre un cursor (el resultado de `collection.find()`). Pero no lo es cuando itera sobre un array de objetos dentro un documento más grande.
 2. `allow` y `deny` operan a nivel de documento, por consiguiente, facilita la tarea de asegurarse que cualquier modificación de un comentario individual es correcta. Esto sería mucho más complejo si operara a nivel de post.
 3. DDP opera a nivel de los atributos "top-level" de un documento. Esto significa que si `comments` fuese una propiedad de un `post`, cada vez que un comentario fuese creado en un post, el servidor debería enviar toda la lista de comentarios actualizada para ese post a cada uno de los clientes conectados.
 4. Publicaciones y suscripciones son mucho más fáciles de controlar a nivel de documentos. Por ejemplo, si quisiéramos paginar comentarios en un post sería muy difícil a menos que los comentarios estuviesen en su propia colección.

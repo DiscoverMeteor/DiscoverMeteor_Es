@@ -160,7 +160,7 @@ Ahora podemos seguir y añadir una lista de notificaciones a nuestra cabecera:
 </template>
 ~~~
 <%= caption "client/templates/includes/header.html" %>
-<%= highlight "15~22" %>
+<%= highlight "14~21" %>
 
 Y crear las plantillas `notifications` y `notificationItem` (que pondremos en el archivo `notifications.html`):
 
@@ -258,6 +258,7 @@ Meteor.publish('notifications', function() {
 });
 ~~~
 <%= caption "server/publications.js" %>
+<%= highlight "2" %>
 
 <%= commit "11-3", "Sincronizar solo las notificaciones relevantes al usuario." %>
 

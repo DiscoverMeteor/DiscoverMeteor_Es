@@ -6,7 +6,7 @@ number: 9
 points: 10
 photoUrl: http://www.flickr.com/photos/ikewinski/9413892879/
 photoAuthor: Mike Lewinski
-contents: Crearemos un mecanismo mejorado para mostrar errores y mensajes.|Implementaremos validaciones mas estrictas|Mostraremos errores en línea para los formularios.
+contents: Crearemos un mecanismo mejorado para mostrar errores y mensajes.|Implementaremos validaciones más estrictas|Mostraremos errores en línea para los formularios.
 paragraphs: 31
 ---
 
@@ -20,7 +20,7 @@ Vamos a implementar un simple sistema que muestre los nuevos errores en la parte
 
 Para empezar, crearemos una colección para almacenar nuestros errores. Puesto que los errores solo son relevantes en la sesión actual y no necesitan ser persistentes, haremos algo nuevo, vamos a crear una *colección local*. Es decir, la colección `Errors` solo existirá *en el navegador*, y no se sincronizará con el servidor.
 
-Para conseguirlo, creamos la colección dentro del directorio `client` (para hacer la hacer que sólo esté disponible en la parte cliente), con el nombre de la colección establecido a `null` (ya que esta los datos nunca se almacenarán en la base de datos del servidor):
+Para conseguirlo, creamos la colección dentro del directorio `client` (para hacer que sólo esté disponible en la parte cliente), con el nombre de la colección establecido a `null` (ya que los datos nunca se almacenarán en la base de datos del servidor):
 
 ~~~js
 // Local (client-only) collection
@@ -527,7 +527,7 @@ Template.postEdit.events({
 });
 ~~~
 <%= caption "client/templates/posts/post_edit.js" %>
-<%= highlight "1~12,25~27,32" %>
+<%= highlight "1~12,25~27" %>
 
 Tal y como hicimos en el formulario de envío de posts, queremos validar nuestros posts en el servidor. Excepto que recordarás que no estamos usando un método para editar los posts, si no una llamada `update` directamente desde el lado cliente.
 
