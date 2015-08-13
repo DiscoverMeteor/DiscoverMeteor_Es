@@ -57,7 +57,7 @@ Para intercambiar los elementos A y B (situados en las posiciones p1 y p2, respe
 
 El siguiente diagrama explica estos pasos con más detalle:
 
-<%= diagram "animation_diagram", "Intercambiendo dos posts", "pull-center" %>
+<%= diagram "animation_diagram", "Intercambiando dos posts", "pull-center" %>
 
 De nuevo, en los pasos 3 y 4 no estamos *animando* A y B' hasta sus posiciones sino que las "teletransportamos" allí al instante. Dado que el cambio es instantáneo, parecerá que B no se ha borrado, pero ya tenemos posicionados correctamente los elementos para que puedan ser animados hasta su nueva posición.
 
@@ -93,7 +93,7 @@ Esto significa que nuestro único problema es averiguar desde dónde animar los 
 
 ### implementando los _uihooks`
 
-Ahora que entendemos los diferentes factores entran en juego en la animación de una lista de elementos, estamos listos para empezar a aplicar la animación. Lo primero que necesitaremos para envolver nuestra lista de posts en un nuevo contenedor `.wrapper`:
+Ahora que entendemos los diferentes factores que entran en juego en la animación de una lista de elementos, estamos listos para empezar a aplicar la animación. Lo primero que necesitaremos para envolver nuestra lista de posts en un nuevo contenedor `.wrapper`:
 
 ```html
 <template name="postsList">
@@ -103,7 +103,7 @@ Ahora que entendemos los diferentes factores entran en juego en la animación de
         {{> postItem}}
       {{/each}}
     </div>
-    
+
     {{#if nextPath}}
       <a class="load-more" href="{{nextPath}}">Load more</a>
     {{else}}
@@ -121,7 +121,7 @@ Antes de continuar, vamos a revisar cuál es el comportamiento actual *sin* anim
 
 <%= gifscreenshot "14-1", "La lista de posts no-animada." %>
 
-Vamos a por los `_uihooks`. Dentro del callback `onRendered` de la plantilla, seleccionamos el div `.wrapper` , y definimos la acción `moveElement`. 
+Vamos a por los `_uihooks`. Dentro del callback `onRendered` de la plantilla, seleccionamos el div `.wrapper` , y definimos la acción `moveElement`.
 
 ```js
 Template.postsList.onRendered(function () {
@@ -145,28 +145,28 @@ Hemos comprobado que los `_uihooks` funcionan. ¡Ahora vamos a hacer que animen 
 
 ### Animando los posts a través del reordenamiento
 
-La acción `moveElement` toma dos argumentos: `node` y `next`. 
+La acción `moveElement` toma dos argumentos: `node` y `next`.
 
-- `node` es el elemento que se está moviendo a una nueva posición en el DOM. 
+- `node` es el elemento que se está moviendo a una nueva posición en el DOM.
 - `next` es el elemento que hay justo *después* de la nueva posición a la que estamos moviendo `node`.
 
 Sabiendo esto, podemos definir el proceso de animación (si necesitas refrescar la memoria, no dudes en volver al ejemplo del "Corredor Ruso"). Cuando detectamos un nuevo cambio en la posición de un elemento, tendremos que hacer lo siguiente:
 
 1. Insertar `node` antes de `next` (en otras palabras, establecer el comportamieento por defecto, como si no hubiéramos definido la acción `moveElement`).
 2. Mover `node` a su posición original.
-3. MOveremos todos los elementos que hay entre `node` y `next` para hacer sitio a `node`.
+3. Moveremos todos los elementos que hay entre `node` y `next` para hacer sitio a `node`.
 4. Animaremos todos los elementos hasta su posición original.
 
-Para hacer todos esto usaremos la magia de [jQuery](http://jquery.com), de lejos, la mejor librería de manipulación del DOM que existe. jQuery está fuera del alcance de este libro, pero vamos a ver rápidamente los métodos que vamos a usar:
+Para hacer todo esto usaremos la magia de [jQuery](http://jquery.com), de lejos, la mejor librería de manipulación del DOM que existe. jQuery está fuera del alcance de este libro, pero vamos a ver rápidamente los métodos que vamos a usar:
 
 - Con [`$()`](http://api.jquery.com/jQuery/) convertimos cualquier elemento del DOM en un objeto jQuery.
 - [`offset()`](http://api.jquery.com/offset/) recupera la posición de un elemento en relación *al documento*, y devuelve un objeto que contiene las propiedades `top` y `left`.
 - Con [`outerHeight()`](http://api.jquery.com/outerHeight/) obtenemos la altura “exterior” (incluyendo el padding y, opcionalmente, el margin) de un elemento.
 - Con [`nextUntil(selector)`](http://api.jquery.com/nextUntil/) obtenemos todos los elementos que hay después del elemento seleccionado con el `selector`, excepto éste último.
-- Con [`insertBefore(selector)`](http://api.jquery.com/insertBefore/) insertamos un elemento antes del que seleccionamos con el `selector`. 
+- Con [`insertBefore(selector)`](http://api.jquery.com/insertBefore/) insertamos un elemento antes del que seleccionamos con el `selector`.
 - Con [`removeClass(class)`](http://api.jquery.com/removeClass/) eliminamos la clase CSS `class`, si está presente en el elemento.
-- Con [`css(propertyName, propertyValue)`](http://api.jquery.com/css/) establecemos el valor `propertyValue` para la la propiedad `propertyName`.
-- Con [`height()`](http://api.jquery.com/height/) obtenemos la altura de un elemento. 
+- Con [`css(propertyName, propertyValue)`](http://api.jquery.com/css/) establecemos el valor `propertyValue` para la propiedad `propertyName`.
+- Con [`height()`](http://api.jquery.com/height/) obtenemos la altura de un elemento.
 - Con [`addClass(class)`](http://api.jquery.com/addClass/) añadimos la clase `class` a un elemento.
 
 ```js
@@ -176,32 +176,32 @@ Template.postsList.onRendered(function () {
       var $node = $(node), $next = $(next);
       var oldTop = $node.offset().top;
       var height = $node.outerHeight(true);
-      
+
       // find all the elements between next and node
       var $inBetween = $next.nextUntil(node);
       if ($inBetween.length === 0)
         $inBetween = $node.nextUntil(next);
-      
+
       // now put node in place
       $node.insertBefore(next);
-      
+
       // measure new top
       var newTop = $node.offset().top;
-      
+
       // move node *back* to where it was before
       $node
         .removeClass('animate')
         .css('top', oldTop - newTop);
-      
+
       // push every other element down (or up) to put them back
       $inBetween
         .removeClass('animate')
         .css('top', oldTop < newTop ? height : -1 * height)
-        
-      
+
+
       // force a redraw
       $node.offset();
-      
+
       // reset everything to 0, animated
       $node.addClass('animate').css('top', 0);
       $inBetween.addClass('animate').css('top', 0);
@@ -210,19 +210,19 @@ Template.postsList.onRendered(function () {
 });
 ```
 <%= caption "client/templates/posts/posts_list.js" %>
-
+<%= highlight "4~35" %>
 Algunas notas:
 
 - Calculamos la altura de `$node` para saber cuánto debemos mover los elementos `$inBetween`. Y usamos `outerHeight(true)` para incluir margen y padding en el cálculo.
 - No sabemos si `next` va antes o después de `node` así que comprobamos las dos configuraciones cuando definimos `$inBetween`.
-- Para cambiar los elementos de “teletransportados” a “animados”, simplemente añadimos o quitamos la clase `animate` (la animación definida en el código CSS de la aplicación). 
-- Dado que usamos posicionamiento relativo, siempre podemos poner a 0 la propiedad `top` del elemento para devolverlo a la posición dónde se supone que tiene que ir. 
+- Para cambiar los elementos de “teletransportados” a “animados”, simplemente añadimos o quitamos la clase `animate` (la animación definida en el código CSS de la aplicación).
+- Dado que usamos posicionamiento relativo, siempre podemos poner a 0 la propiedad `top` del elemento para devolverlo a la posición dónde se supone que tiene que ir.
 
 <% note do %>
 
 ### Forzando el redibujado
 
-Te estarás preguntando para qué es la línea `$node.offset()`. ¿Para qué obtenemos la posición de `$node` is no vamos a hacer nada con ella?
+Te estarás preguntando para qué es la línea `$node.offset()`. ¿Para qué obtenemos la posición de `$node` si no vamos a hacer nada con ella?
 
 Míralo así: si le dices a un robot muy inteligente que se mueva al norte 5 kilómetros, y luego al sur otros 5, probablemente sabrá deducir que va a terminar en el mismo sitio, y que puede ahorrar energía y hacer bien el trabajo sin moverse.
 
@@ -242,7 +242,7 @@ Vamos a probar de nuevo. Volvamos a la vista “Best” y votemos unos posts: ¡
 
 ### Aparecer y desaparecer
 
-Ahora que ya tenemos resuelta la, más complicada reordenación, animar las inserciones y eliminaciones va ser muy sencillo.
+Ahora que ya tenemos resuelta la reordenación más complicada, animar las inserciones y eliminaciones va ser muy sencillo.
 
 Primero, haremos aparecer nuevos posts (esta vez, por simplicidad, usaremos animaciones JavaScript):
 
@@ -262,7 +262,7 @@ Template.postsList.onRendered(function () {
 });
 ```
 <%= caption "client/templates/posts/posts_list.js" %>
-<%= highlight "3~7" %>
+<%= highlight "3~8" %>
 
 Para ver el resultado, podemos probar a insertar un post vía consola:
 
@@ -295,7 +295,7 @@ Template.postsList.onRendered(function () {
 });
 ```
 <%= caption "client/templates/posts/posts_list.js" %>
-<%= highlight "12~16" %>
+<%= highlight "11~15" %>
 
 De nuevo, para ver el efecto, prueba a eliminar algún post desde la consola (`Posts.remove('algunPostId')`).
 
@@ -309,7 +309,7 @@ Hemos creado animaciones para elementos *dentro* de una página. Pero, ¿qué pa
 
 Las transiciones entre páginas son trabajo del Iron Router. Haces click en un enlace y se reemplaza el contenido del ayudante `{{> yield}}` en `layout.html`
 
-Ocurre que, como cuando reemplazamos el comportamiento de Blaze para la lista de posts, ¡podemos hacer los mismo para el elemento `{{> yield}}` y añadirle un efecto de transición entre rutas!
+Ocurre que, como cuando reemplazamos el comportamiento de Blaze para la lista de posts, ¡podemos hacer lo mismo para el elemento `{{> yield}}` y añadirle un efecto de transición entre rutas!
 
 Si queremos animar la entrada y salida entre dos páginas, debemos asegurarnos de que se muestran una por encima de la otra. Lo hacemos usando la propiedad `position:absolute` en el contenedor `.page` que envuelve a todas las plantillas de páginas.
 
@@ -333,7 +333,7 @@ Para ahorrar tiempo, hemos añadido el código necesario a `style.css`:
 ```
 <%= caption "client/stylesheets/style.css" %>
 
-Es el momento de añadir el código para la transiciones entre páginas. Nos debe resultar familiar, puesto que es exactamente el mismo que para las inserciones y eliminaciones de posts:
+Es el momento de añadir el código para las transiciones entre páginas. Nos debe resultar familiar, puesto que es exactamente el mismo que para las inserciones y eliminaciones de posts:
 
 ```js
 Template.layout.onRendered(function() {

@@ -88,7 +88,7 @@ Cada suscripción ofrece diferentes argumentos para esa publicación, pero funda
 
 Puedes incluso suscribirte dos veces a la misma publicación con *¡los mismos argumentos!* Es difícil pensar en escenarios donde esto sea de utilidad, ¡pero esta flexibilidad puede que sea útil algún día!
 
-### Múltiples Colecciones sobre una Única Suscripcíon
+### Múltiples Colecciones sobre una Única Suscripción
 
 A diferencia de las bases de datos relacionales tradicionales como MySQL que hacen uso de _joins_ , las bases de datos NoSQL como Mongo se basan en la _denormalización_ e _incrustación_. Vamos a ver cómo funciona en el contexto de Meteor.
 
@@ -96,13 +96,13 @@ Veamos un ejemplo concreto. Hemos añadido comentarios a nuestros posts, y hasta
 
 Sin embargo, supongamos que queremos mostrar _todos_ los comentarios en los posts en la página principal (teniendo en cuenta que estos posts van a cambiar a medida que paginamos a través de ellos). Este caso de uso presenta una buena razón para insertar comentarios en los posts, y de hecho es lo que nos empuja a desnormalizar la _colección_ de comentarios.
 
-Por supuesto que siempre se puede insertar comentarios en los posts, deshacerse de la colección de `comments` por completo. Pero, como hemos visto anteriormente en el capítulo _Desnormalización_, al hacerlo estaríamos perdiendo algunos beneficios adicionales de trabajar con colecciones separadas.
+Por supuesto que siempre se pueden insertar los comentarios en los posts, deshaciéndonos de la colección de `comments` por completo. Pero, como hemos visto anteriormente en el capítulo _Desnormalización_, al hacerlo estaríamos perdiendo algunos beneficios adicionales de trabajar con colecciones separadas.
 
-Pero resulta que hay un truco que que hace posible embeber nuestros comentarios, preservando colecciones separadas.
+Pero resulta que hay un truco que hace posible embeber nuestros comentarios, preservando colecciones separadas.
 
 Supongamos que, junto con la lista de la página principal de posts, queremos suscribirnos a una lista de los mejores 2 comentarios para cada uno de ellos.
 
-Sería difícil de lograr esto con una publicación de comentarios independiente, sobre todo si la relación de posts se limita de alguna manera (por ejemplo, los 10 más recientes). Tendríamos que crear una publicación que se parecía algo como esto:
+Lograr esto con una publicación de comentarios independiente sería difícil, sobre todo si la relación de posts se limita de alguna manera (por ejemplo, los 10 más recientes). Tendríamos que crear una publicación que se pareciera a algo como esto:
 
 <%= diagram "multiplecollections", "Two collections in one subscription", "pull-center" %>
 
@@ -155,7 +155,7 @@ Tengamos en cuenta que no estamos devolviendo nada en esta publicación, le envi
 
 Ahora, cada vez que publiquemos un post también publicaremos automáticamente los dos primeros comentarios adjuntos. ¡Y todo con una sola llamada a una suscripción!
 
-Aunque Meteor no hace este enfoque muy sencillo aún, también se puede utilizar el paquete `publish-with-relations` de Atmosphere, cuyo objetivo es que este patrón sea más fácil de usar.
+Aunque Meteor aún no hace este enfoque muy sencillo, también se puede utilizar el paquete `publish-with-relations` de Atmosphere, cuyo objetivo es hacer que este patrón sea más fácil de usar.
 
 ### Enlazando colecciones diferentes
 
