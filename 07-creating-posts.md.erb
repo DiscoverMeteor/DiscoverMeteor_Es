@@ -241,7 +241,7 @@ Lo bueno de las acciones del router es que son *reactivas*. Esto significa que n
 
 Iniciemos sesión, y vayamos a la página para crear un nuevo post. Ahora actualizar la página en el navegador. Veremos que, por un instante, se ve la plantilla `accessDenied` antes de que aparezca el formulario. Esto es porque Meteor empieza a mostrar las plantillas tan pronto como sea posible, antes de haber hablado con el servidor y comprobado si el usuario existe.
 
-Para evitar este problema (que es uno de los más comunes que nos podemos encontrar cuando tratamos de lidiar con la latencia entre el cliente y el servidor), solo mostraremos una pantalla de espera durante instante en el que esperamos para ver si el usuario tiene acceso o no.
+Para evitar este problema (que es uno de los más comunes que nos podemos encontrar cuando tratamos de lidiar con la latencia entre el cliente y el servidor), solo mostraremos una pantalla de espera durante un instante en el que esperamos para ver si el usuario tiene acceso o no.
 
 Después de todo en este momento no sabemos si el usuario tiene acceso y no podemos mostrar ninguna de las plantillas, ya sea la de `accessDenied` o la de `postSubmit` hasta que lo sepamos.
 
