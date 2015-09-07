@@ -109,7 +109,7 @@ Router.configure({
 
 Ten en cuenta que para que se carguen los nuevos datos de prueba, es necesario ejecutar `meteor reset`. Después de la restauración, ¡no olvides crear una nueva cuenta y volver a entrar!
 
-En primer lugar, hemos creado un par de usuarios (inventados), insertándolos en la base de datos y usando los `ids` para seleccionarlos después en la base de datos. Luego añadimos un comentario de cada usuario al primer post, enlazando el comentario al post (con `postId`), y el usuario (con `userId`). Además, añadimos la fecha y el cuerpo de cada comentario, junto un campo denormalizado denominado `author`.
+En primer lugar, hemos creado un par de usuarios (inventados), insertándolos en la base de datos y usando los `ids` para seleccionarlos después en la base de datos. Luego añadimos un comentario de cada usuario al primer post, enlazando el comentario al post (con `postId`), y el usuario (con `userId`). Además, añadimos la fecha y el cuerpo de cada comentario, junto un campo desnormalizado denominado `author`.
 
 Además, hemos extendido nuestro router para que espere a un array que contiene las dos colecciones, comentarios y posts.
 
@@ -411,7 +411,7 @@ Solo hay un problema: cuando volvemos a la página principal, todos nuestros men
 
 La razón de que esto ocurra está bien clara: solo cargaremos comentarios en la ruta `postPage`, así que cuando llamamos a `Comments.find({postId: this._id})` en nuestro ayudante `commentsCount` del gestor `client/views/posts/post_item.js`, Meteor no encuentra los datos necesarios en el lado del cliente para devolver un resultado.
 
-La mejor manera de resolver esto es _denormalizar_ el número de comentarios dentro del post (si no sabes lo que significa denormalizar, no te preocupes, lo veremos en [el próximo capítulo](/chapter/denormalization)). Aunque, como veremos, hay que añadir un poco de complejidad a nuestro código, a cambio, mejoramos la velocidad al no tener que publicar todos los comentarios de la base de datos solo para contarlos.
+La mejor manera de resolver esto es _desnormalizar_ el número de comentarios dentro del post (si no sabes lo que significa desnormalizar, no te preocupes, lo veremos en [el próximo capítulo](/chapter/denormalization)). Aunque, como veremos, hay que añadir un poco de complejidad a nuestro código, a cambio, mejoramos la velocidad al no tener que publicar todos los comentarios de la base de datos solo para contarlos.
 
 Lo conseguiremos añadiendo una propiedad `commentsCount` a la estructura de datos del post (y restableceremos Meteor con `meteor reset` - no olvides volver a crear una cuenta de usuario):
 
@@ -521,6 +521,6 @@ return Comments.insert(comment);
 
 Finalmente, tenemos que eliminar el ayudante `commentsCount` de `client/templates/posts/post_item.js`, ya que el campo está disponible directamente en el post.
 
-<%= commit "10-5", "Denormalizando el número de comentarios." %>
+<%= commit "10-5", "Desnormalizando el número de comentarios." %>
 
 Ahora que los usuarios pueden hablar entre sí, sería una lástima que se perdieran los nuevos comentarios de otros usuarios. En el siguiente capítulo veremos cómo implementar ¡notificaciones!
