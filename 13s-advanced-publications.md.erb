@@ -16,13 +16,13 @@ A estas alturas ya deberías conocer bastante bien cómo interactúan las suscri
 
 ### Publicar una Colección Varias Veces
 
-En [la primera sidebar](/chapter/publications-and-subscriptions/), vimos algunos de los patrones más comunes de publicación y suscripción, y aprendimos cómo la función `_publishCursor` las hace muy fáciles de usar en nuestras aplicaciones.
+En [la primera sidebar](/chapters/publications-and-subscriptions/), vimos algunos de los patrones más comunes de publicación y suscripción, y aprendimos cómo la función `_publishCursor` las hace muy fáciles de usar en nuestras aplicaciones.
 
 Primero, vamos a recapitular exactamente qué hace por nosotros la función `_publishCursor`: lo que hace es tomar todos los documentos que coinciden con un cursor dado, y los envía a la colección del cliente *del mismo nombre*. Ten en cuenta que el nombre de la _publicación_ no está involucrado.
 
 Esto significa que podemos tener _más de una publicación_ de cualquier colección, que enlaza al cliente y al servidor
 
-Ya hemos encontrado este patrón en el [capítulo paginación](/chapter/pagination/), cuando publicamos un subconjunto paginado de todos los posts, además del post actual.
+Ya hemos encontrado este patrón en el [capítulo paginación](/chapters/pagination/), cuando publicamos un subconjunto paginado de todos los posts, además del post actual.
 
 Otro caso de uso similar es publicar una *overview* de un gran conjunto de documentos, así como también los detalles completos de un único ítem:
 
