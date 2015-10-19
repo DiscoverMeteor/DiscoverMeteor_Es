@@ -109,11 +109,14 @@ Otra cosa que debemos hacer son algunos pequeños cambios en el código de la ap
 <%= caption "client/templates/application/layout.html" %>
 
 ~~~js
-Meteor.call('postInsert', post, function(error, id) {
+Meteor.call('postInsert', post, function(error, result) {
   if (error) {
     // display the error to the user
     Errors.throw(error.reason);
-
+  
+  // show this result but route anyway
+  if (result.postExists)
+    Errors.throw('This link has already been posted');
 ~~~
 <%= caption "client/templates/posts/post_submit.js" %>
 
@@ -123,9 +126,6 @@ Posts.update(currentPostId, {$set: postProperties}, function(error) {
     // display the error to the user
     Errors.throw(error.reason);
     
-  // show this result but route anyway
-  if (result.postExists)
-    Errors.throw('This link has already been posted');
 ~~~
 <%= caption "client/templates/posts/post_edit.js" %>
 <%= highlight "4,8" %>
